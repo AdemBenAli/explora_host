@@ -8,9 +8,12 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY . .
+COPY composer.json composer.lock ./
 
 RUN composer install --optimize-autoloader --no-scripts --no-interaction --no-dev
+
+COPY . .
+
 ENV APP_ENV=prod
 
 RUN php bin/console cache:clear --env=prod || true
