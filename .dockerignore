@@ -1,0 +1,10 @@
+.git
+.github
+.gitignore
+.env
+.env.*
+var/cache/
+var/log/
+var/sessions/
+vendor/
+node_modules/
