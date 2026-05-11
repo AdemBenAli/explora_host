@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Voyages</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #1a3a5c;
+            text-align: center;
+            border-bottom: 2px solid #f7941d;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #1a3a5c;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+        .price {
+            font-weight: bold;
+            color: #f7941d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Catalogue des Voyages - Explora</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Destination</th>
+                <th>Date de début</th>
+                <th>Durée</th>
+                <th>Prix Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for voyage in voyages %}
+            <tr>
+                <td>{{ voyage.titre }}</td>
+                <td>{{ voyage.destination }}</td>
+                <td>{{ voyage.dateDebut ? voyage.dateDebut|date('d/m/Y') : 'N/A' }}</td>
+                <td>{{ voyage.dureeJours }} jours</td>
+                <td class="price">{{ voyage.budgetTotal|number_format(2, ',', ' ') }} &euro;</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center;">Aucun voyage disponible.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Document généré le {{ 'now'|date('d/m/Y à H:i') }} par Explora_Web.</p>
+    </div>
+</body>
+</html>

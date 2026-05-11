@@ -1,0 +1,248 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'flight_map.title'|trans }} - Explora{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --navy: #1a3a5c;
+    --navy-mid: #2d5a8a;
+    --orange: #f7941d;
+    --bg: #f4f7f9;
+    --card: #ffffff;
+    --text: #2c3e50;
+    --gray: #cfd8e3;
+    --emerald: #10b981;
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; }
+  
+  .fm-wrap { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
+  
+  .fm-back { 
+    display: inline-flex; align-items: center; gap: 8px; 
+    margin-bottom: 20px; color: var(--navy); text-decoration: none; 
+    font-weight: 700; transition: transform 0.2s;
+  }
+  .fm-back:hover { transform: translateX(-5px); color: var(--orange); }
+  [dir="rtl"] .fm-back:hover { transform: translateX(5px); }
+
+  .fm-card { 
+    background: var(--card); border-radius: 24px; 
+    box-shadow: 0 10px 40px rgba(26,58,92,0.12); 
+    padding: 25px; border: 1px solid rgba(26,58,92,0.05); 
+    overflow: hidden;
+  }
+
+  .fm-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #edf2f7;
+  }
+  .fm-title { font-size: 22px; font-weight: 800; color: var(--navy); display: flex; align-items: center; gap: 12px; }
+  .fm-title i { color: var(--orange); }
+
+  .fm-controls { display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; }
+  
+  .fm-field { display: flex; flex-direction: column; gap: 8px; }
+  .fm-field label { font-size: 13px; color: var(--navy); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .fm-field input { 
+    height: 50px; width: 150px; border: 2px solid var(--gray); border-radius: 12px; 
+    padding: 0 15px; font-size: 16px; font-weight: 700; color: var(--navy);
+    transition: all 0.2s; outline: none; background: #f8fafc;
+  }
+  .fm-field input:focus { border-color: var(--orange); background: #fff; box-shadow: 0 0 0 4px rgba(247,148,29,0.1); }
+
+  .fm-btn { 
+    height: 50px; padding: 0 25px; border: 0; border-radius: 12px; 
+    background: var(--navy); color: #fff; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; gap: 10px; transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(26,58,92,0.2);
+  }
+  .fm-btn:hover { background: var(--orange); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(247,148,29,0.3); }
+  .fm-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  #flightMap { 
+    height: 65vh; border-radius: 18px; margin-top: 20px; 
+    border: 1px solid #e2e8f0; z-index: 10;
+  }
+
+  .fm-status { 
+    margin-top: 15px; font-size: 14px; font-weight: 600; 
+    display: flex; align-items: center; gap: 8px; color: #64748b;
+  }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; }
+  .status-dot.active { background: var(--emerald); box-shadow: 0 0 0 3px rgba(16,185,129,0.2); animation: pulse 1s infinite; }
+
+  /* Map Markers & Popups */
+  .plane-marker { 
+    color: var(--navy); transition: all 0.5s ease;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  }
+  .plane-marker i { font-size: 24px; }
+  
+  .leaflet-popup-content-wrapper { border-radius: 14px; padding: 0; overflow: hidden; }
+  .leaflet-popup-content { margin: 0; width: 220px !important; }
+  
+  .pop-head { background: var(--navy); color: #fff; padding: 12px 15px; font-weight: 800; font-size: 14px; }
+  .pop-body { padding: 12px 15px; }
+  .pop-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
+  .pop-label { color: #94a3b8; font-weight: 600; }
+  .pop-val { color: var(--navy); font-weight: 700; }
+
+  @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .fm-results-badge {
+    background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="fm-wrap" {{ app.request.locale == 'ar' ? 'dir="rtl"' : '' }}>
+  <a class="fm-back" href="{{ path('user_transport') }}">
+    <i class="fas fa-arrow-{{ app.request.locale == 'ar' ? 'right' : 'left' }}"></i> {{ 'flight_map.back'|trans }}
+  </a>
+  
+  <div class="fm-card" style="animation: slideIn 0.5s ease-out;">
+    <div class="fm-header">
+      <div class="fm-title">
+        <i class="fas fa-map-location-dot"></i>
+        {{ 'flight_map.title'|trans }}
+      </div>
+      <div id="flightCountBadge" class="fm-results-badge" style="display:none">0</div>
+    </div>
+
+    <div class="fm-controls">
+      <div class="fm-field">
+        <label>{{ 'flight_map.dep_label'|trans }}</label>
+        <input id="depIata" value="TUN" placeholder="ex: TUN" maxlength="3">
+      </div>
+      <div class="fm-field">
+        <label>{{ 'flight_map.arr_label'|trans }}</label>
+        <input id="arrIata" value="" placeholder="ex: CDG" maxlength="3">
+      </div>
+      <button class="fm-btn" id="loadFlightsBtn">
+        <i class="fas fa-sync-alt"></i> {{ 'flight_map.update_btn'|trans }}
+      </button>
+    </div>
+
+    <div class="fm-status" id="fmStatus">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">{{ 'flight_map.status_ready'|trans }}</span>
+    </div>
+
+    <div id="flightMap"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const statusText = document.getElementById('statusText');
+    const statusDot = document.getElementById('statusDot');
+    const countBadge = document.getElementById('flightCountBadge');
+    
+    // Translation Labels for JS
+    const i18n = {
+        searching: "{{ 'flight_map.status_searching'|trans|e('js') }}",
+        none: "{{ 'flight_map.status_none'|trans|e('js') }}",
+        done: "{{ 'flight_map.status_done'|trans|e('js') }}",
+        volsFound: "{{ 'flight_map.vols_found'|trans|e('js') }}",
+        popOrigin: "{{ 'flight_map.pop_origin'|trans|e('js') }}",
+        popDest: "{{ 'flight_map.pop_dest'|trans|e('js') }}",
+        popTime: "{{ 'flight_map.pop_time'|trans|e('js') }}",
+        popAlt: "{{ 'flight_map.pop_alt'|trans|e('js') }}",
+        popSpeed: "{{ 'flight_map.pop_speed'|trans|e('js') }}",
+        enVol: "{{ 'flight_map.pop_en_vol'|trans|e('js') }}"
+    };
+
+    if (typeof L === 'undefined') {
+      statusText.textContent = 'Error: Leaflet not loaded.';
+      return;
+    }
+
+    const map = L.map('flightMap').setView([36.0, 10.0], 4);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 20
+    }).addTo(map);
+
+    const markers = [];
+
+    function updateStatus(text, isActive = false) {
+        statusText.textContent = text;
+        statusDot.className = 'status-dot' + (isActive ? ' active' : '');
+    }
+
+    async function loadFlights() {
+        const dep = document.getElementById('depIata').value.trim().toUpperCase();
+        const arr = document.getElementById('arrIata').value.trim().toUpperCase();
+
+        updateStatus(i18n.searching, true);
+        const btn = document.getElementById('loadFlightsBtn');
+        btn.disabled = true;
+
+        markers.forEach(m => map.removeLayer(m));
+        markers.length = 0;
+
+        try {
+            const res = await fetch(`{{ path('user_transport_flight_data') }}?dep=${encodeURIComponent(dep)}&arr=${encodeURIComponent(arr)}`);
+            const data = await res.json();
+
+            if (data.error) throw new Error(data.error);
+
+            const flights = data.flights || [];
+            if (flights.length === 0) {
+                updateStatus(i18n.none, false);
+                countBadge.style.display = 'none';
+            } else {
+                const bounds = [];
+                flights.forEach(f => {
+                    const latlng = [f.latitude, f.longitude];
+                    bounds.push(latlng);
+
+                    const rot = Math.floor(Math.random() * 360);
+                    const planeIcon = L.divIcon({
+                        className: 'plane-marker',
+                        html: `<div style="transform: rotate(${rot}deg)"><i class="fas fa-plane"></i></div>`,
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+
+                    const marker = L.marker(latlng, { icon: planeIcon }).addTo(map);
+                    marker.bindPopup(`
+                        <div class="pop-head"><i class="fas fa-plane-up"></i> ${f.compagnie || f.airline} ${f.flight_number}</div>
+                        <div class="pop-body">
+                            <div class="pop-row"><span class="pop-label">${i18n.popOrigin}</span><span class="pop-val">${f.departure}</span></div>
+                            <div class="pop-row"><span class="pop-label">${i18n.popDest}</span><span class="pop-val">${f.arrival}</span></div>
+                            <div class="pop-row"><span class="pop-label">${i18n.popTime}</span><span class="pop-val">${f.departure_time || i18n.enVol}</span></div>
+                            <div class="pop-row"><span class="pop-label">${i18n.popAlt}</span><span class="pop-val">${f.altitude || '35,000 ft'}</span></div>
+                            <div class="pop-row"><span class="pop-label">${i18n.popSpeed}</span><span class="pop-val">${f.speed || '850 km/h'}</span></div>
+                        </div>
+                    `);
+                    markers.push(marker);
+                });
+
+                map.fitBounds(bounds, { padding: [50, 50] });
+                updateStatus(i18n.done, false);
+                countBadge.textContent = i18n.volsFound.replace('%count%', flights.length);
+                countBadge.style.display = 'block';
+            }
+        } catch (err) {
+            updateStatus('Error: ' + err.message, false);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    document.getElementById('loadFlightsBtn').onclick = loadFlights;
+    setTimeout(loadFlights, 500);
+  });
+</script>
+{% endblock %}

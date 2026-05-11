@@ -1,0 +1,603 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ activite.nom }} | Explora{% endblock %}
+
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root{
+        --navy:#1a3a5c; --navy-dark:#0f2540;
+        --orange:#f7941d; --orange-dk:#e07800; --orange-lt:#fff3e0;
+        --white:#fff; --bg:#f4f7f6; --bg-card:#fff;
+        --gray-lt:#f8f9fa; --gray-md:#e9ecef; --gray:#8492a6;
+        --text:#212529; --text-m:#6c757d;
+        --text-heading:#1e293b; --text-body:#64748b;
+        --green:#28a745; --green-lt:#d4edda;
+        --red:#dc3545;
+        --r-sm:8px; --r-lg:16px;
+        --sh-sm:0 2px 8px rgba(0,0,0,.08);
+        --sh:0 4px 20px rgba(0,0,0,.10);
+        --tr:.22s ease;
+        --fd:'Plus Jakarta Sans',sans-serif;
+        --fb:'DM Sans',sans-serif;
+        --border-color:#e2e8f0; --border:#e2e8f0;
+        --bg-body: #f4f7f6;
+    }
+
+    [data-theme="dark"], body.dark-mode {
+        --bg:#0F172A; --bg-card:#1E293B; --bg-body: #0F172A;
+        --text:#F1F5F9; --text-m:#94A3B8; --text-heading:#F1F5F9; --text-body:#94A3B8;
+        --border-color:#334155; --border:#334155;
+        --gray-lt:#1e2d40; --gray-md:#2a3d52;
+        --white:#1E293B;
+    }
+
+    body{
+        font-family:var(--fb);
+        background:var(--bg-body);
+        color:var(--text);
+        display:flex;
+        flex-direction:column;
+        min-height:100vh;
+        transition: background var(--tr), color var(--tr);
+    }
+
+    /* ══════════════ NAVBAR ══════════════ */
+    .ut-navbar{
+        background:var(--bg-card);
+        box-shadow:var(--sh-sm);
+        position:sticky;
+        top:0;
+        z-index:200;
+        transition:background var(--tr);
+    }
+    .ut-navbar__inner{
+        max-width:1440px;
+        margin:0 auto;
+        padding:0 25px;
+        height:64px;
+        display:flex;
+        align-items:center;
+        gap:12px;
+    }
+    .ut-navbar__logo{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        text-decoration:none;
+        font-family:var(--fd);
+        font-weight:800;
+        font-size:20px;
+        color:var(--text-heading);
+        flex-shrink:0;
+    }
+    .logo-globe{
+        width:38px; height:38px;
+        border-radius:50%;
+        background:var(--navy);
+        display:flex; align-items:center; justify-content:center;
+        flex-shrink:0;
+    }
+    .logo-globe i{ color:#fff; font-size:16px; }
+    .logo-name em{ color:var(--orange); font-style:normal; }
+
+    /* Nav links */
+    .ut-navbar__links{
+        display:flex;
+        gap:4px;
+        margin-left:auto;
+    }
+    .ut-nav-link{
+        font-family:var(--fd);
+        font-weight:600;
+        font-size:13px;
+        color:var(--text-heading);
+        text-decoration:none;
+        padding:8px 14px;
+        border-radius:var(--r-sm);
+        transition:var(--tr);
+        white-space:nowrap;
+        position:relative;
+        padding-bottom:10px;
+    }
+    .ut-nav-link:hover{ color:var(--orange); }
+
+    .ut-nav-link--active{
+        color:var(--orange);
+    }
+    .ut-nav-link--active::after{
+        content:'';
+        position:absolute;
+        bottom:0;
+        left:14px;
+        right:14px;
+        height:3px;
+        background:var(--orange);
+        border-radius:3px 3px 0 0;
+    }
+
+    .ut-navbar__actions{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        margin-left:10px;
+    }
+    .ut-theme-btn{
+        background:var(--gray-lt);
+        border:none;
+        border-radius:50%;
+        width:40px; height:40px;
+        font-size:15px;
+        cursor:pointer;
+        display:flex; align-items:center; justify-content:center;
+        color:var(--text-heading);
+        transition:var(--tr);
+        flex-shrink:0;
+    }
+    .ut-theme-btn:hover{ background:var(--gray-md); transform:rotate(15deg); }
+
+    .ut-btn{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        font-family:var(--fd);
+        font-weight:700;
+        font-size:12px;
+        padding:9px 16px;
+        border-radius:25px;
+        border:none;
+        cursor:pointer;
+        text-decoration:none;
+        transition:var(--tr);
+        white-space:nowrap;
+    }
+    .ut-btn--primary{ background:var(--orange); color:#fff; box-shadow:0 4px 14px rgba(247,148,29,.35); }
+    .ut-btn--primary:hover{ background:var(--orange-dk); transform:translateY(-1px); }
+    .ut-btn--secondary{ background:transparent; color:var(--text-heading); border:1.5px solid var(--text-heading); }
+    .ut-btn--secondary:hover{ background:var(--text-heading); color:var(--bg-card); }
+    .ut-btn--sm{ padding:8px 14px; font-size:12px; }
+
+    /* ══════════════ USER DROPDOWN ══════════════ */
+    .user-profile-wrap{
+        position:relative;
+    }
+    .user-profile{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        cursor:pointer;
+        padding-left:14px;
+        border-left:1px solid var(--border-color);
+        padding:8px 10px 8px 14px;
+        border-radius:var(--r-sm);
+        transition:var(--tr);
+    }
+    .user-profile:hover{ background:var(--gray-lt); }
+    .user-avatar{
+        width:36px; height:36px;
+        border-radius:50%;
+        object-fit:cover;
+    }
+    .user-name{ font-weight:600; color:var(--text); font-size:13px; font-family:var(--fd); }
+    .user-role{ font-size:11px; color:#94a3b8; }
+    .user-dropdown-icon{ color:#94a3b8; font-size:11px; transition:transform .2s; }
+    .user-profile-wrap.open .user-dropdown-icon{ transform:rotate(180deg); }
+
+    .user-dropdown{
+        display:none;
+        position:absolute;
+        top:calc(100% + 8px);
+        right:0;
+        background:var(--bg-card);
+        border:1px solid var(--border-color);
+        border-radius:var(--r-lg);
+        box-shadow:var(--sh);
+        min-width:200px;
+        z-index:300;
+        overflow:hidden;
+        animation:dropIn .18s ease;
+    }
+    @keyframes dropIn{ from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+    .user-profile-wrap.open .user-dropdown{ display:block; }
+
+    .dropdown-header{
+        padding:14px 16px;
+        border-bottom:1px solid var(--border-color);
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+    .dropdown-header img{ width:38px; height:38px; border-radius:50%; object-fit:cover; }
+    .dropdown-header-name{ font-weight:700; font-size:13px; color:var(--text); font-family:var(--fd); }
+    .dropdown-header-role{ font-size:11px; color:#94a3b8; }
+
+    .dropdown-item{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        padding:11px 16px;
+        font-size:13px;
+        color:var(--text);
+        text-decoration:none;
+        font-family:var(--fd);
+        font-weight:500;
+        transition:var(--tr);
+        cursor:pointer;
+        background:none;
+        border:none;
+        width:100%;
+        text-align:left;
+    }
+    .dropdown-item i{ width:16px; color:var(--gray); font-size:13px; }
+    .dropdown-item:hover{ background:var(--gray-lt); color:var(--orange); }
+    .dropdown-item:hover i{ color:var(--orange); }
+    .dropdown-item--danger{ color:var(--red); }
+    .dropdown-item--danger i{ color:var(--red); }
+    .dropdown-item--danger:hover{ background:#fff5f5; color:#c0392b; }
+    .dropdown-divider{ height:1px; background:var(--border-color); margin:4px 0; }
+
+    /* ══════════════ LAYOUT ══════════════ */
+    .page-body{
+        display:flex;
+        flex:1;
+        min-height:0;
+        height:calc(100vh - 64px);
+    }
+
+    .main-content{
+        flex:1;
+        display:flex;
+        flex-direction:column;
+        overflow:hidden;
+        background:var(--bg-body);
+    }
+    .content-area{
+        flex:1;
+        padding:28px 30px;
+        overflow-y:auto;
+        display:flex;
+        flex-direction:column;
+        max-width: 1440px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* ── CONTENT AREA SPECIFICS ── */
+    .explora-breadcrumb { font-size: 13px; color: #94a3b8; padding: 0 0 16px; }
+    .explora-breadcrumb span { color: var(--text-heading); font-weight: 600; }
+
+    .content-topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 24px; background: var(--bg-card);
+        border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px;
+        flex-shrink: 0; box-shadow: var(--sh-sm);
+    }
+
+    .admin-main-card {
+        background: var(--bg-card); border-radius: 16px;
+        border: 1px solid var(--border); padding: 32px;
+        box-shadow: var(--sh-sm); flex: 1;
+    }
+
+    /* ── RE-USE DETAIL STYLES FROM ORIGINAL BUT ADAPTED ── */
+    .hero-banner {
+        position:relative;width:100%;height:320px;border-radius:16px;overflow:hidden;margin-bottom:28px;
+        box-shadow: var(--sh);
+    }
+    .hero-banner__img { width:100%;height:100%;object-fit:cover; }
+    .hero-banner__placeholder {
+        width:100%;height:100%;background:linear-gradient(135deg,#667eea,#764ba2);
+        display:flex;align-items:center;justify-content:center;font-size:72px;
+    }
+    .hero-banner__overlay { position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 60%); }
+    .hero-banner__content { position:absolute;bottom:24px;left:24px;color:white; }
+    .hero-banner__category {
+        background:rgba(255,255,255,0.25);backdrop-filter:blur(8px);
+        padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;
+        letter-spacing:0.5px;text-transform:uppercase;
+    }
+    .hero-banner__title { margin:8px 0 0;font-size:32px;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,0.4); }
+    .hero-banner__status {
+        position:absolute;top:20px;right:20px;
+        color:white;padding:8px 18px;border-radius:25px;font-size:13px;font-weight:700;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .detail-grid { display:grid;grid-template-columns:320px 1fr;gap:28px;align-items:start; }
+
+    .side-card {
+        background:var(--bg-card);border-radius:14px;padding:24px;
+        border:1px solid var(--border); display: flex; flex-direction: column; gap: 16px;
+    }
+    .price-badge {
+        background: var(--bg-body); border-radius: 12px; padding: 20px; text-align: center;
+        border: 1px solid var(--border);
+    }
+    .price-value { font-size: 32px; font-weight: 800; color: #27ae60; margin: 4px 0 0; }
+    
+    .info-list { display: flex; flex-direction: column; gap: 16px; }
+    .info-item { display: flex; align-items: center; gap: 12px; }
+    .info-item__icon { width: 40px; height: 40px; border-radius: 10px; background: var(--gray-lt); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--navy); }
+    .info-item__label { font-size: 11px; color: var(--text-m); text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-item__value { font-size: 14px; font-weight: 700; color: var(--text-heading); }
+
+    .desc-card { background:var(--bg-card);border-radius:14px;padding:28px;border:1px solid var(--border); margin-bottom: 24px; }
+    .section-title { margin:0 0 16px;font-size:18px;font-weight:800;color:var(--text-heading); display: flex; align-items: center; gap: 10px; }
+    .desc-text { color:var(--text-body);line-height:1.8;font-size:15px; }
+
+    /* ── AVIS ── */
+    .avis-card { background:var(--bg-card);border-radius:14px;padding:28px;border:1px solid var(--border); }
+    .avis-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:24px; }
+    .moyenne-pill { background:#fffbeb;border:1.5px solid #fde68a;border-radius:25px;padding:6px 16px;font-size:15px;font-weight:800;color:#b45309; }
+
+    .avis-form { background:var(--gray-lt); border-radius:14px; padding:24px; margin-bottom:28px; border:1px solid var(--border); }
+    .avis-form__title { margin:0 0 16px;font-size:14px;font-weight:700;color:var(--navy); }
+    .avis-input { width:100%;padding:12px;margin-bottom:12px;border-radius:10px;border:1px solid var(--border);font-size:14px; background: var(--bg-card); color: var(--text-heading); }
+    .avis-submit { width:100%;padding:12px;background:var(--orange);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer; transition: var(--tr); }
+    .avis-submit:hover { background: var(--orange-dk); transform: translateY(-1px); }
+
+    .avis-item { border:1.5px solid var(--border); background:var(--bg-card); border-radius:14px; padding:20px; margin-bottom: 16px; transition: var(--tr); }
+    .avis-item:hover { border-color: var(--orange); }
+    .avis-item--me { border-color: var(--navy); background: rgba(30,58,92,0.02); }
+    .avis-item__top { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px; }
+    .user-info { display:flex;align-items:center;gap:12px; }
+    .user-init { width:40px;height:40px;border-radius:50%;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800; }
+    .user-name-row { display:flex;align-items:center;gap:8px; }
+    .me-badge { background:var(--navy);color:white;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700; }
+    .stars { color:var(--gold);font-size:14px;margin-top:2px; }
+    .avis-date { color:var(--text-m);font-size:11px; }
+    .avis-content { color:var(--text-body);font-size:14px;line-height:1.6; }
+
+    .btn-edit { background:var(--gray-lt); color:var(--navy); padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700; border:none; cursor:pointer; }
+    .btn-delete { background:#fee2e2; color:#dc2626; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700; border:none; cursor:pointer; }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- ══════════════ NAVBAR ══════════════ -->
+<nav class="ut-navbar">
+    <div class="ut-navbar__inner">
+        <a href="{{ path('app_home') }}" class="ut-navbar__logo">
+            {{ include('partials/explora_brand.html.twig', {admin: false, logoHeight: 52}) }}
+        </a>
+        <div class="ut-navbar__links">
+            <a href="{{ path('app_home') }}" class="ut-nav-link">{{ 'nav.home'|trans|default('Accueil') }}</a>
+            <a href="#" class="ut-nav-link">Voyages</a>
+            <a href="#" class="ut-nav-link">Transport</a>
+            <a href="#" class="ut-nav-link">Hôtels</a>
+            <a href="{{ path('voyageur_index') }}" class="ut-nav-link ut-nav-link--active">Activités</a>
+        </div>
+        <div class="ut-navbar__actions">
+            <button class="ut-theme-btn" id="btnThemeGlobal" title="Mode nuit / jour">
+                <i class="fas fa-moon" id="themeIconGlobal"></i>
+            </button>
+            <button type="button" class="ut-btn ut-btn--secondary ut-btn--sm" style="color:#059669;border-color:#059669;background:rgba(5,150,105,.07)">
+                🌿 <span>{{ ecoScore.pointsActuels ?? 0 }}</span> PTS
+            </button>
+            <a href="#" class="ut-btn ut-btn--primary">
+                <i class="fas fa-ticket-alt"></i> Mes Réservations
+            </a>
+            <div class="user-profile-wrap" id="userWrap">
+                <div class="user-profile" id="userToggle">
+                    <img src="https://ui-avatars.com/api/?name={{ voyageur.prenom|default('Louay') }}+{{ voyageur.nom|default('Ouali') }}&background=1e293b&color=fff" alt="Avatar" class="user-avatar">
+                    <div>
+                        <div class="user-name">{{ voyageur.prenom|default('Louay') }} {{ voyageur.nom|default('Ouali') }}</div>
+                        <div class="user-role">Voyageur</div>
+                    </div>
+                    <i class="fas fa-chevron-down user-dropdown-icon"></i>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#" class="dropdown-item"><i class="fas fa-user"></i> Mon profil</a>
+                    <a href="#" class="dropdown-item"><i class="fas fa-cog"></i> Paramètres</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ path('app_logout') }}" class="dropdown-item dropdown-item--danger"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="page-body">
+    <main class="main-content">
+        <div class="content-area">
+            <div class="explora-breadcrumb">
+                Activités &gt; <span>{{ activite.nom }}</span>
+            </div>
+
+            <div class="content-topbar">
+                <a href="{{ path('voyageur_index') }}" class="ut-btn ut-btn--secondary">
+                    <i class="fa-solid fa-arrow-left"></i> Retour à la liste
+                </a>
+                <div style="display:flex; gap: 10px;">
+                    <button class="ut-btn ut-btn--secondary"><i class="fas fa-share-alt"></i> Partager</button>
+                    <button class="ut-btn ut-btn--primary"><i class="fas fa-heart"></i> Favoris</button>
+                </div>
+            </div>
+
+            <div class="admin-main-card">
+                {# Flash messages #}
+                {% for msg in app.flashes('success') %}
+                    <div style="background:#dcfce7;color:#15803d;padding:12px 20px;border-left:4px solid #16a34a;margin-bottom:20px;border-radius:10px;font-size:14px;">
+                        <i class="fa-solid fa-check-circle"></i> {{ msg }}
+                    </div>
+                {% endfor %}
+
+                <div class="hero-banner">
+                    {% if activite.image %}
+                        {% set imagePath = activite.image starts with('/uploads/') or activite.image starts with('uploads/') ? activite.image : 'uploads/images/' ~ activite.image %}
+                        <img src="{{ asset(imagePath) }}" class="hero-banner__img">
+                    {% else %}
+                        <div class="hero-banner__placeholder">🎯</div>
+                    {% endif %}
+                    <div class="hero-banner__overlay"></div>
+                    <div class="hero-banner__content">
+                        <span class="hero-banner__category">{{ activite.categorie }}</span>
+                        <h2 class="hero-banner__title">{{ activite.nom }}</h2>
+                    </div>
+                    <div class="hero-banner__status" style="background: {{ activite.disponible ? '#27ae60' : '#e74c3c' }}">
+                        {{ activite.disponible ? '✓ Disponible' : '✕ Complet' }}
+                    </div>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="side-card">
+                        <div class="price-badge">
+                            <p style="font-size:11px; color:var(--text-m); text-transform:uppercase;">Prix par personne</p>
+                            <p class="price-value">{{ activite.prix|number_format(2, '.', ',') }} TND</p>
+                        </div>
+
+                        <div class="info-list">
+                            <div class="info-item">
+                                <div class="info-item__icon">📍</div>
+                                <div>
+                                    <div class="info-item__label">Ville</div>
+                                    <div class="info-item__value">{{ activite.ville }}</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-item__icon">🏛️</div>
+                                <div>
+                                    <div class="info-item__label">Lieu</div>
+                                    <div class="info-item__value">{{ activite.lieu }}</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-item__icon">👥</div>
+                                <div>
+                                    <div class="info-item__label">Disponibilité</div>
+                                    <div class="info-item__value">{{ activite.nombrePlaces }} places</div>
+                                </div>
+                            </div>
+                            {% if activite.dateActivite %}
+                            <div class="info-item">
+                                <div class="info-item__icon">📅</div>
+                                <div>
+                                    <div class="info-item__label">Date</div>
+                                    <div class="info-item__value">{{ activite.dateActivite|date('d M Y') }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <button class="ut-btn ut-btn--primary" style="width:100%; justify-content:center; padding:15px;" {% if not activite.disponible %}disabled{% endif %}>
+                            <i class="fas fa-calendar-plus"></i> Ajouter au planning
+                        </button>
+                    </div>
+
+                    <div class="main-column">
+                        <div class="desc-card">
+                            <h3 class="section-title">📖 Description</h3>
+                            <p class="desc-text">{{ activite.description }}</p>
+                        </div>
+
+                        <div class="avis-card">
+                            <div class="avis-header">
+                                <h3 class="section-title">⭐ Avis des voyageurs ({{ nbAvis }})</h3>
+                                <div class="moyenne-pill">{{ moyenne|number_format(1) }} / 5</div>
+                            </div>
+
+                            {% if monAvis is null %}
+                                <div class="avis-form">
+                                    <div class="avis-form__title">✏️ Partagez votre expérience</div>
+                                    <form method="post" action="{{ path('avis_publier', {'idActivite': activite.idActivite}) }}">
+                                        <div style="display:flex; gap:10px; margin-bottom:12px;">
+                                            <select name="note" class="avis-input" style="flex:1; margin-bottom:0;">
+                                                {% for i in 5..1 %}<option value="{{ i }}">{{ i }} étoiles</option>{% endfor %}
+                                            </select>
+                                            <button type="submit" class="avis-submit" style="flex:1;">Publier mon avis</button>
+                                        </div>
+                                        <textarea name="commentaire" class="avis-input" rows="3" required placeholder="Votre commentaire..."></textarea>
+                                    </form>
+                                </div>
+                            {% endif %}
+
+                            {% if avis is empty %}
+                                <div style="text-align:center;padding:40px;color:var(--text-m);">
+                                    <i class="far fa-comment-dots" style="font-size:48px; margin-bottom:15px; display:block; opacity:0.3;"></i>
+                                    Aucun avis pour le moment. Soyez le premier à en laisser un !
+                                </div>
+                            {% else %}
+                                {% for a in avis %}
+                                    <div class="avis-item {% if a.idVoyageur == app.session.get('user_id') %}avis-item--me{% endif %}">
+                                        <div class="avis-item__top">
+                                            <div class="user-info">
+                                                <div class="user-init">{{ a.nomVoyageur|slice(0,1)|upper }}</div>
+                                                <div>
+                                                    <div class="user-name-row">
+                                                        <strong style="color:var(--text-heading); font-size:14px;">{{ a.nomVoyageur }}</strong>
+                                                        {% if a.idVoyageur == app.session.get('user_id') %}<span class="me-badge">Moi</span>{% endif %}
+                                                    </div>
+                                                    <div class="stars">{{ a.etoiles }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="avis-date">{{ a.dateAvis|date('d M Y') }}</div>
+                                        </div>
+                                        <p class="avis-content">{{ a.commentaire }}</p>
+
+                                        {% if a.idVoyageur == app.session.get('user_id') %}
+                                            <div style="display:flex; gap:8px; margin-top:15px;">
+                                                <details style="flex:1;">
+                                                    <summary class="btn-edit">Modifier mon avis</summary>
+                                                    <div style="margin-top:10px; padding:15px; background:var(--bg-body); border-radius:10px;">
+                                                        <form method="post" action="{{ path('avis_modifier', {'id': a.idAvis}) }}">
+                                                            <select name="note" class="avis-input">
+                                                                {% for i in 5..1 %}<option value="{{ i }}" {{ a.note == i ? 'selected' : '' }}>{{ i }} étoiles</option>{% endfor %}
+                                                            </select>
+                                                            <textarea name="commentaire" class="avis-input" rows="3" required>{{ a.commentaire }}</textarea>
+                                                            <button type="submit" class="ut-btn ut-btn--primary" style="width:100%;">Enregistrer</button>
+                                                        </form>
+                                                    </div>
+                                                </details>
+                                                <form method="post" action="{{ path('avis_supprimer', {'id': a.idAvis}) }}" onsubmit="return confirm('Supprimer cet avis ?');">
+                                                    <button type="submit" class="btn-delete">Supprimer</button>
+                                                </form>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+// Theme Global
+const btnTheme = document.getElementById('btnThemeGlobal');
+const iconTheme = document.getElementById('themeIconGlobal');
+let darkTheme = localStorage.getItem('explora-dark') === '1';
+
+function applyTheme() {
+    document.documentElement.setAttribute('data-theme', darkTheme ? 'dark' : 'light');
+    if (darkTheme) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
+    if (iconTheme) iconTheme.className = darkTheme ? 'fas fa-sun' : 'fas fa-moon';
+}
+applyTheme();
+if (btnTheme) {
+    btnTheme.addEventListener('click', () => {
+        darkTheme = !darkTheme;
+        localStorage.setItem('explora-dark', darkTheme ? '1' : '0');
+        applyTheme();
+    });
+}
+
+// User Dropdown
+const userWrap = document.getElementById('userWrap');
+const userToggle = document.getElementById('userToggle');
+if (userToggle) {
+    userToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userWrap.classList.toggle('open');
+    });
+    document.addEventListener('click', () => userWrap.classList.remove('open'));
+}
+</script>
+{% endblock %}

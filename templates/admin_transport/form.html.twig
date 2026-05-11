@@ -1,0 +1,404 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ mode == 'ajouter' ? 'Ajouter' : 'Modifier' }} un Transport â€” Explora Admin{% endblock %}
+
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1e3a5f;--navy-dark:#0f2540;--orange:#f7941d;--orange-dk:#e07800;--orange-lt:#fff3e0;
+  --white:#fff;--bg:#f5f7fa;--bg-card:#fff;--gray-lt:#f8f9fa;--gray-md:#e9ecef;
+  --gray:#8492a6;--text:#212529;--text-m:#6c757d;
+  --green:#28a745;--red:#e74c3c;--red-lt:#fde8ea;
+  --r-sm:8px;--r:12px;--r-lg:16px;--sh:0 4px 20px rgba(0,0,0,.10);--tr:.22s ease;
+  --fd:'Plus Jakarta Sans',sans-serif;--fb:'DM Sans',sans-serif;--sidebar-w:250px;
+}
+body.dark-mode{--white:#1e2d40;--bg:#0f1923;--bg-card:#162032;--gray-lt:#1e2d40;--gray-md:#2a3d52;--gray:#7a8fa3;--text:#e8edf3;--text-m:#8ca0b5;}
+body{ font-family:var(--fb); background:var(--bg); color:var(--text); min-height:100vh; transition:background var(--tr),color var(--tr); }
+
+/* LAYOUT */
+.af-layout{ display:flex; min-height:100vh; }
+
+/* SIDEBAR (idem index) */
+.af-sidebar{ width:var(--sidebar-w); background:#1e3a5f; flex-shrink:0; display:flex; flex-direction:column; position:sticky; top:0; height:100vh; overflow-y:auto; }
+.af-sidebar-logo{ display:flex; align-items:center; gap:12px; padding:24px 20px 28px; border-bottom:1px solid rgba(255,255,255,.08); }
+.af-sidebar-logo-text{ font-family:var(--fd); font-weight:800; font-size:16px; color:#fff; }
+.af-sidebar-section{ font-size:11px; font-weight:700; letter-spacing:.8px; color:rgba(255,255,255,.45); padding:18px 20px 6px; text-transform:uppercase; }
+.af-sidebar-item{ display:flex; align-items:center; gap:12px; padding:0 20px; height:45px; font-family:var(--fd); font-weight:600; font-size:14px; color:rgba(255,255,255,.75); text-decoration:none; cursor:pointer; transition:var(--tr); background:transparent; border:none; width:100%; text-align:left; border-radius:var(--r-sm); margin:0 0 2px; }
+.af-sidebar-item:hover{ background:rgba(247,148,29,.18); color:#fff; }
+.af-sidebar-item--active{ background:rgba(247,148,29,.15); color:var(--orange); font-weight:700; border-left:3px solid var(--orange); }
+.af-sidebar-item--logout{ color:#e74c3c; }
+.af-sidebar-spacer{ flex:1; }
+
+/* CONTENT */
+.af-content{ flex:1; padding:40px; }
+
+/* FORM CARD */
+.af-form-card{ background:var(--bg-card); border-radius:var(--r-lg); box-shadow:var(--sh); padding:40px; max-width:860px; margin:0 auto; }
+.af-form-header{ display:flex; align-items:center; gap:16px; margin-bottom:32px; padding-bottom:20px; border-bottom:2px solid var(--gray-md); }
+.af-form-header-icon{ width:56px; height:56px; border-radius:50%; background:var(--orange-lt); display:flex; align-items:center; justify-content:center; font-size:24px; color:var(--orange); flex-shrink:0; }
+.af-form-title{ font-family:var(--fd); font-size:24px; font-weight:800; color:var(--navy); }
+.af-form-sub{ font-size:14px; color:var(--gray); margin-top:4px; }
+
+/* FORM SECTIONS */
+.af-section{ margin-bottom:28px; }
+.af-section-title{ font-family:var(--fd); font-size:13px; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.5px; margin-bottom:16px; padding-bottom:8px; border-bottom:1px solid var(--gray-md); }
+.af-grid{ display:grid; gap:20px; }
+.af-grid-2{ grid-template-columns:1fr 1fr; }
+.af-grid-3{ grid-template-columns:1fr 1fr 1fr; }
+.af-grid-4{ grid-template-columns:1fr 1fr 1fr 1fr; }
+
+/* FIELD */
+.af-field{ display:flex; flex-direction:column; gap:6px; }
+.af-label{ font-family:var(--fd); font-weight:700; font-size:13px; color:var(--navy); }
+.af-label span.req{ color:var(--red); margin-left:3px; }
+.af-input{
+  height:48px; padding:0 14px;
+  background:var(--gray-lt); border:2px solid var(--gray-md);
+  border-radius:var(--r-sm); font-family:var(--fb); font-size:14px;
+  color:var(--text); outline:none; transition:var(--tr); width:100%;
+}
+.af-input:focus{ border-color:var(--orange); background:var(--white); box-shadow:0 0 0 3px rgba(247,148,29,.12); }
+.af-input::placeholder{ color:var(--gray); }
+.af-input.has-error{ border-color:var(--red); background:#fff8f8; }
+.af-input:focus.has-error{ box-shadow:0 0 0 3px rgba(231,76,60,.12); }
+.af-error{ font-size:12px; color:var(--red); font-weight:600; display:flex; align-items:center; gap:4px; }
+.af-select{ cursor:pointer; }
+
+/* GLOBAL ERROR */
+.af-global-error{ background:var(--red-lt); border:1.5px solid var(--red); border-radius:var(--r-sm); padding:14px 16px; margin-bottom:24px; color:var(--red); font-weight:700; font-size:14px; display:flex; align-items:center; gap:10px; }
+
+/* ACTIONS */
+.af-actions{ display:flex; gap:14px; justify-content:flex-end; padding-top:24px; border-top:2px solid var(--gray-md); margin-top:8px; }
+.af-btn{ display:inline-flex; align-items:center; gap:8px; font-family:var(--fd); font-weight:700; font-size:14px; padding:12px 28px; border-radius:25px; border:none; cursor:pointer; text-decoration:none; transition:var(--tr); white-space:nowrap; }
+.af-btn--orange{ background:var(--orange); color:#fff; box-shadow:0 4px 14px rgba(247,148,29,.35); }
+.af-btn--orange:hover{ background:var(--orange-dk); transform:translateY(-1px); }
+.af-btn--gray{ background:var(--gray-lt); color:var(--navy); border:2px solid var(--gray-md); }
+.af-btn--gray:hover{ background:var(--gray-md); }
+
+.at-theme-btn{ background:var(--gray-lt); border:none; border-radius:50%; width:38px; height:38px; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--navy); transition:var(--tr); }
+.at-theme-btn:hover{ background:var(--gray-md); }
+
+@media(max-width:768px){ .af-sidebar{display:none} .af-content{padding:16px} .af-grid-2,.af-grid-3,.af-grid-4{grid-template-columns:1fr} }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="af-layout">
+
+{% include 'partials/sidebar.html.twig' with { active: 'transport' } %}
+
+{# CONTENT #}
+<div class="af-content">
+<div class="af-form-card">
+
+    {# En-tête du formulaire #}
+    <div class="af-form-header">
+        <div style="display:flex;align-items:center;gap:16px;flex:1">
+            <div class="af-form-header-icon">
+                <i class="fas {{ mode == 'ajouter' ? 'fa-plus-circle' : 'fa-edit' }}"></i>
+            </div>
+            <div>
+                <div class="af-form-title">
+                    {{ mode == 'ajouter' ? 'Ajouter un Transport' : 'Modifier le Transport #' ~ transport.id }}
+                </div>
+                <div class="af-form-sub">
+                    {{ mode == 'ajouter' ? 'Remplissez tous les champs obligatoires (*) pour créer un nouveau transport.' : 'Modifiez les informations du transport ci-dessous.' }}
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+            <button class="at-theme-btn" type="button" id="btnTheme" title="Mode nuit / jour">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <a href="{{ path('admin_transport_index', {type: currentType}) }}" class="af-btn af-btn--gray">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+        </div>
+    </div>
+
+    {# Erreur globale #}
+    {% if errors.global is defined %}
+    <div class="af-global-error">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errors.global }}
+    </div>
+    {% endif %}
+
+    {# ════ Formulaire ════ #}
+    <form method="post"
+          action="{{ mode == 'ajouter' ? path('admin_transport_ajouter', {type: currentType}) : path('admin_transport_modifier', {id: transport.id}) }}"
+          id="transportForm"
+          novalidate>
+
+        <input type="hidden" name="_token"
+               value="{{ mode == 'ajouter' ? csrf_token('ajouter_transport') : csrf_token('modifier_transport_' ~ transport.id) }}">
+
+        {# ── SECTION 1 : Informations générales ── #}
+        <div class="af-section">
+            <div class="af-section-title"><i class="fas fa-info-circle"></i> Informations générales</div>
+            <div class="af-grid af-grid-3">
+
+                {# Type de transport #}
+                <div class="af-field">
+                    <label class="af-label" for="type">Type de transport <span class="req">*</span></label>
+                    <select name="type" id="type"
+                            class="af-input af-select {{ errors.type is defined ? 'has-error' : '' }}"
+                            required>
+                        {% for t in ['AVION','BATEAU','TRAIN','VOITURE','BUS','TAXI'] %}
+                        <option value="{{ t }}" {{ (data.type ?? currentType) == t ? 'selected' : '' }}>
+                            {{ t|capitalize }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% if errors.type is defined %}
+                        <span class="af-error"><i class="fas fa-exclamation-circle"></i> {{ errors.type }}</span>
+                    {% endif %}
+                </div>
+
+                {# Compagnie #}
+                <div class="af-field">
+                    <label class="af-label" for="compagnie">Compagnie</label>
+                    <input type="text" name="compagnie" id="compagnie"
+                           value="{{ data.compagnie ?? '' }}"
+                           placeholder="Ex: Tunisair, SNCFT..."
+                           maxlength="100"
+                           class="af-input {{ errors.compagnie is defined ? 'has-error' : '' }}">
+                    {% if errors.compagnie is defined %}
+                        <span class="af-error"><i class="fas fa-exclamation-circle"></i> {{ errors.compagnie }}</span>
+                    {% endif %}
+                </div>
+
+                {# Numéro vol #}
+                <div class="af-field">
+                    <label class="af-label" for="numeroVol">N° Vol / Ticket</label>
+                    <input type="text" name="numeroVol" id="numeroVol"
+                           value="{{ data.numeroVol ?? '' }}"
+                           placeholder="Ex: TU523"
+                           maxlength="50"
+                           class="af-input {{ errors.numeroVol is defined ? 'has-error' : '' }}">
+                    {% if errors.numeroVol is defined %}
+                        <span class="af-error"><i class="fas fa-exclamation-circle"></i> {{ errors.numeroVol }}</span>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        {# â”€â”€ SECTION 2 : Trajet â”€â”€ #}
+        <div class="af-section">
+            <div class="af-section-title"><i class="fas fa-route"></i> Trajet</div>
+            <div class="af-grid af-grid-2">
+
+                {# Origine #}
+                <div class="af-field">
+                    <label class="af-label" for="origine">Origine <span class="req">*</span></label>
+                    <input type="text" name="origine" id="origine"
+                           value="{{ data.origine ?? '' }}"
+                           placeholder="Ville / Aéroport de départ"
+                           maxlength="100"
+                           class="af-input {{ errors.origine is defined ? 'has-error' : '' }}"
+                           required>
+                    {% if errors.origine is defined %}
+                        <span class="af-error"><i class="fas fa-exclamation-circle"></i> {{ errors.origine }}</span>
+                    {% endif %}
+                </div>
+
+                {# Destination #}
+                <div class="af-field">
+                    <label class="af-label" for="destination">Destination <span class="req">*</span></label>
+                    <input type="text" name="destination" id="destination"
+                           value="{{ data.destination ?? '' }}"
+                           placeholder="Ville / Aéroport d'arrivée"
+                           maxlength="100"
+                           class="af-input {{ errors.destination is defined ? 'has-error' : '' }}"
+                           required>
+                    {% if errors.destination is defined %}
+                        <span class="af-error"><i class="fas fa-exclamation-circle"></i> {{ errors.destination }}</span>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        {# â”€â”€ SECTION 3 : Horaires â”€â”€ #}
+        <div class="af-section">
+            <div class="af-section-title"><i class="fas fa-clock"></i> Horaires</div>
+            <div class="af-grid af-grid-4">
+
+                {# Date départ #}
+                <div class="af-field">
+                    <label class="af-label" for="dateDepart">Date départ <span class="req">*</span></label>
+                    <input type="date" name="dateDepart" id="dateDepart"
+                           value="{{ data.dateDepart ?? '' }}"
+                           class="af-input {{ errors.dateDepart is defined ? 'has-error' : '' }}"
+                           required>
+                    {% if errors.dateDepart is defined %}
+                        <span class="af-error"><i class="fas fa-exclamation-circle"></i> {{ errors.dateDepart }}</span>
+                    {% endif %}
+                </div>
+
+                {# Heure départ #}
+                <div class="af-field">
+                    <label class="af-label" for="heureDepart">Heure départ <span class="req">*</span></label>
+                    <input type="time" name="heureDepart" id="heureDepart"
+                           value="{{ data.heureDepart ?? '' }}"
+                           class="af-input {{ errors.heureDepart is defined ? 'has-error' : '' }}"
+                           required>
+                    {% if errors.heureDepart is defined %}
+                        <span class="af-error"><i class="fas fa-exclamation-circle"></i> {{ errors.heureDepart }}</span>
+                    {% endif %}
+                </div>
+
+                {# Date arrivée #}
+                <div class="af-field">
+                    <label class="af-label" for="dateArrivee">Date arrivée</label>
+                    <input type="date" name="dateArrivee" id="dateArrivee"
+                           value="{{ data.dateArrivee ?? '' }}"
+                           class="af-input {{ errors.dateArrivee is defined ? 'has-error' : '' }}">
+                    {% if errors.dateArrivee is defined %}
+                        <span class="af-error"><i class="fas fa-exclamation-circle"></i> {{ errors.dateArrivee }}</span>
+                    {% endif %}
+                </div>
+
+                {# Heure arrivée #}
+                <div class="af-field">
+                    <label class="af-label" for="heureArrivee">Heure arrivée</label>
+                    <input type="time" name="heureArrivee" id="heureArrivee"
+                           value="{{ data.heureArrivee ?? '' }}"
+                           class="af-input {{ errors.heureArrivee is defined ? 'has-error' : '' }}">
+                    {% if errors.heureArrivee is defined %}
+                        <span class="af-error"><i class="fas fa-exclamation-circle"></i> {{ errors.heureArrivee }}</span>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        {# ── SECTION 4 : Tarification ── #}
+        <div class="af-section">
+            <div class="af-section-title"><i class="fas fa-tag"></i> Tarification & Disponibilité</div>
+            <div class="af-grid af-grid-2">
+
+                {# Prix #}
+                <div class="af-field">
+                    <label class="af-label" for="prix">Prix unitaire (DT) <span class="req">*</span></label>
+                    <input type="number" name="prix" id="prix"
+                           value="{{ data.prix ?? '' }}"
+                           placeholder="Ex: 250.00"
+                           min="0.01" max="99999.99" step="0.01"
+                           class="af-input {{ errors.prix is defined ? 'has-error' : '' }}"
+                           required>
+                    {% if errors.prix is defined %}
+                        <span class="af-error"><i class="fas fa-exclamation-circle"></i> {{ errors.prix }}</span>
+                    {% endif %}
+                </div>
+
+                {# Places disponibles #}
+                <div class="af-field">
+                    <label class="af-label" for="placesDisponibles">Places disponibles <span class="req">*</span></label>
+                    <input type="number" name="placesDisponibles" id="placesDisponibles"
+                           value="{{ data.placesDisponibles ?? '' }}"
+                           placeholder="Ex: 180"
+                           min="0" max="9999" step="1"
+                           class="af-input {{ errors.placesDisponibles is defined ? 'has-error' : '' }}"
+                           required>
+                    {% if errors.placesDisponibles is defined %}
+                        <span class="af-error"><i class="fas fa-exclamation-circle"></i> {{ errors.placesDisponibles }}</span>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        {# BOUTONS (identique Java VBox buttons + btnValider + btnAnnuler) #}
+        <div class="af-actions">
+            <a href="{{ path('admin_transport_index', {type: currentType}) }}" class="af-btn af-btn--gray">
+                <i class="fas fa-times"></i> Annuler
+            </a>
+            <button type="submit" class="af-btn af-btn--orange" id="btnSubmit">
+                <i class="fas {{ mode == 'ajouter' ? 'fa-plus-circle' : 'fa-check' }}"></i>
+                {{ mode == 'ajouter' ? 'Ajouter le transport' : 'Enregistrer les modifications' }}
+            </button>
+        </div>
+
+    </form>
+</div>
+</div>
+</div>
+
+{% block javascripts %}
+<script>
+/* â”€â”€ Mode nuit â”€â”€ */
+(function(){
+    const btn=document.getElementById('btnTheme'),icon=document.getElementById('themeIcon');
+    let dark=localStorage.getItem('at-dark')==='1';
+    function apply(){ document.body.classList.toggle('dark-mode',dark); icon.className=dark?'fas fa-sun':'fas fa-moon'; }
+    apply();
+    if(btn) btn.addEventListener('click',()=>{ dark=!dark; localStorage.setItem('at-dark',dark?'1':'0'); apply(); });
+})();
+
+/* â”€â”€ Validation client (identique Java validateTransportData) â”€â”€ */
+(function(){
+    const form = document.getElementById('transportForm');
+    if(!form) return;
+
+    form.addEventListener('submit', function(e){
+        let valid = true;
+
+        // Effacer les erreurs précédentes côté JS
+        form.querySelectorAll('.js-error').forEach(el => el.remove());
+        form.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
+
+        function showError(inputId, msg){
+            const input = document.getElementById(inputId);
+            if(!input) return;
+            input.classList.add('has-error');
+            const err = document.createElement('span');
+            err.className = 'af-error js-error';
+            err.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + msg;
+            input.parentNode.appendChild(err);
+            valid = false;
+        }
+
+        const origine      = document.getElementById('origine').value.trim();
+        const destination  = document.getElementById('destination').value.trim();
+        const prix         = document.getElementById('prix').value;
+        const places       = document.getElementById('placesDisponibles').value;
+        const dateDepart   = document.getElementById('dateDepart').value;
+        const heureDepart  = document.getElementById('heureDepart').value;
+        const dateArrivee  = document.getElementById('dateArrivee').value;
+
+        if(!origine)              showError('origine','L\'origine est obligatoire.');
+        else if(origine.length<2) showError('origine','Minimum 2 caractères.');
+
+        if(!destination)              showError('destination','La destination est obligatoire.');
+        else if(destination.length<2) showError('destination','Minimum 2 caractères.');
+        else if(origine && destination.toLowerCase()===origine.toLowerCase())
+            showError('destination','La destination doit être différente de l\'origine.');
+
+        if(!prix)                        showError('prix','Le prix est obligatoire.');
+        else if(isNaN(prix)||+prix<=0)   showError('prix','Le prix doit être un nombre positif.');
+        else if(+prix>99999.99)          showError('prix','Maximum 99 999,99 DT.');
+
+        if(places==='')                    showError('placesDisponibles','Le nombre de places est obligatoire.');
+        else if(!Number.isInteger(+places)||+places<0) showError('placesDisponibles','Entier positif ou nul requis.');
+        else if(+places>9999)              showError('placesDisponibles','Maximum 9 999 places.');
+
+        if(!dateDepart) showError('dateDepart','La date de départ est obligatoire.');
+        if(!heureDepart) showError('heureDepart','L\'heure de départ est obligatoire.');
+
+        if(dateArrivee && dateDepart && dateArrivee < dateDepart)
+            showError('dateArrivee','La date d\'arrivée doit être >= à la date de départ.');
+
+        if(!valid) e.preventDefault();
+    });
+})();
+</script>
+{% endblock %}
+{% endblock %}
+

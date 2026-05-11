@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel hébergement | Explora{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="admin-layout">
+
+    <aside class="admin-sidebar">
+        <div class="admin-logo">
+            <h1>Explora</h1>
+        </div>
+
+        <div class="admin-section-title">Main</div>
+        <nav class="admin-menu">
+            <a href="#">Dashboard</a>
+            <a href="#">Users</a>
+            <a href="#">Bookings</a>
+            <a href="#">Voyages</a>
+        </nav>
+
+        <div class="admin-section-title">Inventory</div>
+        <nav class="admin-menu">
+            <a href="#">Transport</a>
+            <a href="{{ path('app_hebergement_index') }}" class="active">Hotels</a>
+        </nav>
+
+        <div class="admin-section-title">Reports</div>
+        <nav class="admin-menu">
+            <a href="#">Analytics</a>
+            <a href="#">Sales</a>
+        </nav>
+    </aside>
+
+    <section class="admin-content">
+
+        <div class="admin-topbar">
+            <div class="admin-search">
+                <a href="{{ path('app_hebergement_index') }}" class="admin-back-btn" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">←</a>
+                <input type="text" placeholder="Search accomodation...">
+            </div>
+
+            <div class="admin-userbar">
+                <div class="admin-user-pill">
+                    <div class="admin-avatar"></div>
+                    <div>
+                        <strong>John Doe</strong><br>
+                        <span>Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-main-card">
+            <div class="admin-page-header">
+                <div class="admin-title-wrap">
+                    <h2>Accomodation Form</h2>
+                    <div class="admin-title-underline"></div>
+                </div>
+
+                <div class="admin-header-actions">
+                    <a href="{{ path('app_hebergement_index') }}" class="btn-admin-outline">Cancel</a>
+                </div>
+            </div>
+
+            {{ include('hebergement/_form.html.twig') }}
+        </div>
+
+    </section>
+</div>
+{% endblock %}

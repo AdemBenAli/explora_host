@@ -1,0 +1,130 @@
+{{ form_start(form) }}
+    <div class="form-group">
+        {{ form_label(form.type) }}
+        {{ form_widget(form.type) }}
+        {{ form_errors(form.type) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.categorie) }}
+        {{ form_widget(form.categorie) }}
+        {{ form_errors(form.categorie) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.origine) }}
+        {{ form_widget(form.origine) }}
+        {{ form_errors(form.origine) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.destination) }}
+        {{ form_widget(form.destination) }}
+        {{ form_errors(form.destination) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.dateDepart) }}
+        {{ form_widget(form.dateDepart) }}
+        {{ form_errors(form.dateDepart) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.dateArrivee) }}
+        {{ form_widget(form.dateArrivee) }}
+        {{ form_errors(form.dateArrivee) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.heureDepart) }}
+        {{ form_widget(form.heureDepart) }}
+        {{ form_errors(form.heureDepart) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.heureArrivee) }}
+        {{ form_widget(form.heureArrivee) }}
+        {{ form_errors(form.heureArrivee) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.prix) }}
+        {{ form_widget(form.prix) }}
+        {{ form_errors(form.prix) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.placesDisponibles) }}
+        {{ form_widget(form.placesDisponibles) }}
+        {{ form_errors(form.placesDisponibles) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.compagnie) }}
+        {{ form_widget(form.compagnie) }}
+        {{ form_errors(form.compagnie) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.numeroVol) }}
+        {{ form_widget(form.numeroVol) }}
+        {{ form_errors(form.numeroVol) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.imageUrl) }}
+        {{ form_widget(form.imageUrl) }}
+        {{ form_errors(form.imageUrl) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.description) }}
+        {{ form_widget(form.description) }}
+        {{ form_errors(form.description) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.etatTrafic) }}
+        {{ form_widget(form.etatTrafic) }}
+        {{ form_errors(form.etatTrafic) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.imageTraficUrl) }}
+        {{ form_widget(form.imageTraficUrl) }}
+        {{ form_errors(form.imageTraficUrl) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.scoreConfiance) }}
+        {{ form_widget(form.scoreConfiance) }}
+        {{ form_errors(form.scoreConfiance) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.prixOriginal) }}
+        {{ form_widget(form.prixOriginal) }}
+        {{ form_errors(form.prixOriginal) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.distanceKm) }}
+        {{ form_widget(form.distanceKm) }}
+        {{ form_errors(form.distanceKm) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.emissionsKgCo2) }}
+        {{ form_widget(form.emissionsKgCo2) }}
+        {{ form_errors(form.emissionsKgCo2) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.categorieEcologique) }}
+        {{ form_widget(form.categorieEcologique) }}
+        {{ form_errors(form.categorieEcologique) }}
+    </div>
+
+    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}
+

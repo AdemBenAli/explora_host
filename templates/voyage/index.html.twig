@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explora - Voyages</title>
+    <!-- Premium Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+    /* ═════════════════════════════════════════════════════════════════════
+       EXPLORA — Voyages Page (Premium Design)
+       ═════════════════════════════════════════════════════════════════════ */
+    :root {
+        --navy:#1a3a5c; --navy-dark:#0f2540; --navy-mid:#2d5a8a;
+        --orange:#f7941d; --orange-dk:#e07800; --orange-lt:#fff3e0;
+        --white:#ffffff; --bg:#f0f4f8; --bg-card:#ffffff;
+        --gray-lt:#f8f9fa; --gray-md:#e9ecef; --gray:#8492a6;
+        --text:#212529; --text-m:#6c757d;
+        --green:#28a745; --green-lt:#d4edda;
+        --red:#dc3545;   --red-lt:#fde8ea;
+        --r-sm:8px; --r:14px; --r-lg:20px;
+        --sh-sm:0 2px 8px rgba(0,0,0,.08);
+        --sh:0 6px 24px rgba(0,0,0,.10);
+        --tr:.25s ease;
+        --fd:'Plus Jakarta Sans',sans-serif;
+        --fb:'DM Sans',sans-serif;
+    }
+
+    body.dark-theme {
+        --navy:#a8c4e0; --navy-dark:#e8f0f8; --navy-mid:#7aadd4;
+        --white:#1e2d40; --bg:#0f1923; --bg-card:#162032;
+        --gray-lt:#1e2d40; --gray-md:#2a3d52; --gray:#7a8fa3;
+        --text:#e8edf3; --text-m:#8ca0b5;
+        --orange-lt:rgba(247,148,29,.15);
+        --sh-sm:0 2px 8px rgba(0,0,0,.3);
+        --sh:0 6px 24px rgba(0,0,0,.4);
+    }
+
+    body { font-family:var(--fb); background:var(--bg); color:var(--text); min-height:100vh; transition:background var(--tr),color var(--tr); margin:0; }
+
+    /* ── NAVBAR ── */
+    .ut-navbar { background:var(--white); box-shadow:var(--sh-sm); position:sticky; top:0; z-index:200; transition:background var(--tr); }
+    .ut-navbar__inner { max-width:1440px; margin:0 auto; padding:0 25px; height:70px; display:flex; align-items:center; gap:12px; }
+    .ut-navbar__logo { display:flex; align-items:center; gap:10px; text-decoration:none; font-family:var(--fd); font-weight:800; font-size:22px; color:var(--navy); flex-shrink:0; }
+    .ut-navbar__links { display:flex; gap:4px; margin-left:auto; }
+    .ut-nav-link { font-family:var(--fd); font-weight:600; font-size:13px; color:var(--navy); text-decoration:none; padding:8px 14px; border-radius:var(--r-sm); transition:var(--tr); }
+    .ut-nav-link:hover { background:var(--gray-lt); color:var(--orange); }
+    .ut-nav-link--active { color:var(--orange); }
+    .ut-navbar__actions { display:flex; align-items:center; gap:8px; margin-left:10px; }
+    .ut-theme-btn { background:var(--gray-lt); border:none; border-radius:50%; width:42px; height:42px; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:var(--tr); color:var(--navy); }
+
+    .user-profile-wrap{ position:relative; }
+    .user-profile{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        padding:6px 10px;
+        border-radius:999px;
+        border:1px solid #e2e8f0;
+        cursor:pointer;
+        background:#fff;
+    }
+    .user-avatar{ width:36px; height:36px; border-radius:50%; }
+    .user-name{ font-weight:700; font-size:12px; color:var(--navy); }
+    .user-role{ font-size:11px; color:var(--text-m); }
+    .user-dropdown-icon{ color:#94a3b8; font-size:12px; }
+    .user-dropdown{
+        position:absolute;
+        right:0;
+        top:56px;
+        background:#fff;
+        border:1px solid #e2e8f0;
+        border-radius:12px;
+        box-shadow:0 12px 30px rgba(0,0,0,.12);
+        min-width:220px;
+        padding:10px;
+        display:none;
+        z-index:50;
+    }
+    .user-dropdown.open{ display:block; }
+    .dropdown-header{ display:flex; align-items:center; gap:10px; padding:8px; }
+    .dropdown-header img{ width:40px; height:40px; border-radius:50%; }
+    .dropdown-header-name{ font-weight:700; font-size:13px; }
+    .dropdown-header-role{ font-size:12px; color:var(--text-m); }
+    .dropdown-item{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        padding:8px 10px;
+        border-radius:8px;
+        text-decoration:none;
+        color:var(--navy);
+        font-size:13px;
+    }
+    .dropdown-item:hover{ background:#f8fafc; }
+    .dropdown-divider{ height:1px; background:#e2e8f0; margin:6px 0; }
+    .dropdown-item--danger{ color:#dc2626; }
+
+    /* ── HERO ── */
+    .ut-hero {
+        background: linear-gradient(120deg, var(--navy-dark), var(--navy-mid));
+        padding: 60px 20px; text-align: center; color: #fff;
+    }
+    .ut-hero h1 { font-family:var(--fd); font-size:42px; font-weight:800; margin-bottom:10px; }
+    .ut-hero p { font-size:18px; opacity:0.9; }
+
+    /* ── BUTTONS ── */
+    .ut-btn { display:inline-flex; align-items:center; gap:6px; font-family:var(--fd); font-weight:700; font-size:13px; padding:10px 20px; border-radius:25px; border:none; cursor:pointer; text-decoration:none; transition:var(--tr); white-space:nowrap; }
+    .ut-btn--primary { background:var(--orange); color:#fff; box-shadow:0 4px 14px rgba(247,148,29,.35); }
+    .ut-btn--primary:hover { background:var(--orange-dk); transform:translateY(-1px); }
+    .ut-btn--secondary { background:transparent; color:var(--navy); border:2px solid var(--navy); }
+    .ut-btn--secondary:hover { background:var(--navy); color:#fff; }
+    .ut-btn--ghost { background:var(--gray-lt); color:var(--navy); border:2px solid var(--gray-md); }
+
+    /* ── SEARCH CARD ── */
+    .ut-main { max-width:1440px; margin:0 auto; padding:30px 40px; }
+    .ut-search-card { background:var(--bg-card); border-radius:var(--r-lg); box-shadow:var(--sh); padding:25px 30px; margin-top:-50px; position:relative; z-index:10; }
+    .ut-search-fields { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px; margin-top:15px; }
+    .ut-field-group { display:flex; flex-direction:column; gap:6px; }
+    .ut-label { font-family:var(--fd); font-weight:700; font-size:13px; color:var(--navy); }
+    .ut-input { height:45px; padding:0 15px; background:var(--gray-lt); border:1px solid var(--gray-md); border-radius:var(--r-sm); font-size:14px; color:var(--text); transition:var(--tr); outline:none; }
+    .ut-input:focus { border-color:var(--orange); background:var(--white); }
+
+    /* ── VOYAGE CARDS ── */
+    .voyages-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap:25px; margin-top:30px; }
+    .ut-card {
+        background:var(--bg-card); border-radius:var(--r); box-shadow:var(--sh-sm);
+        overflow:hidden; transition:var(--tr); border:1px solid var(--gray-md);
+        display:flex; flex-direction:column;
+    }
+    .ut-card:hover { transform:translateY(-5px); box-shadow:var(--sh); border-color:var(--orange); }
+    .ut-card__banner { height:180px; position:relative; background-size:cover; background-position:center; }
+    .ut-card__overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.7), transparent); display:flex; align-items:flex-end; padding:15px; }
+    .ut-card__destination { color:#fff; font-family:var(--fd); font-weight:800; font-size:22px; text-transform:uppercase; letter-spacing:1px; }
+    .ut-card__body { padding:20px; flex:1; display:flex; flex-direction:column; }
+    .ut-card__title { font-family:var(--fd); font-weight:700; font-size:18px; color:var(--navy); margin-bottom:8px; }
+    .ut-card__desc { font-size:14px; color:var(--text-m); line-height:1.5; margin-bottom:15px; flex:1; }
+    .ut-card__meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; font-size:13px; font-weight:600; color:var(--navy); }
+    .ut-card__price-tag { font-size:22px; font-weight:800; color:var(--orange); }
+
+    /* ── MODALS & AI ── */
+    .ai-card { background:var(--orange-lt); border:1px solid var(--orange); border-radius:10px; padding:15px; color:var(--navy); margin:15px 0; }
+    .ai-report { max-height:300px; overflow-y:auto; font-family:monospace; font-size:12px; margin-top:10px; }
+    .ut-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:500; display:none; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+    .ut-modal-box { background:var(--bg-card); border-radius:var(--r-lg); padding:30px; width:90%; max-width:600px; box-shadow:var(--sh); }
+
+    /* ── Floating Cart Button ── */
+    .floating-cart-btn {
+        position: fixed;
+        bottom: 100px;
+        right: 24px;
+        z-index: 9998;
+    }
+    .floating-cart-btn a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #f7941d;
+        color: #fff;
+        font-size: 24px;
+        box-shadow: 0 4px 12px rgba(247, 148, 29, 0.4);
+        text-decoration: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+    }
+    .floating-cart-btn a:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(247, 148, 29, 0.5);
+    }
+    .floating-cart-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        background: #e74c3c;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 800;
+        min-width: 20px;
+        height: 20px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 5px;
+        box-shadow: 0 2px 6px rgba(0,0,0,.2);
+    }
+    .floating-cart-badge:empty,
+    .floating-cart-badge[data-count="0"] {
+        display: none;
+    }
+    </style>
+</head>
+<body>
+
+<nav class="ut-navbar">
+    <div class="ut-navbar__inner">
+        <a href="{{ path('app_home') }}" class="ut-navbar__logo">
+            {{ include('partials/explora_brand.html.twig', {admin: false, logoHeight: 52}) }}
+        </a>
+
+        <div class="ut-navbar__links">
+            <a href="{{ path('app_home') }}" class="ut-nav-link">{{ 'nav.home'|trans|default('Accueil') }}</a>
+            <a href="{{ path('voyages') }}" class="ut-nav-link ut-nav-link--active">{{ 'nav.voyages'|trans|default('Voyages') }}</a>
+            <a href="{{ path('user_transport') }}" class="ut-nav-link">{{ 'nav.transport'|trans|default('Transport') }}</a>
+            <a href="{{ path('app_hebergement_front') }}" class="ut-nav-link">{{ 'nav.hotels'|trans|default('Hôtels') }}</a>
+            <a href="{{ path('voyageur_index') }}" class="ut-nav-link">Activités</a>
+        </div>
+
+        <div class="ut-navbar__actions">
+            <button class="ut-theme-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Mode nuit / jour">
+                <i class="fas fa-moon" id="themeIconGlobal"></i>
+            </button>
+            <button type="button" class="ut-btn ut-btn--secondary ut-btn--sm"
+                    style="color:#059669;border-color:#059669;background:rgba(5,150,105,.07)">
+                🌿 <span>{{ ecoScore.pointsActuels ?? 0 }}</span> PTS
+            </button>
+            <button type="button" class="ut-btn ut-btn--secondary ut-btn--sm">
+                <i class="fas fa-cloud-sun"></i> Météo
+            </button>
+            <a href="#" class="ut-btn ut-btn--secondary ut-btn--sm">
+                <i class="fas fa-map-marked-alt"></i> Carte
+            </a>
+            <a href="{{ path('user_transport_flight_map') }}" class="ut-btn ut-btn--secondary ut-btn--sm">
+                <i class="fas fa-plane-departure"></i> Carte Vols
+            </a>
+            <a href="{{ path('app_reservation_history') }}" class="ut-btn ut-btn--primary">
+                <i class="fas fa-ticket-alt"></i> Mes Réservations
+            </a>
+            {% set userFirst = voyageur is defined and voyageur.prenom is defined ? voyageur.prenom : 'Ben' %}
+            {% set userLast = voyageur is defined and voyageur.nom is defined ? voyageur.nom : 'Ali' %}
+            <div class="user-profile-wrap" id="userWrap">
+                <div class="user-profile" id="userToggle">
+                    <img src="https://ui-avatars.com/api/?name={{ userFirst }}+{{ userLast }}&background=1e293b&color=fff"
+                         alt="Avatar" class="user-avatar">
+                    <div>
+                        <div class="user-name">{{ userFirst }} {{ userLast }}</div>
+                        <div class="user-role">Voyageur</div>
+                    </div>
+                    <i class="fas fa-chevron-down user-dropdown-icon"></i>
+                </div>
+
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-header">
+                        <img src="https://ui-avatars.com/api/?name={{ userFirst }}+{{ userLast }}&background=1e293b&color=fff" alt="Avatar">
+                        <div>
+                            <div class="dropdown-header-name">{{ userFirst }} {{ userLast }}</div>
+                            <div class="dropdown-header-role">Voyageur</div>
+                        </div>
+                    </div>
+                    <a href="#" class="dropdown-item">
+                        <i class="fas fa-user"></i> Mon profil
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fas fa-cog"></i> Paramètres
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ path('app_logout') }}" class="dropdown-item dropdown-item--danger">
+                        <i class="fas fa-sign-out-alt"></i> Se déconnecter
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+<script>
+    (function () {
+        var toggle = document.getElementById('userToggle');
+        var dropdown = document.getElementById('userDropdown');
+        if (!toggle || !dropdown) return;
+
+        toggle.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdown.classList.toggle('open');
+        });
+
+        document.addEventListener('click', function () {
+            dropdown.classList.remove('open');
+        });
+    })();
+</script>
+
+<section class="ut-hero">
+    <h1>{{ 'Discover Amazing Voyages'|trans }}</h1>
+    <p>{{ "Curated travel packages to the world's most stunning destinations"|trans }}</p>
+</section>
+
+<div class="ut-main">
+    <div class="ut-search-card">
+        <div class="ut-field-group">
+            <label class="ut-label">✨ {{ 'Recherche intelligente'|trans }}</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="smartSearchInput" class="ut-input" style="flex: 1;" placeholder="Ex: voyage romantique pas cher pour 2 semaines" value="{{ app.request.query.get('smart_search') }}">
+                <button class="ut-btn ut-btn--primary" onclick="handleSmartSearch()">Chercher</button>
+            </div>
+        </div>
+
+        <div class="ut-search-fields">
+            <div class="ut-field-group">
+                <label class="ut-label">{{ 'Destination'|trans }}</label>
+                <select id="destinationFilter" class="ut-input" onchange="handleFilter()">
+                    <option value="">{{ 'All Destinations'|trans }}</option>
+                    {% for destination in destinations %}
+                        <option value="{{ destination }}" {{ selectedDestination == destination ? 'selected' : '' }}>{{ destination }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="ut-field-group">
+                <label class="ut-label">{{ 'Durée'|trans }}</label>
+                <select id="durationFilter" class="ut-input" onchange="handleFilter()">
+                    <option value="">{{ 'Any Duration'|trans }}</option>
+                    {% for duration in durations %}
+                        <option value="{{ duration }}" {{ selectedDuration == (duration ~ '') ? 'selected' : '' }}>{{ duration }} {{ 'days'|trans }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="ut-field-group">
+                <label class="ut-label">{{ 'Prix'|trans }}</label>
+                <select id="priceFilter" class="ut-input" onchange="handleFilter()">
+                    <option value="">{{ 'All Prices'|trans }}</option>
+                    {% for priceRange in priceRanges %}
+                        <option value="{{ priceRange }}" {{ selectedPrice == priceRange ? 'selected' : '' }}>{{ priceRange }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--gray-md);">
+            <a href="{{ path('app_voyage_pdf') }}" class="ut-btn ut-btn--ghost"><i class="fas fa-file-pdf"></i> PDF</a>
+            <button class="ut-btn ut-btn--secondary" onclick="openAddModal()">+ {{ 'Ajouter'|trans }}</button>
+            <button class="ut-btn ut-btn--primary" onclick="openAiModal()"><i class="fas fa-robot"></i> {{ 'AI Analyse'|trans }}</button>
+        </div>
+    </div>
+
+    <div class="voyages-grid" id="voyagesContainer">
+        {% for v in voyages %}
+            <article class="ut-card">
+                <div class="ut-card__banner" style="background-image: url('{{ v.imageUrl ?: 'https://images.pexels.com/photos/1271619/pexels-photo-1271619.jpeg?auto=compress&cs=tinysrgb&w=600' }}')">
+                    <div class="ut-card__overlay">
+                        <span class="ut-card__destination">{{ v.destination }}</span>
+                    </div>
+                </div>
+                <div class="ut-card__body">
+                    <div class="ut-card__meta">
+                        <span><i class="fas fa-calendar-alt"></i> {{ v.duration }} {{ 'Jours'|trans }}</span>
+                        <span class="ut-card__price-tag">{{ v.budgetTotal|number_format(0) }} TND</span>
+                    </div>
+                    <h3 class="ut-card__title">{{ v.name }}</h3>
+                    <p class="ut-card__desc">{{ v.description|slice(0, 100) }}...</p>
+                    
+                    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                        {% if v.includesFlight %}<span title="Vol inclus">✈️</span>{% endif %}
+                        {% if v.includesHotel %}<span title="Hôtel inclus">🏨</span>{% endif %}
+                        {% if v.includesMeals %}<span title="Repas inclus">🍽️</span>{% endif %}
+                    </div>
+
+                    <div style="display: grid; gap: 10px;">
+                        <button class="ut-btn ut-btn--primary" style="width: 100%; justify-content: center;"
+                            data-destination="{{ v.destination }}" data-title="{{ v.name }}"
+                            onclick="openMapModalFromButton(this)">
+                            <i class="fas fa-map-marker-alt"></i> {{ 'Voir sur la carte'|trans }}
+                        </button>
+                        <form method="post" action="{{ path('cart_add_voyage') }}" style="margin:0;">
+                            <input type="hidden" name="voyage_id" value="{{ v.id }}">
+                            <button type="submit" class="ut-btn ut-btn--secondary" style="width:100%; justify-content:center;">
+                                <i class="fas fa-cart-plus"></i> Ajouter au panier
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        {% else %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 50px;">
+                <p>{{ 'Aucun voyage trouvé.'|trans }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if totalPages > 1 %}
+    <div class="pagination" style="margin-top: 40px;">
+        {% if currentPage > 1 %}
+            <a href="{{ path('voyages', {page: currentPage - 1, destination: selectedDestination, duration: selectedDuration, price: selectedPrice}) }}" class="ut-btn ut-btn--ghost">Précédent</a>
+        {% endif %}
+        <span style="margin: 0 15px; font-weight: 700;">Page {{ currentPage }} / {{ totalPages }}</span>
+        {% if currentPage < totalPages %}
+            <a href="{{ path('voyages', {page: currentPage + 1, destination: selectedDestination, duration: selectedDuration, price: selectedPrice}) }}" class="ut-btn ut-btn--ghost">Suivant</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<footer class="ut-footer">
+    <p>© 2026 Explora. {{ 'Tous droits réservés.'|trans }}</p>
+</footer>
+
+<div class="floating-cart-btn">
+    <a href="{{ path('app_panier_index') }}" title="Shopping Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="floating-cart-badge" id="floatingCartBadge"></span>
+    </a>
+</div>
+<script>
+    (function(){
+        try {
+            fetch('{{ path('cart_count') }}')
+                .then(function(r){ return r.json(); })
+                .then(function(data){
+                    var badge = document.getElementById('floatingCartBadge');
+                    if (badge && data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.setAttribute('data-count', data.count);
+                    }
+                })
+                .catch(function(){});
+        } catch(e){}
+    })();
+</script>
+
+<div id="addVoyageModal" class="ut-modal-overlay" onclick="closeModalOnOverlay(event, 'addVoyageModal')">
+    <div class="ut-modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 class="ut-card__title" style="margin: 0; font-size: 22px;">{{ 'Ajouter un Voyage'|trans }}</h3>
+            <button type="button" class="ut-theme-btn" style="width: 32px; height: 32px;" onclick="closeModal('addVoyageModal')">×</button>
+        </div>
+        <form action="{{ path('app_voyage_popup_create') }}" method="post">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="ut-field-group">
+                    <label class="ut-label">Titre</label>
+                    <input type="text" name="titre" class="ut-input" required>
+                </div>
+                <div class="ut-field-group">
+                    <label class="ut-label">Destination</label>
+                    <input type="text" name="destination" class="ut-input" required>
+                </div>
+                <div class="ut-field-group">
+                    <label class="ut-label">Date début</label>
+                    <input type="date" name="date_debut" class="ut-input" required>
+                </div>
+                <div class="ut-field-group">
+                    <label class="ut-label">Date fin</label>
+                    <input type="date" name="date_fin" class="ut-input" required>
+                </div>
+                <div class="ut-field-group">
+                    <label class="ut-label">Budget (EUR)</label>
+                    <input type="number" step="0.01" min="1" name="budget_total" class="ut-input" required>
+                </div>
+                <div class="ut-field-group">
+                    <label class="ut-label">Disponibilité</label>
+                    <input type="number" min="0" name="disponibilite" value="1" class="ut-input" required>
+                </div>
+                <div class="ut-field-group" style="grid-column: 1 / -1;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <label class="ut-label">Description</label>
+                        <button type="button" class="ut-btn ut-btn--secondary" style="height: auto; padding: 4px 10px; font-size: 11px;" onclick="generateAiDescription()">✨ Générer avec l'IA</button>
+                    </div>
+                    <textarea name="description" id="addVoyageDescription" class="ut-input" style="height: 100px; padding: 10px; resize: none;"></textarea>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px;">
+                <button class="ut-btn ut-btn--ghost" type="button" onclick="closeModal('addVoyageModal')">Annuler</button>
+                <button class="ut-btn ut-btn--primary" type="submit">Ajouter le voyage</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="aiModal" class="ut-modal-overlay" onclick="closeModalOnOverlay(event, 'aiModal')">
+    <div class="ut-modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 class="ut-card__title" style="margin: 0; font-size: 22px;">AI Analyse Voyages</h3>
+            <button type="button" class="ut-theme-btn" style="width: 32px; height: 32px;" onclick="closeModal('aiModal')">×</button>
+        </div>
+        <div id="aiContent" class="ai-card">Chargement de l'analyse...</div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+            <button class="ut-btn ut-btn--primary" type="button" onclick="closeModal('aiModal')">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<div id="mapModal" class="ut-modal-overlay" onclick="closeModalOnOverlay(event, 'mapModal')">
+    <div class="ut-modal-box" style="max-width: 800px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 class="ut-card__title" id="mapModalTitle" style="margin: 0; font-size: 22px;">Destination Map</h3>
+            <button type="button" class="ut-theme-btn" style="width: 32px; height: 32px;" onclick="closeModal('mapModal')">×</button>
+        </div>
+        <iframe id="mapFrame" class="map-frame" style="width: 100%; height: 450px; border-radius: 12px; border: 1px solid var(--gray-md);" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+            <button class="ut-btn ut-btn--primary" type="button" onclick="closeModal('mapModal')">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function handleFilter() {
+    const dest  = document.getElementById('destinationFilter').value;
+    const dur   = document.getElementById('durationFilter').value;
+    const price = document.getElementById('priceFilter').value;
+    const params = new URLSearchParams({ destination: dest, duration: dur, price: price, page: '1' });
+    window.location.href = '{{ path("voyages") }}?' + params.toString();
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+    const isDark = document.body.classList.contains('dark-theme');
+    localStorage.setItem('explora-theme', isDark ? 'dark' : 'light');
+    
+    const themeIcon = document.getElementById('themeIconGlobal');
+    if (themeIcon) {
+        themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    }
+}
+
+function applySavedTheme() {
+    const savedTheme = localStorage.getItem('explora-theme');
+    const isDark = savedTheme === 'dark';
+    if (isDark) {
+        document.body.classList.add('dark-theme');
+    }
+
+    const themeIcon = document.getElementById('themeIconGlobal');
+    if (themeIcon) {
+        themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    }
+}
+
+applySavedTheme();
+
+function switchLanguage(locale) {
+    document.documentElement.lang = locale;
+}
+
+function openAddModal() {
+    document.getElementById('addVoyageModal').style.display = 'flex';
+}
+
+function openAiModal() {
+    const modal = document.getElementById('aiModal');
+    const box = document.getElementById('aiContent');
+    modal.style.display = 'flex';
+    box.textContent = 'Chargement de l\'analyse...';
+
+    fetch('{{ path("voyage_ai_analyse") }}')
+        .then(response => response.json())
+        .then(data => {
+            const source = data.source === 'gemini' ? 'Gemini' : 'Local fallback';
+            box.innerHTML =
+                '<strong>' + data.summary + '</strong><br><br>' +
+                'Source: <strong>' + source + '</strong><br>' +
+                'Top destination: <strong>' + data.stats.topDestination + '</strong><br>' +
+                'Prix moyen: <strong>EUR ' + Number(data.stats.averagePrice).toFixed(2) + '</strong><br>' +
+                'Nombre de voyages: <strong>' + data.stats.count + '</strong><br>' +
+                'Analyses saisonnieres: <strong>' + data.stats.seasonalAnalysesCount + '</strong><br><br>' +
+                '<div class="ai-report">' + String(data.report || 'Rapport vide.').replace(/</g, '&lt;') + '</div>';
+        })
+        .catch(() => {
+            box.textContent = 'Impossible de charger l\'analyse IA.';
+        });
+}
+
+function openMapModal(destination, title) {
+    const mapModal = document.getElementById('mapModal');
+    const mapFrame = document.getElementById('mapFrame');
+    const mapTitle = document.getElementById('mapModalTitle');
+
+    mapTitle.textContent = 'Map - ' + title;
+    mapFrame.src = 'https://maps.google.com/maps?q=' + encodeURIComponent(destination) + '&z=11&output=embed';
+    mapModal.style.display = 'flex';
+}
+
+function openMapModalFromButton(button) {
+    openMapModal(button.dataset.destination || '', button.dataset.title || 'Destination');
+}
+
+function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+}
+
+function closeModalOnOverlay(event, id) {
+    if (event.target.id === id) {
+        closeModal(id);
+    }
+}
+
+function handleSmartSearch() {
+    const q = document.getElementById('smartSearchInput').value;
+    if (q.trim() !== '') {
+        window.location.href = '{{ path("voyages") }}?smart_search=' + encodeURIComponent(q);
+    } else {
+        window.location.href = '{{ path("voyages") }}';
+    }
+}
+
+async function generateAiDescription() {
+    const titreInput = document.querySelector('input[name="titre"]');
+    const destInput = document.querySelector('input[name="destination"]');
+    const descInput = document.getElementById('addVoyageDescription');
+
+    if (!titreInput.value || !destInput.value) {
+        alert('Veuillez d\'abord saisir un Titre et une Destination.');
+        return;
+    }
+
+    descInput.value = 'Génération en cours...';
+    descInput.disabled = true;
+
+    try {
+        const response = await fetch('{{ path("api_ai_description") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ titre: titreInput.value, destination: destInput.value })
+        });
+        const data = await response.json();
+        
+        if (data.description) {
+            descInput.value = data.description;
+        } else {
+            descInput.value = '';
+            alert(data.error || 'Erreur lors de la génération.');
+        }
+    } catch (e) {
+        descInput.value = '';
+        alert('Erreur de réseau.');
+    } finally {
+        descInput.disabled = false;
+    }
+}
+</script>
+
+<!-- AI Chatbot Widget -->
+<div id="aiChatbotWidget" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end;">
+    <div id="chatbotWindow" style="display: none; width: 350px; height: 450px; background: white; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; margin-bottom: 15px; border: 1px solid #e2e8f0;">
+        <div style="background: #1a3a5c; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+            <span>🤖 Explora AI Assistant</span>
+            <button onclick="toggleChatbot()" style="background: transparent; border: none; color: white; cursor: pointer; font-size: 18px;">&times;</button>
+        </div>
+        <div id="chatbotMessages" style="flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; font-family: sans-serif; font-size: 14px;">
+            <div style="align-self: flex-start; background: #e2e8f0; color: #1a3a5c; padding: 10px; border-radius: 8px; max-width: 85%;">Bonjour ! Je suis l'assistant IA d'Explora. Que recherchez-vous aujourd'hui ?</div>
+        </div>
+        <div style="padding: 10px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 10px;">
+            <input type="text" id="chatbotInput" placeholder="Posez votre question..." style="flex: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+            <button onclick="sendChatMessage()" style="background: #f7941d; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;">Envoyer</button>
+        </div>
+    </div>
+    <button onclick="toggleChatbot()" style="background: var(--orange); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 24px; cursor: pointer; box-shadow: var(--sh); display: flex; align-items: center; justify-content: center; transition: var(--tr);">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+</div>
+
+<script>
+    function toggleChatbot() {
+        const win = document.getElementById('chatbotWindow');
+        win.style.display = win.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    async function sendChatMessage() {
+        const input = document.getElementById('chatbotInput');
+        const messages = document.getElementById('chatbotMessages');
+        const text = input.value.trim();
+
+        if (!text) return;
+
+        // Add user message
+        messages.innerHTML += `<div style="align-self: flex-end; background: #1a3a5c; color: white; padding: 10px; border-radius: 8px; max-width: 85%;">${text}</div>`;
+        input.value = '';
+        messages.scrollTop = messages.scrollHeight;
+
+        // Add typing indicator
+        const typingId = 'typing-' + Date.now();
+        messages.innerHTML += `<div id="${typingId}" style="align-self: flex-start; background: #e2e8f0; color: #1a3a5c; padding: 10px; border-radius: 8px; max-width: 85%;">...</div>`;
+        messages.scrollTop = messages.scrollHeight;
+
+        try {
+            const response = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+            const data = await response.json();
+            
+            document.getElementById(typingId).remove();
+            
+            if (data.reply) {
+                messages.innerHTML += `<div style="align-self: flex-start; background: #e2e8f0; color: #1a3a5c; padding: 10px; border-radius: 8px; max-width: 85%;">${data.reply.replace(/\n/g, '<br>')}</div>`;
+            } else {
+                messages.innerHTML += `<div style="align-self: flex-start; background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 8px; max-width: 85%;">Erreur: ${data.error || 'Impossible de répondre'}</div>`;
+            }
+        } catch (e) {
+            document.getElementById(typingId).remove();
+            messages.innerHTML += `<div style="align-self: flex-start; background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 8px; max-width: 85%;">Erreur de connexion avec l'assistant.</div>`;
+        }
+        messages.scrollTop = messages.scrollHeight;
+    }
+</script>
+
+</body>
+</html>

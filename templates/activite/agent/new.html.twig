@@ -1,0 +1,786 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Activité - Agent{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* ════════════════════════════════════════════════════════
+   EXPLORA AGENT — Nouvelle Activité
+   Design identique à la page liste
+════════════════════════════════════════════════════════ */
+
+/* Reset complet pour cette page */
+body.at-page *,
+body.at-page *::before,
+body.at-page *::after {
+  box-sizing: border-box;
+}
+
+body.at-page {
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --navy: #1e3a5f;
+  --navy-dark: #0f2540;
+  --navy-mid: #2d5a8a;
+  --orange: #f7941d;
+  --orange-dk: #e07800;
+  --orange-lt: #fff3e0;
+  --white: #ffffff;
+  --bg: #f5f7fa;
+  --bg-card: #ffffff;
+  --gray-lt: #f8f9fa;
+  --gray-md: #e9ecef;
+  --gray: #8492a6;
+  --text: #212529;
+  --text-m: #6c757d;
+  --green: #28a745;
+  --green-lt: #d4edda;
+  --red: #e74c3c;
+  --red-lt: #fde8ea;
+  --blue: #3490dc;
+  --blue-lt: #cce5ff;
+  --purple: #9b59b6;
+  --purple-dk: #8e44ad;
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 16px;
+  --sh-sm: 0 2px 8px rgba(0,0,0,.08);
+  --sh: 0 4px 20px rgba(0,0,0,.10);
+  --tr: .22s ease;
+  --fd: 'Plus Jakarta Sans', sans-serif;
+  --fb: 'DM Sans', sans-serif;
+  --sidebar-w: 250px;
+}
+
+/* ── DARK MODE ── */
+body.at-page.dark-mode {
+  --navy: #a8c4e0;
+  --navy-dark: #e8f0f8;
+  --white: #1e2d40;
+  --bg: #0f1923;
+  --bg-card: #162032;
+  --gray-lt: #1e2d40;
+  --gray-md: #2a3d52;
+  --gray: #7a8fa3;
+  --text: #e8edf3;
+  --text-m: #8ca0b5;
+  --orange-lt: rgba(247,148,29,.12);
+}
+body.at-page.dark-mode .at-sidebar { background: #0f1419 !important; }
+body.at-page.dark-mode .at-form-card { background: #162032; }
+body.at-page.dark-mode .at-input { background: #1e2d40; border-color: #2a3d52; color: #e8edf3; }
+body.at-page.dark-mode .at-input:focus { background: #1e2d40; }
+body.at-page.dark-mode .at-form-section { background: #1a2d40; border-color: #2a3d52; }
+body.at-page.dark-mode .at-textarea { background: #1e2d40; border-color: #2a3d52; color: #e8edf3; }
+body.at-page.dark-mode .at-select { background-color: #1e2d40; border-color: #2a3d52; color: #e8edf3; }
+
+body.at-page {
+  font-family: var(--fb);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background var(--tr), color var(--tr);
+}
+
+/* ══════════ OVERRIDE BASE LAYOUT ══════════ */
+/* Masquer tout ce que base.html.twig pourrait injecter */
+body.at-page > *:not(.at-layout) { display: none !important; }
+body.at-page .at-layout { display: flex !important; }
+
+.at-layout { display: flex; min-height: 100vh; }
+
+/* ══════════ SIDEBAR ══════════ */
+.at-sidebar {
+  width: var(--sidebar-w);
+  background: #1e3a5f;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  transition: background var(--tr);
+}
+
+.at-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 20px 28px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.at-sidebar-logo-icon { font-size: 32px; color: var(--orange); }
+.at-sidebar-logo-text { font-family: var(--fd); font-weight: 800; font-size: 16px; color: #fff; }
+
+.at-sidebar-section {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  color: rgba(255,255,255,.45);
+  padding: 18px 20px 6px;
+  text-transform: uppercase;
+}
+
+.at-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  height: 45px;
+  font-family: var(--fd);
+  font-weight: 600;
+  font-size: 14px;
+  color: rgba(255,255,255,.75);
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--tr);
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  border-radius: var(--r-sm);
+  margin: 0 0 2px;
+}
+.at-sidebar-item:hover { background: rgba(247,148,29,.18); color: #fff; }
+.at-sidebar-item--active {
+  background: rgba(247,148,29,.15);
+  color: var(--orange);
+  font-weight: 700;
+  border-left: 3px solid var(--orange);
+}
+.at-sidebar-item--active:hover { background: rgba(247,148,29,.22); color: var(--orange); }
+.at-sidebar-item--logout { color: #e74c3c; background: rgba(231,76,60,.08); }
+.at-sidebar-item--logout:hover { background: rgba(231,76,60,.18); color: #e74c3c; }
+.at-sidebar-spacer { flex: 1; }
+
+/* ══════════ MAIN CONTENT ══════════ */
+.at-content { flex: 1; display: flex; flex-direction: column; overflow: auto; }
+.at-inner { padding: 30px 40px; }
+
+/* ══════════ HEADER ══════════ */
+.at-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+.at-header-left h1 { font-family: var(--fd); font-size: 28px; font-weight: 800; color: var(--navy); margin: 0; }
+.at-header-left p { font-size: 14px; color: var(--gray); margin-top: 4px; margin-bottom: 0; }
+.at-header-right { display: flex; align-items: center; gap: 12px; }
+
+/* ══════════ BUTTONS ══════════ */
+.at-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--fd);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 11px 22px;
+  border-radius: var(--r-sm);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--tr);
+  white-space: nowrap;
+}
+.at-btn--orange { background: var(--orange); color: #fff; box-shadow: 0 3px 10px rgba(247,148,29,.3); }
+.at-btn--orange:hover { background: var(--orange-dk); transform: translateY(-1px); }
+.at-btn--white { background: var(--white); color: var(--navy); border: 2px solid var(--gray-md); }
+.at-btn--white:hover { background: var(--gray-lt); }
+.at-btn--purple { background: var(--purple); color: #fff; box-shadow: 0 3px 10px rgba(155,89,182,.3); }
+.at-btn--purple:hover { background: var(--purple-dk); transform: translateY(-1px); }
+.at-btn--sm { padding: 7px 14px; font-size: 12px; border-radius: 6px; }
+
+.at-theme-btn {
+  background: var(--gray-lt);
+  border: none;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--navy);
+  transition: var(--tr);
+  flex-shrink: 0;
+}
+.at-theme-btn:hover { background: var(--gray-md); transform: rotate(15deg); }
+
+/* ══════════ FORM CARD ══════════ */
+.at-form-card {
+  background: var(--bg-card);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-sm);
+  overflow: hidden;
+}
+
+.at-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 30px;
+  border-bottom: 2px solid var(--gray-md);
+  background: var(--bg-card);
+}
+.at-form-title {
+  font-family: var(--fd);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.at-form-title i { color: var(--orange); }
+
+.at-form-body { padding: 30px; }
+
+/* ══════════ FORM SECTIONS ══════════ */
+.at-form-section {
+  background: var(--gray-lt);
+  border: 1px solid var(--gray-md);
+  border-radius: var(--r);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.at-form-section-title {
+  font-family: var(--fd);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.at-form-section-title i { color: var(--orange); font-size: 14px; }
+
+.at-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.at-form-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+.at-form-col-full { grid-column: 1 / -1; }
+
+/* ══════════ FIELDS ══════════ */
+.at-field { display: flex; flex-direction: column; gap: 5px; }
+.at-label {
+  font-family: var(--fd);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  display: block;
+}
+.at-label--green { color: var(--green); }
+
+.at-input {
+  height: 42px;
+  padding: 0 14px;
+  background: var(--white);
+  border: 1.5px solid var(--gray-md);
+  border-radius: var(--r-sm);
+  font-family: var(--fb);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: var(--tr);
+  width: 100%;
+  display: block;
+}
+.at-input:focus {
+  border-color: var(--orange);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(247,148,29,.12);
+}
+
+.at-textarea {
+  padding: 12px 14px;
+  min-height: 110px;
+  resize: vertical;
+  background: var(--white);
+  border: 1.5px solid var(--gray-md);
+  border-radius: var(--r-sm);
+  font-family: var(--fb);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: var(--tr);
+  width: 100%;
+  display: block;
+}
+.at-textarea:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(247,148,29,.12);
+}
+
+.at-select {
+  height: 42px;
+  padding: 0 14px;
+  background: var(--white);
+  border: 1.5px solid var(--gray-md);
+  border-radius: var(--r-sm);
+  font-family: var(--fb);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: var(--tr);
+  width: 100%;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238492a6' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  display: block;
+}
+.at-select:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(247,148,29,.12);
+}
+
+.at-field-hint { font-size: 11px; color: var(--gray); margin: 0; }
+
+/* ── IA Button row ── */
+.at-ia-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.at-ia-status { font-size: 11px; color: var(--gray); }
+
+/* ── Photo preview ── */
+#photoPreview {
+  display: none;
+  margin-top: 10px;
+  max-height: 160px;
+  border-radius: var(--r-sm);
+  object-fit: cover;
+  border: 2px solid var(--gray-md);
+}
+
+/* ══════════ FLASH MESSAGES ══════════ */
+.at-flash {
+  background: #fde8e8;
+  color: #c0392b;
+  padding: 12px 18px;
+  border-left: 4px solid #c0392b;
+  margin-bottom: 20px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+}
+
+/* ══════════ FORM FOOTER ══════════ */
+.at-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 30px;
+  border-top: 2px solid var(--gray-md);
+  background: var(--bg-card);
+}
+
+/* ══════════ SELECT MULTIPLE ══════════ */
+.at-select-multiple {
+  min-height: 100px;
+  padding: 8px;
+  background: var(--white);
+  border: 1.5px solid var(--gray-md);
+  border-radius: var(--r-sm);
+  font-family: var(--fb);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: var(--tr);
+  width: 100%;
+}
+.at-select-multiple:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(247,148,29,.12);
+}
+
+@media (max-width: 768px) {
+  .at-sidebar { display: none; }
+  .at-inner { padding: 16px; }
+  .at-form-grid { grid-template-columns: 1fr; }
+  .at-form-grid--3 { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+{# Ajouter la classe at-page au body pour isoler les styles #}
+<script>document.body.classList.add('at-page');</script>
+
+<div class="at-layout">
+
+{# ══════════ SIDEBAR ══════════ #}
+<aside class="at-sidebar">
+    <div class="at-sidebar-logo">
+        <i class="fa-solid fa-plane at-sidebar-logo-icon"></i>
+        <div class="at-sidebar-logo-text">Explora</div>
+    </div>
+
+    <div class="at-sidebar-section">Principal</div>
+    <a href="{{ path('app_agent_dashboard') }}" class="at-sidebar-item">
+        <i class="fas fa-home"></i> Accueil
+    </a>
+    <a href="{{ path('agent_activite_index') }}" class="at-sidebar-item at-sidebar-item--active">
+        <i class="fas fa-person-hiking"></i> Activités
+    </a>
+    <a href="#" class="at-sidebar-item">
+        <i class="fas fa-ticket-alt"></i> Réservations
+    </a>
+
+    <div class="at-sidebar-spacer"></div>
+
+    <div class="at-sidebar-section">Système</div>
+    <a href="{{ path('app_logout') }}" class="at-sidebar-item at-sidebar-item--logout">
+        <i class="fas fa-sign-out-alt"></i> Déconnexion
+    </a>
+</aside>
+
+{# ══════════ CONTENU ══════════ #}
+<div class="at-content">
+<div class="at-inner">
+
+    {# HEADER #}
+    <div class="at-header">
+        <div class="at-header-left">
+            <h1>Nouvelle Activité</h1>
+            <p>Créez et configurez une nouvelle offre d'activité</p>
+        </div>
+        <div class="at-header-right">
+            <button class="at-theme-btn" id="btnTheme" title="Mode nuit / jour">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <a href="{{ path('agent_activite_index') }}" class="at-btn at-btn--white">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+        </div>
+    </div>
+
+    {# FLASH MESSAGES #}
+    {% for message in app.flashes('error') %}
+        <div class="at-flash"><i class="fas fa-exclamation-triangle"></i> {{ message }}</div>
+    {% endfor %}
+
+    {# FORM CARD #}
+    <div class="at-form-card">
+
+        <div class="at-form-header">
+            <div class="at-form-title">
+                <i class="fas fa-plus-circle"></i>
+                Formulaire d'activité
+            </div>
+            <a href="{{ path('agent_activite_index') }}" class="at-btn at-btn--white at-btn--sm">
+                <i class="fas fa-times"></i> Annuler
+            </a>
+        </div>
+
+        <div class="at-form-body">
+        {{ form_start(form) }}
+
+            {# ── SECTION 1 : Informations générales ── #}
+            <div class="at-form-section">
+                <div class="at-form-section-title">
+                    <i class="fas fa-info-circle"></i> Informations générales
+                </div>
+                <div class="at-form-grid">
+
+                    <div class="at-field at-form-col-full">
+                        {{ form_label(form.nom, 'Nom de l\'activité *', {'label_attr': {'class': 'at-label'}}) }}
+                        {{ form_widget(form.nom, {'attr': {'class': 'at-input', 'placeholder': 'Ex: Plongée à Djerba'}}) }}
+                        {{ form_errors(form.nom) }}
+                    </div>
+
+                    <div class="at-field at-form-col-full">
+                        <div class="at-ia-row">
+                            <label class="at-label">Description *</label>
+                            <button type="button" id="autoDescBtn" class="at-btn at-btn--purple at-btn--sm">
+                                <span id="autoDescSpinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span>
+                                <i class="fas fa-magic"></i> Auto-générer via IA
+                            </button>
+                            <span id="autoDescStatus" class="at-ia-status"></span>
+                        </div>
+                        {{ form_widget(form.description, {
+                            'attr': {
+                                'id': 'activite_description',
+                                'class': 'at-textarea',
+                                'placeholder': 'Décrivez l\'activité...'
+                            }
+                        }) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+
+                    <div class="at-field">
+                        {{ form_label(form.categorie, 'Catégorie *', {'label_attr': {'class': 'at-label'}}) }}
+                        {{ form_widget(form.categorie, {'attr': {'class': 'at-select'}}) }}
+                        {{ form_errors(form.categorie) }}
+                    </div>
+
+                    <div class="at-field">
+                        {{ form_label(form.type, 'Type', {'label_attr': {'class': 'at-label'}}) }}
+                        {{ form_widget(form.type, {'attr': {'class': 'at-select'}}) }}
+                        {{ form_errors(form.type) }}
+                    </div>
+
+                </div>
+            </div>
+
+            {# ── SECTION 2 : Localisation ── #}
+            <div class="at-form-section">
+                <div class="at-form-section-title">
+                    <i class="fas fa-map-marker-alt"></i> Localisation
+                </div>
+                <div class="at-form-grid">
+
+                    <div class="at-field">
+                        {{ form_label(form.ville, 'Ville *', {'label_attr': {'class': 'at-label'}}) }}
+                        {{ form_widget(form.ville, {'attr': {'class': 'at-input', 'placeholder': 'Ex: Tunis'}}) }}
+                        {{ form_errors(form.ville) }}
+                    </div>
+
+                    <div class="at-field">
+                        {{ form_label(form.lieu, 'Lieu *', {'label_attr': {'class': 'at-label'}}) }}
+                        {{ form_widget(form.lieu, {'attr': {'class': 'at-input', 'placeholder': 'Ex: Port de Djerba'}}) }}
+                        {{ form_errors(form.lieu) }}
+                    </div>
+
+                </div>
+            </div>
+
+            {# ── SECTION 3 : Tarif & Capacité ── #}
+            <div class="at-form-section">
+                <div class="at-form-section-title">
+                    <i class="fas fa-tags"></i> Tarif &amp; Capacité
+                </div>
+                <div class="at-form-grid at-form-grid--3">
+
+                    <div class="at-field">
+                        {{ form_label(form.prix, 'Prix (TND) *', {'label_attr': {'class': 'at-label at-label--green'}}) }}
+                        {{ form_widget(form.prix, {'attr': {'class': 'at-input', 'placeholder': '0.00'}}) }}
+                        {{ form_errors(form.prix) }}
+                    </div>
+
+                    <div class="at-field">
+                        {{ form_label(form.duree, 'Durée (minutes) *', {'label_attr': {'class': 'at-label'}}) }}
+                        {{ form_widget(form.duree, {'attr': {'class': 'at-input', 'placeholder': 'Ex: 120'}}) }}
+                        {{ form_errors(form.duree) }}
+                    </div>
+
+                    <div class="at-field">
+                        {{ form_label(form.nombrePlaces, 'Nombre de places *', {'label_attr': {'class': 'at-label'}}) }}
+                        {{ form_widget(form.nombrePlaces, {'attr': {'class': 'at-input', 'placeholder': 'Ex: 20'}}) }}
+                        {{ form_errors(form.nombrePlaces) }}
+                    </div>
+
+                </div>
+            </div>
+
+            {# ── SECTION 4 : Date & Horaires ── #}
+            <div class="at-form-section">
+                <div class="at-form-section-title">
+                    <i class="fas fa-calendar-alt"></i> Date &amp; Horaires
+                </div>
+                <div class="at-form-grid at-form-grid--3">
+
+                    <div class="at-field">
+                        {{ form_label(form.dateActivite, 'Date de l\'activité *', {'label_attr': {'class': 'at-label'}}) }}
+                        {{ form_widget(form.dateActivite, {'attr': {'class': 'at-input'}}) }}
+                        {{ form_errors(form.dateActivite) }}
+                    </div>
+
+                    <div class="at-field">
+                        {{ form_label(form.heureDebut, 'Heure de début *', {'label_attr': {'class': 'at-label'}}) }}
+                        {{ form_widget(form.heureDebut, {'attr': {'class': 'at-input'}}) }}
+                        {{ form_errors(form.heureDebut) }}
+                    </div>
+
+                    <div class="at-field">
+                        {{ form_label(form.heureFin, 'Heure de fin *', {'label_attr': {'class': 'at-label'}}) }}
+                        {{ form_widget(form.heureFin, {'attr': {'class': 'at-input'}}) }}
+                        {{ form_errors(form.heureFin) }}
+                    </div>
+
+                </div>
+            </div>
+
+            {# ── SECTION 5 : Photo ── #}
+            <div class="at-form-section">
+                <div class="at-form-section-title">
+                    <i class="fas fa-image"></i> Photo de l'activité
+                </div>
+
+                {{ form_widget(form.imageFile is defined ? form.imageFile : form.image, {'attr': {'class': 'at-input'}}) }}
+                <input type="hidden" name="autoImagePath" id="autoImagePath" value="" />
+
+                <div style="margin-top:12px; display:flex; align-items:center; gap:12px;">
+                    <button type="button" id="autoPhotoBtn" class="at-btn at-btn--purple at-btn--sm">
+                        <span id="autoPhotoSpinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span>
+                        <i class="fas fa-magic"></i> Photo automatique
+                    </button>
+                    <span id="photoStatus" class="at-ia-status"></span>
+                </div>
+                <img id="photoPreview" src="" alt="Aperçu">
+            </div>
+
+            {# ── SECTION 6 : Voyages associés ── #}
+            {% if form.voyages is defined %}
+            <div class="at-form-section">
+                <div class="at-form-section-title">
+                    <i class="fas fa-suitcase"></i> Voyages associés
+                </div>
+                <div class="at-field">
+                    {{ form_label(form.voyages, 'Voyages', {'label_attr': {'class': 'at-label'}}) }}
+                    <p class="at-field-hint" style="margin-bottom:6px;">Maintenez <kbd>Ctrl</kbd> pour sélectionner plusieurs voyages.</p>
+                    {{ form_widget(form.voyages, {'attr': {'class': 'at-select-multiple'}}) }}
+                    {{ form_errors(form.voyages) }}
+                </div>
+            </div>
+            {% endif %}
+
+            {# FORM FOOTER #}
+            <div class="at-form-footer">
+                <a href="{{ path('agent_activite_index') }}" class="at-btn at-btn--white">
+                    <i class="fas fa-times"></i> Annuler
+                </a>
+                <button type="submit" class="at-btn at-btn--orange">
+                    <i class="fas fa-save"></i> Enregistrer l'activité
+                </button>
+            </div>
+
+        {{ form_end(form) }}
+        </div>
+
+    </div>{# /at-form-card #}
+
+</div>
+</div>
+</div>
+
+<script>
+    /* ── Ajouter classe at-page au body ── */
+    document.body.classList.add('at-page');
+
+    /* ── Dark mode ── */
+    const btn = document.getElementById('btnTheme');
+    const icon = document.getElementById('themeIcon');
+    let dark = localStorage.getItem('at-dark') === '1';
+    function apply() {
+        document.body.classList.toggle('dark-mode', dark);
+        if (icon) icon.className = dark ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    apply();
+    if (btn) btn.addEventListener('click', () => {
+        dark = !dark;
+        localStorage.setItem('at-dark', dark ? '1' : '0');
+        apply();
+    });
+
+    /* ── Auto-description IA ── */
+    document.getElementById('autoDescBtn').addEventListener('click', async function () {
+        const nom       = document.getElementById('activite_nom')?.value?.trim() || '';
+        const ville     = document.getElementById('activite_ville')?.value?.trim() || '';
+        const categorie = document.getElementById('activite_categorie')?.value || 'Tourisme';
+
+        if (nom.length < 3) {
+            setDescStatus('⚠️ Saisissez au moins le nom (3 caractères min)', '#e67e22');
+            return;
+        }
+
+        this.disabled = true;
+        document.getElementById('autoDescSpinner').style.display = 'inline';
+        setDescStatus('🤖 Gemini réfléchit...', '#3498db');
+
+        try {
+            const response = await fetch('{{ path('agent_activite_generate_description') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nom, ville, categorie }),
+            });
+            const data = await response.json();
+            if (response.ok && data.description) {
+                const descField = document.getElementById('activite_description');
+                if (descField) descField.value = data.description;
+                setDescStatus('✅ Description générée !', '#27ae60');
+            } else {
+                setDescStatus('❌ ' + (data.error || 'Erreur inconnue'), '#e74c3c');
+            }
+        } catch (e) {
+            setDescStatus('❌ Erreur de connexion à l\'IA', '#e74c3c');
+        } finally {
+            this.disabled = false;
+            document.getElementById('autoDescSpinner').style.display = 'none';
+        }
+    });
+
+    function setDescStatus(msg, color) {
+        const el = document.getElementById('autoDescStatus');
+        el.textContent = msg;
+        el.style.color = color;
+    }
+
+    /* ── Auto-photo ── */
+    document.getElementById('autoPhotoBtn').addEventListener('click', async function () {
+        const nom       = document.getElementById('activite_nom')?.value?.trim() || '';
+        const ville     = document.getElementById('activite_ville')?.value?.trim() || '';
+        const categorie = document.getElementById('activite_categorie')?.value || '';
+
+        if (nom.length < 3 && ville.length < 3) {
+            setPhotoStatus('⚠️ Saisissez au moins le nom ou la ville', '#e67e22');
+            return;
+        }
+
+        this.disabled = true;
+        document.getElementById('autoPhotoSpinner').style.display = 'inline';
+        setPhotoStatus('🔍 Recherche en cours...', '#3498db');
+
+        try {
+            const response = await fetch('{{ path('agent_activite_auto_photo') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nom, ville, categorie }),
+            });
+            const data = await response.json();
+            const imageUrl = data.url || (data.path ? '/' + data.path : null);
+
+            if (response.ok && imageUrl) {
+                const preview = document.getElementById('photoPreview');
+                const hiddenInput = document.getElementById('autoImagePath');
+                const filename = data.filename || (data.path ? data.path.split('/').pop() : null) || (data.url ? data.url.split('/').pop() : null);
+
+                preview.src = imageUrl;
+                preview.style.display = 'block';
+                if (hiddenInput) {
+                    hiddenInput.value = filename || '';
+                }
+
+                setPhotoStatus('✅ Photo ajoutée !', '#27ae60');
+            } else {
+                setPhotoStatus('❌ ' + (data.error || 'Aucune photo trouvée'), '#e74c3c');
+            }
+        } catch (e) {
+            setPhotoStatus('❌ Erreur de connexion', '#e74c3c');
+        } finally {
+            this.disabled = false;
+            document.getElementById('autoPhotoSpinner').style.display = 'none';
+        }
+    });
+
+    function setPhotoStatus(msg, color) {
+        const el = document.getElementById('photoStatus');
+        el.textContent = msg;
+        el.style.color = color;
+    }
+</script>
+{% endblock %}

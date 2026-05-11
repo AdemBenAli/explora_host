@@ -1,0 +1,52 @@
+<style>
+    .sidebar {
+        background: linear-gradient(180deg, #b45309 0%, #d97706 100%) !important;
+    }
+    .sidebar-nav .nav-item.active {
+        background-color: rgba(255,255,255,0.15) !important;
+        border-left-color: white !important;
+        color: white !important;
+    }
+</style>
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-box"><i class="fa-solid fa-plane"></i></div>
+        <div class="logo-text">
+            <h2>Explora</h2>
+            <span>Travel Platform</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a href="#" class="nav-item {{ active_route == 'agent_dashboard' ? 'active' : '' }}"><i class="fa-solid fa-home"></i> Dashboard</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-suitcase"></i> My Packages</a>
+        <a href="#" class="nav-item"><i class="fa-regular fa-calendar-check"></i> Bookings</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-users"></i> Clients</a>
+        <a href="{{ path('admin_activite_index') }}" class="nav-item {{ active_route starts with 'admin_activite_' or active_route starts with 'activite_' ? 'active' : '' }}"><i class="fa-solid fa-person-hiking"></i> Activités</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+        <a href="#" class="nav-item"><i class="fa-regular fa-user"></i> Profile</a>
+
+        <div class="tier-card">
+            <div class="tier-card-label">Agency Status</div>
+            <div class="tier-card-content">
+                <div class="tier-badge"><i class="fa-solid fa-building"></i></div>
+                <span>Verified Agency</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+        <a href="#" class="nav-item"><i class="fa-regular fa-circle-question"></i> Help Center</a>
+        <a href="#" class="nav-item" id="theme-nav-btn" onclick="toggleThemeMenu(event)">
+            <i class="fa-solid fa-circle-half-stroke"></i> Theme
+            <span id="theme-nav-icon" style="margin-left:auto;font-size:1rem;"></span>
+        </a>
+        <div id="theme-nav-menu" style="display:none; flex-direction:column; background:rgba(255,255,255,0.1); border-radius:8px; margin:0 12px 8px;">
+            <button class="theme-nav-option" data-mode="light"  onclick="pickTheme('light')">☀️ Light</button>
+            <button class="theme-nav-option" data-mode="dark"   onclick="pickTheme('dark')">🌙 Dark</button>
+            <button class="theme-nav-option" data-mode="auto"   onclick="pickTheme('auto')">🌗 Auto</button>
+        </div>
+        <a href="{{ path('app_logout') }}" class="nav-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+    </div>
+</aside>

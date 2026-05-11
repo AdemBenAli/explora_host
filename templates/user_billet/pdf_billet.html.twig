@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Billet #{{ billet.id }} - Explora</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#fff;color:#212529;padding:40px;}
+
+/* PRINT auto-trigger */
+@media screen{
+  .print-hint{
+    background:#1a3a5c;color:#fff;padding:12px 20px;border-radius:8px;
+    font-size:14px;font-weight:700;margin-bottom:30px;display:flex;
+    align-items:center;gap:10px;
+  }
+  .print-hint button{
+    margin-left:auto;background:#f7941d;color:#fff;border:none;
+    padding:8px 20px;border-radius:20px;font-weight:700;font-size:13px;cursor:pointer;
+  }
+}
+@media print{
+  .print-hint{display:none}
+  body{padding:20px}
+}
+
+/* TICKET STYLE (identique Java PDF iText) */
+.ticket{max-width:720px;margin:0 auto;}
+
+.ticket-header{
+  background:linear-gradient(135deg,#1a3a5c,#2d5a8a);
+  color:#fff;padding:30px 40px;border-radius:12px 12px 0 0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ticket-header h1{font-size:28px;font-weight:800;letter-spacing:-.5px;}
+.ticket-header .billet-num{font-size:16px;opacity:.85;margin-top:6px;}
+.ticket-logo{font-size:42px;opacity:.9;}
+
+.ticket-body{border:2px solid #e9ecef;border-top:none;border-radius:0 0 12px 12px;padding:0;}
+
+/* Route principale */
+.ticket-route{
+  padding:30px 40px;
+  display:flex;align-items:center;gap:20px;
+  border-bottom:1px solid #e9ecef;
+}
+.ticket-endpoint{flex:1;}
+.ticket-city{font-size:26px;font-weight:800;color:#1a3a5c;}
+.ticket-time{font-size:32px;font-weight:800;color:#1a3a5c;line-height:1;}
+.ticket-date{font-size:13px;color:#8492a6;margin-top:4px;}
+.ticket-arrow{
+  display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;
+}
+.ticket-arrow-line{
+  display:flex;align-items:center;width:100%;gap:6px;
+}
+.ticket-arrow-dot{width:10px;height:10px;border-radius:50%;background:#1a3a5c;flex-shrink:0;}
+.ticket-arrow-dash{flex:1;height:2px;background:#e9ecef;}
+.ticket-arrow-icon{font-size:22px;color:#f7941d;flex-shrink:0;}
+.ticket-duration{font-size:12px;color:#8492a6;font-weight:600;text-align:center;}
+
+/* Info grid */
+.ticket-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid #e9ecef;}
+.ticket-info-cell{padding:20px 30px;border-right:1px solid #e9ecef;}
+.ticket-info-cell:last-child{border-right:none;}
+.ticket-info-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#8492a6;font-weight:700;margin-bottom:6px;}
+.ticket-info-val{font-size:16px;font-weight:800;color:#1a3a5c;}
+.ticket-info-val--orange{color:#f7941d;}
+
+/* Statut + reservation */
+.ticket-footer{padding:20px 40px;display:flex;align-items:center;justify-content:space-between;}
+.ticket-statut{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;
+}
+.statut-attente{background:#fff3cd;color:#856404;}
+.statut-confirme{background:#d4edda;color:#155724;}
+.statut-paye{background:#cce5ff;color:#004085;}
+.statut-annule{background:#f8d7da;color:#721c24;}
+.ticket-reservation{font-size:12px;color:#8492a6;}
+
+/* Separateur perfore */
+.ticket-perf{
+  position:relative;border-top:2px dashed #e9ecef;margin:0 40px;
+}
+.ticket-perf::before,.ticket-perf::after{
+  content:'';position:absolute;top:-9px;
+  width:16px;height:16px;border-radius:50%;background:#f5f7fa;
+  border:2px solid #e9ecef;
+}
+.ticket-perf::before{left:-52px;}
+.ticket-perf::after{right:-52px;}
+
+/* Merci footer */
+.ticket-thankyou{
+  text-align:center;padding:20px 40px;color:#8492a6;font-size:12px;font-style:italic;
+  border-top:1px solid #e9ecef;
+}
+</style>
+</head>
+<body>
+
+{% set t = billet.transport %}
+
+<div class="print-hint">
+    <span>&#128462; Pour sauvegarder en PDF : cliquez sur "Imprimer" puis choisissez "Enregistrer en PDF"</span>
+    <button onclick="window.print()">&#128438; Imprimer / Sauvegarder PDF</button>
+</div>
+
+<div class="ticket">
+
+    {# En-tete - identique Java titleFont "BILLET DE TRANSPORT" #}
+    <div class="ticket-header">
+        <div>
+            <h1>BILLET DE TRANSPORT</h1>
+            <div class="billet-num">Billet #{{ billet.id }} &bull; Explora Transport</div>
+        </div>
+        <div class="ticket-logo">&#9992;</div>
+    </div>
+
+    <div class="ticket-body">
+
+        {# Route principale - origine -> destination #}
+        <div class="ticket-route">
+            <div class="ticket-endpoint">
+                <div class="ticket-city">{{ t.origine }}</div>
+                <div class="ticket-time">{{ t.heureDepart ? t.heureDepart|date('H:i') : '--:--' }}</div>
+                <div class="ticket-date">{{ t.dateDepart ? t.dateDepart|date('d/m/Y') : '' }}</div>
+            </div>
+            <div class="ticket-arrow">
+                <div class="ticket-duration">
+                    {%- if t.heureArrivee and t.heureDepart -%}
+                        {%- set dep = t.heureDepart|date('H')*60 + t.heureDepart|date('i') -%}
+                        {%- set arr = t.heureArrivee|date('H')*60 + t.heureArrivee|date('i') -%}
+                        {%- set diff = arr - dep -%}
+                        {%- if diff < 0 %}{%- set diff = diff + 1440 -%}{%- endif -%}
+                        {{ (diff // 60) }}h{{ '%02d'|format(diff % 60) }}
+                    {%- endif -%}
+                </div>
+                <div class="ticket-arrow-line">
+                    <span class="ticket-arrow-dot"></span>
+                    <span class="ticket-arrow-dash"></span>
+                    <span class="ticket-arrow-icon">&#8594;</span>
+                    <span class="ticket-arrow-dash"></span>
+                    <span class="ticket-arrow-dot"></span>
+                </div>
+                <div class="ticket-duration">Direct</div>
+            </div>
+            <div class="ticket-endpoint" style="text-align:right">
+                <div class="ticket-city">{{ t.destination }}</div>
+                <div class="ticket-time">{{ t.heureArrivee ? t.heureArrivee|date('H:i') : '--:--' }}</div>
+                <div class="ticket-date">{{ t.dateArrivee ? t.dateArrivee|date('d/m/Y') : '' }}</div>
+            </div>
+        </div>
+
+        {# Info grid - identique Java addLine() dans genererPDF() #}
+        <div class="ticket-info">
+            <div class="ticket-info-cell">
+                <div class="ticket-info-label">Type de transport</div>
+                <div class="ticket-info-val">{{ t.type.value|capitalize }}</div>
+            </div>
+            <div class="ticket-info-cell">
+                <div class="ticket-info-label">Compagnie</div>
+                <div class="ticket-info-val">{{ t.compagnie ?: 'Explora' }}</div>
+            </div>
+            <div class="ticket-info-cell">
+                <div class="ticket-info-label">N&deg; Vol / Ref</div>
+                <div class="ticket-info-val">{{ t.numeroVol ?: '-' }}</div>
+            </div>
+        </div>
+
+        {# Separateur perfore (style ticket physique) #}
+        <div class="ticket-perf"></div>
+
+        {# Footer du ticket #}
+        <div class="ticket-footer">
+            <div>
+                <div style="font-size:11px;color:#8492a6;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Passager</div>
+                <div style="font-size:15px;font-weight:800;color:#1a3a5c;">Client #{{ billet.userId }}</div>
+                <div style="font-size:13px;color:#8492a6;margin-top:4px;">
+                    {{ billet.nombrePlaces }} place{{ billet.nombrePlaces > 1 ? 's' : '' }} &bull;
+                    R&eacute;serv&eacute; le {{ billet.dateReservation ? billet.dateReservation|date('d/m/Y') : '' }}
+                </div>
+            </div>
+
+            <div style="text-align:center">
+                <div style="font-size:11px;color:#8492a6;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Prix Total</div>
+                <div style="font-size:32px;font-weight:800;color:#f7941d;">
+                    {{ billet.prixTotal|number_format(2, ".", " ") }}
+                </div>
+            </div>
+
+            <div style="text-align:right">
+                <div style="font-size:11px;color:#8492a6;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Statut</div>
+                {% if billet.statut.value == 'EN_ATTENTE' %}
+                    <span class="ticket-statut statut-attente">En attente</span>
+                {% elseif billet.statut.value == 'CONFIRME' %}
+                    <span class="ticket-statut statut-confirme">Confirm&eacute;</span>
+                {% elseif billet.statut.value == 'PAYE' %}
+                    <span class="ticket-statut statut-paye">Pay&eacute;</span>
+                {% else %}
+                    <span class="ticket-statut statut-annule">Annul&eacute;</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Merci - identique Java footer iText #}
+        <div class="ticket-thankyou">
+            Merci de voyager avec Explora Transport - &copy; 2026 Explora
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Auto-print apres chargement (optionnel, decommenter si souhaite)
+// window.onload = () => window.print();
+</script>
+</body>
+</html>
+
+

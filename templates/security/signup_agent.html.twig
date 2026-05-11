@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agency Registration - Explora</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="/css/theme.css">
+    <script src="/js/theme.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap');
+
+        :root {
+            --orange: #f59e0b;
+            --orange-dark: #d97706;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0F172A;
+            --card: #1E293B;
+            --text: #F1F5F9;
+            --muted: #94A3B8;
+            --border: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 24px;
+            color: var(--text);
+            transition: background .3s, color .3s;
+        }
+
+        .wizard {
+            width: 100%;
+            max-width: 1100px;
+            background: var(--card);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .wiz-header {
+            background: linear-gradient(135deg, #1e3a6e 0%, #2B4E7A 100%);
+            padding: 20px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .wiz-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wiz-logo i { font-size: 1.6rem; color: #60A5FA; }
+        .wiz-logo span { font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 700; color: white; }
+
+        .wiz-sep { width: 1px; height: 30px; background: rgba(255,255,255,0.2); margin: 0 16px; }
+
+        .wiz-title h2 { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; color: white; }
+        .wiz-title p { font-size: 0.73rem; color: rgba(255,255,255,0.65); margin-top: 2px; }
+
+        .btn-back {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background .2s;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.22); }
+
+        /* Stepper */
+        .stepper {
+            display: flex;
+            align-items: flex-start;
+            padding: 20px 32px;
+            border-bottom: 1px solid var(--border);
+            background: var(--card);
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+            position: relative;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: calc(50% + 20px);
+            right: calc(-50% + 20px);
+            height: 2px;
+            background: var(--border);
+            transition: background .3s;
+        }
+
+        .step.done:not(:last-child)::after { background: var(--orange); }
+
+        .step-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: 2px solid var(--border);
+            background: var(--card);
+            color: var(--muted);
+            z-index: 1;
+            transition: all .3s;
+        }
+
+        .step.active .step-dot {
+            background: var(--orange);
+            border-color: var(--orange);
+            color: white;
+            box-shadow: 0 0 0 4px rgba(245,158,11,0.18);
+        }
+
+        .step.done .step-dot {
+            background: var(--orange);
+            border-color: var(--orange);
+            color: white;
+        }
+
+        .step-lbl {
+            font-size: 0.68rem;
+            font-weight: 500;
+            color: var(--muted);
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .step.active .step-lbl,
+        .step.done .step-lbl { color: var(--orange); font-weight: 600; }
+
+        /* Body */
+        .wiz-body {
+            padding: 28px 36px;
+            min-height: 520px;
+        }
+
+        .panel { display: none; }
+        .panel.active { display: block; animation: fadeIn .25s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-title i { color: var(--orange); }
+
+        .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+        .fg { margin-bottom: 14px; }
+
+        .fg label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .req { color: #ef4444; margin-left: 2px; }
+
+        .fc {
+            width: 100%;
+            padding: 9px 13px;
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            font-size: 0.85rem;
+            color: var(--text);
+            background: var(--card);
+            font-family: 'Inter', sans-serif;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .fc:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(245,158,11,0.1); }
+        .fc::placeholder { color: var(--muted); }
+        textarea.fc { resize: vertical; min-height: 80px; }
+
+        .pw-wrap { position: relative; }
+        .pw-wrap .fc { padding-right: 38px; }
+        .pw-toggle {
+            position: absolute;
+            right: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 0.82rem;
+            padding: 0;
+        }
+
+        /* Doc uploads */
+        .doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        .doc-box label.doc-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .doc-box.optional .doc-label::after {
+            content: ' (optional)';
+            font-weight: 400;
+            color: var(--muted);
+            font-size: 0.7rem;
+        }
+
+        .doc-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 13px;
+            border: 1.5px dashed var(--border);
+            border-radius: 9px;
+            cursor: pointer;
+            transition: border-color .2s, background .2s;
+        }
+
+        .doc-trigger:hover { border-color: var(--orange); background: rgba(245,158,11,0.03); }
+        .doc-trigger input[type=file] { display: none; }
+        .doc-trigger i { color: var(--muted); font-size: 1rem; flex-shrink: 0; }
+        .doc-name { font-size: 0.78rem; color: var(--muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .doc-btn-lbl { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 0.73rem; font-weight: 600; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+
+        /* Error */
+        .err-box {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+            border-radius: 9px;
+            padding: 11px 15px;
+            font-size: 0.83rem;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Footer */
+        .wiz-footer {
+            padding: 16px 36px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .step-info { font-size: 0.78rem; color: var(--muted); }
+
+        .footer-btns { display: flex; gap: 10px; }
+
+        .btn-prev {
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            color: var(--text);
+            padding: 9px 20px;
+            border-radius: 9px;
+            font-size: 0.87rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: border-color .2s;
+        }
+        .btn-prev:hover { border-color: var(--orange); }
+
+        .btn-next {
+            background: var(--orange);
+            border: none;
+            color: white;
+            padding: 9px 22px;
+            border-radius: 9px;
+            font-size: 0.87rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background .2s;
+        }
+        .btn-next:hover { background: var(--orange-dark); }
+
+        .btn-submit {
+            background: #16a34a;
+            border: none;
+            color: white;
+            padding: 9px 22px;
+            border-radius: 9px;
+            font-size: 0.87rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background .2s;
+        }
+        .btn-submit:hover { background: #15803d; }
+
+        @media (max-width: 640px) {
+            .g2, .g3, .doc-grid { grid-template-columns: 1fr; }
+            .wiz-body { padding: 20px; }
+            .wiz-footer { padding: 14px 20px; }
+            .stepper { padding: 16px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<form method="POST" action="{{ path('app_signup_agent') }}" enctype="multipart/form-data">
+<div class="wizard">
+
+    <!-- Header -->
+    <div class="wiz-header">
+        <div style="display:flex;align-items:center;">
+            <div class="wiz-logo">
+                <i class="fa-solid fa-earth-americas"></i>
+                <span>Explora</span>
+            </div>
+            <div class="wiz-sep"></div>
+            <div class="wiz-title">
+                <h2>Agency Registration</h2>
+                <p>Partner with us to reach more travelers</p>
+            </div>
+        </div>
+        <a href="{{ path('app_signup') }}" class="btn-back">
+            <i class="fa-solid fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <!-- Stepper -->
+    <div class="stepper">
+        <div class="step active" id="si1">
+            <div class="step-dot">1</div>
+            <span class="step-lbl">Personal</span>
+        </div>
+        <div class="step" id="si2">
+            <div class="step-dot">2</div>
+            <span class="step-lbl">Agency</span>
+        </div>
+        <div class="step" id="si3">
+            <div class="step-dot">3</div>
+            <span class="step-lbl">Legal</span>
+        </div>
+        <div class="step" id="si4">
+            <div class="step-dot">4</div>
+            <span class="step-lbl">Documents</span>
+        </div>
+    </div>
+
+    <!-- Panels -->
+    <div class="wiz-body">
+
+        {% if error %}
+        <div class="err-box" id="err-box">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>{{ error.msg is defined ? error.msg : error }}</span>
+            <button type="button" onclick="this.parentElement.remove()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:inherit;font-size:1rem;">✕</button>
+        </div>
+        <script>setTimeout(function(){ var b=document.getElementById('err-box'); if(b) b.remove(); }, 5000);</script>
+        {% endif %}
+        {% if error and error.step is defined %}
+        <script>document.addEventListener('DOMContentLoaded',function(){ goTo({{ error.step }}); });</script>
+        {% endif %}
+
+        <!-- Panel 1: Personal -->
+        <div class="panel active" id="p1">
+            <div class="panel-title"><i class="fa-solid fa-user"></i> Personal Information</div>
+            <div class="g2">
+                <div class="fg">
+                    <label>First Name <span class="req">*</span></label>
+                    <input type="text" name="prenom" class="fc" placeholder="First name" required>
+                </div>
+                <div class="fg">
+                    <label>Last Name <span class="req">*</span></label>
+                    <input type="text" name="nom" class="fc" placeholder="Last name" required>
+                </div>
+            </div>
+            <div class="fg">
+                <label>Email Address <span class="req">*</span></label>
+                <input type="email" name="email" class="fc" placeholder="your@email.com" required>
+            </div>
+            <div class="fg">
+                <label>Phone Number <span class="req">*</span></label>
+                <input type="tel" name="telephone" class="fc" placeholder="e.g. 21234567" required>
+            </div>
+            <div class="g2">
+                <div class="fg">
+                    <label>Password <span class="req">*</span></label>
+                    <div class="pw-wrap">
+                        <input type="password" name="password" id="pw1" class="fc" placeholder="Min 6 characters" required>
+                        <button type="button" class="pw-toggle" onclick="togglePw('pw1',this)"><i class="fa-regular fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label>Confirm Password <span class="req">*</span></label>
+                    <div class="pw-wrap">
+                        <input type="password" name="confirm_password" id="pw2" class="fc" placeholder="Re-enter password" required>
+                        <button type="button" class="pw-toggle" onclick="togglePw('pw2',this)"><i class="fa-regular fa-eye"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Agency -->
+        <div class="panel" id="p2">
+            <div class="panel-title"><i class="fa-solid fa-building"></i> Agency Information</div>
+            <div class="g2">
+                <div class="fg">
+                    <label>Agency Name <span class="req">*</span></label>
+                    <input type="text" name="nom_agence" class="fc" placeholder="Commercial name">
+                </div>
+                <div class="fg">
+                    <label>Legal Name <span class="req">*</span></label>
+                    <input type="text" name="nom_legal_agence" class="fc" placeholder="Official legal name">
+                </div>
+            </div>
+            <div class="fg">
+                <label>Description</label>
+                <textarea name="description_agence" class="fc" placeholder="Brief description of your agency..."></textarea>
+            </div>
+            <div class="g2">
+                <div class="fg">
+                    <label>Agency Email <span class="req">*</span></label>
+                    <input type="email" name="email_agence" class="fc" placeholder="contact@agency.com">
+                </div>
+                <div class="fg">
+                    <label>Agency Phone <span class="req">*</span></label>
+                    <input type="tel" name="telephone_agence" class="fc" placeholder="Agency phone">
+                </div>
+            </div>
+            <div class="g3">
+                <div class="fg">
+                    <label>Country <span class="req">*</span></label>
+                    <input type="text" name="pays_agence" class="fc" placeholder="Country">
+                </div>
+                <div class="fg">
+                    <label>City <span class="req">*</span></label>
+                    <input type="text" name="ville_agence" class="fc" placeholder="City">
+                </div>
+                <div class="fg">
+                    <label>Postal Code</label>
+                    <input type="text" name="code_postal_agence" class="fc" placeholder="Postal code">
+                </div>
+            </div>
+            <div class="g2">
+                <div class="fg">
+                    <label>Address <span class="req">*</span></label>
+                    <input type="text" name="adresse_agence" class="fc" placeholder="Street address">
+                </div>
+                <div class="fg">
+                    <label>Website</label>
+                    <input type="url" name="site_web" class="fc" placeholder="https://...">
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 3: Legal -->
+        <div class="panel" id="p3">
+            <div class="panel-title"><i class="fa-solid fa-scale-balanced"></i> Legal Information</div>
+            <div class="g2">
+                <div class="fg">
+                    <label>Trade Register No. <span class="req">*</span></label>
+                    <input type="text" name="numero_registre_commerce" class="fc" placeholder="e.g. RC123456">
+                </div>
+                <div class="fg">
+                    <label>Tax Number <span class="req">*</span></label>
+                    <input type="text" name="numero_fiscal" class="fc" placeholder="e.g. TN123456789">
+                </div>
+            </div>
+            <div class="g2">
+                <div class="fg">
+                    <label>Agency Licence No. <span class="req">*</span></label>
+                    <input type="text" name="numero_licence_agence" class="fc" placeholder="Licence number">
+                </div>
+                <div class="fg">
+                    <label>Registration Date <span class="req">*</span></label>
+                    <input type="date" name="date_enregistrement" class="fc">
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 4: Documents -->
+        <div class="panel" id="p4">
+            <div class="panel-title"><i class="fa-solid fa-file-arrow-up"></i> Required Documents</div>
+            <div class="doc-grid">                <div class="doc-box">
+                    <label class="doc-label">Trade Register <span class="req">*</span></label>
+                    <label class="doc-trigger">
+                        <input type="file" name="doc_registre_commerce" accept=".pdf,.jpg,.png" onchange="showFile(this)">
+                        <i class="fa-regular fa-file"></i>
+                        <span class="doc-name">No file chosen</span>
+                        <span class="doc-btn-lbl">Browse</span>
+                    </label>
+                </div>
+                <div class="doc-box">
+                    <label class="doc-label">Tax Certificate <span class="req">*</span></label>
+                    <label class="doc-trigger">
+                        <input type="file" name="doc_matricule_fiscal" accept=".pdf,.jpg,.png" onchange="showFile(this)">
+                        <i class="fa-regular fa-file"></i>
+                        <span class="doc-name">No file chosen</span>
+                        <span class="doc-btn-lbl">Browse</span>
+                    </label>
+                </div>
+                <div class="doc-box">
+                    <label class="doc-label">Agency Licence <span class="req">*</span></label>
+                    <label class="doc-trigger">
+                        <input type="file" name="doc_licence_agence" accept=".pdf,.jpg,.png" onchange="showFile(this)">
+                        <i class="fa-regular fa-file"></i>
+                        <span class="doc-name">No file chosen</span>
+                        <span class="doc-btn-lbl">Browse</span>
+                    </label>
+                </div>
+                <div class="doc-box">
+                    <label class="doc-label">ID Card (Front) <span class="req">*</span></label>
+                    <label class="doc-trigger">
+                        <input type="file" name="doc_piece_identite_recto" accept=".pdf,.jpg,.png" onchange="showFile(this)">
+                        <i class="fa-regular fa-file"></i>
+                        <span class="doc-name">No file chosen</span>
+                        <span class="doc-btn-lbl">Browse</span>
+                    </label>
+                </div>
+                <div class="doc-box">
+                    <label class="doc-label">ID Card (Back) <span class="req">*</span></label>
+                    <label class="doc-trigger">
+                        <input type="file" name="doc_piece_identite_verso" accept=".pdf,.jpg,.png" onchange="showFile(this)">
+                        <i class="fa-regular fa-file"></i>
+                        <span class="doc-name">No file chosen</span>
+                        <span class="doc-btn-lbl">Browse</span>
+                    </label>
+                </div>
+                <div class="doc-box">
+                    <label class="doc-label">Proof of Address <span class="req">*</span></label>
+                    <label class="doc-trigger">
+                        <input type="file" name="doc_justificatif_adresse" accept=".pdf,.jpg,.png" onchange="showFile(this)">
+                        <i class="fa-regular fa-file"></i>
+                        <span class="doc-name">No file chosen</span>
+                        <span class="doc-btn-lbl">Browse</span>
+                    </label>
+                </div>
+                <div class="doc-box">
+                    <label class="doc-label">Bank Details (RIB) <span class="req">*</span></label>
+                    <label class="doc-trigger">
+                        <input type="file" name="doc_rib_bancaire" accept=".pdf,.jpg,.png" onchange="showFile(this)">
+                        <i class="fa-regular fa-file"></i>
+                        <span class="doc-name">No file chosen</span>
+                        <span class="doc-btn-lbl">Browse</span>
+                    </label>
+                </div>
+                <div class="doc-box optional">
+                    <label class="doc-label">Insurance</label>
+                    <label class="doc-trigger">
+                        <input type="file" name="doc_assurance" accept=".pdf,.jpg,.png" onchange="showFile(this)">
+                        <i class="fa-regular fa-file"></i>
+                        <span class="doc-name">No file chosen</span>
+                        <span class="doc-btn-lbl">Browse</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Verification Method -->
+            <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border);">
+                <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text);margin-bottom:10px;">
+                    Verification Method <span style="color:#ef4444;">*</span>
+                </label>
+                <div style="display:flex;gap:12px;">
+                    <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-size:13px;color:var(--text);transition:border-color .2s;" id="lbl-email-v">
+                        <input type="radio" name="verification" value="email" checked onchange="highlightVerif()">
+                        <i class="fa-regular fa-envelope" style="color:#3b82f6;"></i> Email
+                    </label>
+                    <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-size:13px;color:var(--text);transition:border-color .2s;" id="lbl-sms-v">
+                        <input type="radio" name="verification" value="sms" onchange="highlightVerif()">
+                        <i class="fa-solid fa-mobile-screen" style="color:#22c55e;"></i> SMS
+                    </label>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="wiz-footer">
+        <span class="step-info" id="step-info">Step 1 of 4</span>
+        <div class="footer-btns">
+            <button type="button" class="btn-prev" id="btn-prev" style="display:none" onclick="prevStep()">
+                <i class="fa-solid fa-arrow-left"></i> Previous
+            </button>
+            <button type="button" class="btn-next" id="btn-next" onclick="nextStep()">
+                Next <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <button type="submit" class="btn-submit" id="btn-submit" style="display:none">
+                <i class="fa-solid fa-paper-plane"></i> Submit Application
+            </button>
+        </div>
+    </div>
+
+</div>
+</form>
+
+<script>
+    var cur = 1;
+    var total = 4;
+    var touched = {};
+
+    function togglePw(id, btn) {
+        var el = document.getElementById(id);
+        var icon = btn.querySelector('i');
+        if (el.type === 'password') { el.type = 'text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
+        else { el.type = 'password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
+    }
+
+    function showFile(input) {
+        var nameEl = input.closest('.doc-trigger').querySelector('.doc-name');
+        nameEl.textContent = input.files.length ? input.files[0].name : 'No file chosen';
+    }
+
+    function showInlineError(name, msg) {
+        var input = document.querySelector('[name="' + name + '"]');
+        if (!input) return;
+        input.style.borderColor = '#ef4444';
+        input.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.12)';
+        var hint = input.parentElement.querySelector('.fhint');
+        if (!hint) { hint = document.createElement('span'); hint.className = 'fhint'; hint.style.cssText = 'font-size:0.7rem;margin-top:3px;display:block;color:#dc2626;'; input.insertAdjacentElement('afterend', hint); }
+        hint.textContent = msg;
+    }
+
+    function clearInlineErrors(panelId) {
+        document.querySelectorAll('#' + panelId + ' .fc').forEach(function(el) {
+            el.style.borderColor = ''; el.style.boxShadow = '';
+            var h = el.parentElement.querySelector('.fhint'); if (h) h.textContent = '';
+        });
+    }
+
+    function setFieldState(input, valid, okMsg, errMsg) {
+        if (!touched[input.name] && !input.value) return;
+        input.style.borderColor = input.value ? (valid ? '#22c55e' : '#ef4444') : '';
+        input.style.boxShadow   = input.value ? (valid ? '0 0 0 3px rgba(34,197,94,0.12)' : '0 0 0 3px rgba(239,68,68,0.12)') : '';
+        var hint = input.parentElement.querySelector('.fhint');
+        if (!hint) { hint = document.createElement('span'); hint.className = 'fhint'; hint.style.cssText = 'font-size:0.7rem;margin-top:3px;display:block;'; input.insertAdjacentElement('afterend', hint); }
+        hint.textContent = input.value ? (valid ? okMsg : errMsg) : '';
+        hint.style.color = valid ? '#16a34a' : '#dc2626';
+    }
+
+    function validateEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+    function validatePhone(v) { return /^\d{6,15}$/.test(v.trim()); }
+
+    function runValidation(input) {
+        var v = input.value, n = input.name;
+        if (n === 'prenom' || n === 'nom') setFieldState(input, v.trim().length >= 2, '✓ Looks good', 'At least 2 characters');
+        else if (n === 'email' || n === 'email_agence') setFieldState(input, validateEmail(v), '✓ Valid email', 'Enter a valid email');
+        else if (n === 'telephone' || n === 'telephone_agence') setFieldState(input, validatePhone(v), '✓ Valid number', 'Numbers only, 6–15 digits');
+        else if (n === 'password') setFieldState(input, v.length >= 6, '✓ Strong enough', 'Minimum 6 characters');
+        else if (n === 'confirm_password') { var pw = document.getElementById('pw1'); setFieldState(input, v.length >= 6 && v === pw.value, '✓ Passwords match', 'Passwords do not match'); }
+        else if (v.trim()) setFieldState(input, v.trim().length >= 1, '✓ Looks good', 'This field is required');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.fc').forEach(function(input) {
+            if (input.tagName === 'INPUT' || input.tagName === 'TEXTAREA') {
+                input.addEventListener('input', function() {
+                    touched[this.name] = true;
+                    runValidation(this);
+                    if (this.name === 'password') { var c = document.querySelector('[name="confirm_password"]'); if (c && touched['confirm_password']) runValidation(c); }
+                });
+            }
+        });
+    });
+
+    function goTo(n) {
+        document.getElementById('p' + cur).classList.remove('active');
+        document.getElementById('si' + cur).classList.remove('active');
+        document.getElementById('si' + cur).classList[n > cur ? 'add' : 'remove']('done');
+        cur = n;
+        document.getElementById('p' + cur).classList.add('active');
+        document.getElementById('si' + cur).classList.add('active');
+        document.getElementById('step-info').textContent = 'Step ' + cur + ' of ' + total;
+        document.getElementById('btn-prev').style.display   = cur > 1     ? 'flex' : 'none';
+        document.getElementById('btn-next').style.display   = cur < total ? 'flex' : 'none';
+        document.getElementById('btn-submit').style.display = cur === total ? 'flex' : 'none';
+    }
+
+    function nextStep() {
+        if (cur >= total) return;
+        if (cur > 3) { goTo(cur + 1); return; }
+
+        var btn = document.getElementById('btn-next');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
+
+        var data = new FormData(document.querySelector('form'));
+        data.append('step', cur);
+
+        fetch('{{ path("app_signup_agent_validate") }}', { method: 'POST', body: data })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+            btn.disabled = false;
+            btn.innerHTML = 'Next <i class="fa-solid fa-arrow-right"></i>';
+            clearInlineErrors('p' + cur);
+            if (res.valid) { goTo(cur + 1); }
+            else { Object.keys(res.errors).forEach(function(f) { showInlineError(f, res.errors[f]); }); }
+        })
+        .catch(function() {
+            btn.disabled = false;
+            btn.innerHTML = 'Next <i class="fa-solid fa-arrow-right"></i>';
+            goTo(cur + 1);
+        });
+    }
+
+    function prevStep() { if (cur > 1) goTo(cur - 1); }
+
+    function highlightVerif() {
+        var email = document.querySelector('[name="verification"][value="email"]');
+        var sms   = document.querySelector('[name="verification"][value="sms"]');
+        document.getElementById('lbl-email-v').style.borderColor = email.checked ? 'var(--orange)' : 'var(--border)';
+        document.getElementById('lbl-sms-v').style.borderColor   = sms.checked   ? 'var(--orange)' : 'var(--border)';
+    }
+    document.addEventListener('DOMContentLoaded', highlightVerif);
+</script>
+
+</body>
+</html>
+

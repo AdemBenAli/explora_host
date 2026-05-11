@@ -1,0 +1,53 @@
+<script>
+    const ICONS = { auto: '🌗', light: '☀️', dark: '🌙' };
+    function syncThemeNav() {
+        const mode = localStorage.getItem('explora-theme') || 'auto';
+        const icon = document.getElementById('theme-nav-icon');
+        if (icon) icon.textContent = ICONS[mode];
+        document.querySelectorAll('.theme-nav-option').forEach(el => {
+            el.classList.toggle('active', el.dataset.mode === mode);
+        });
+    }
+    function toggleThemeMenu(e) {
+        e.preventDefault();
+        const menu = document.getElementById('theme-nav-menu');
+        if (menu) menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    }
+    function pickTheme(mode) {
+        localStorage.setItem('explora-theme', mode);
+        const h = new Date().getHours();
+        const resolved = mode === 'auto' ? ((h >= 7 && h < 19) ? 'light' : 'dark') : mode;
+        document.documentElement.setAttribute('data-theme', resolved);
+        syncThemeNav();
+        const menu = document.getElementById('theme-nav-menu');
+        if (menu) menu.style.display = 'none';
+    }
+    document.addEventListener('DOMContentLoaded', syncThemeNav);
+
+    const steps=['📊 Analyse des données globales...','🧠 Rapport par IA...','📄 Génération PDF...','✅ Téléchargement imminent...'];
+    let si=0,pct=0,iv;
+    function startLoading(){
+        const overlay = document.getElementById('overlay');
+        const btnIa = document.getElementById('btn-ia');
+        if (overlay) overlay.classList.add('show');
+        if (btnIa) btnIa.disabled=true;
+        iv=setInterval(()=>{
+            const stepText = document.getElementById('overlay-step');
+            if (stepText) stepText.textContent=steps[si++%steps.length];
+            pct=Math.min(pct+15,85);
+            const pbar = document.getElementById('pbar');
+            if (pbar) pbar.style.width=pct+'%';
+        },1500);
+        setTimeout(()=>{
+            clearInterval(iv);
+            const pbar = document.getElementById('pbar');
+            if (pbar) pbar.style.width='100%';
+            setTimeout(()=>{
+                if (overlay) overlay.classList.remove('show');
+                if (btnIa) btnIa.disabled=false;
+                pct=0;si=0;
+                if (pbar) pbar.style.width='0%';
+            },800);
+        },8000);
+    }
+</script>

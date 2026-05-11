@@ -1,0 +1,150 @@
+{% extends 'base.html.twig' %}
+{% block title %}Activités de {{ agent.prenom }} {{ agent.nom }} | Admin{% endblock %}
+
+{% block stylesheets %}
+    {% include 'partials/admin_styles.html.twig' %}
+    <style>
+        .agent-header { background: linear-gradient(135deg, var(--accent), #4f46e5); border-radius: 20px; padding: 30px; color: white; margin-bottom: 24px; display: flex; align-items: center; gap: 20px; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2); }
+        .agent-avatar-lg { width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 30px; font-weight: 800; border: 3px solid rgba(255,255,255,0.4); }
+        .filter-bar { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); display: flex; gap: 15px; margin-bottom: 24px; align-items: center; flex-wrap: wrap; }
+        .filter-input { background: var(--bg-body); border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 8px; color: var(--text-heading); outline: none; flex: 1; min-width: 200px; }
+        .filter-select { background: var(--bg-body); border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 8px; color: var(--text-heading); cursor: pointer; }
+        .activity-img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {% set active_route = app.request.attributes.get('_route') %}
+    {% include 'partials/sidebar.html.twig' with { active: 'agents' } %}
+
+    <main class="main-content">
+        {% include 'partials/admin_topbar.html.twig' %}
+
+        <div class="content-area">
+            <div class="breadcrumb">Admin &gt; Agents &gt; <span>Activités de {{ agent.nom }}</span></div>
+
+            <div class="agent-header">
+                <div class="agent-avatar-lg">{{ agent.nom|first|upper }}</div>
+                <div>
+                    <h1 style="font-size:24px; font-weight:800; margin-bottom:5px">{{ agent.prenom }} {{ agent.nom }}</h1>
+                    <div style="font-size:14px; opacity:0.9">
+                        <i class="fa-solid fa-envelope"></i> {{ agent.email }} 
+                        {% if agent.telephone %} | <i class="fa-solid fa-phone"></i> {{ agent.telephone }}{% endif %}
+                    </div>
+                </div>
+                <div style="margin-left:auto">
+                    <a href="{{ path('admin_agent_index') }}" class="btn-ia" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4)">
+                        <i class="fa-solid fa-arrow-left"></i> Retour aux agents
+                    </a>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon indigo"><i class="fa-solid fa-suitcase"></i></div>
+                    </div>
+                    <div class="stat-value">{{ stats.total }}</div>
+                    <div class="stat-label">Total Activités</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon green"><i class="fa-solid fa-check-circle"></i></div>
+                    </div>
+                    <div class="stat-value">{{ stats.disponible }}</div>
+                    <div class="stat-label">Disponibles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon red"><i class="fa-solid fa-times-circle"></i></div>
+                    </div>
+                    <div class="stat-value">{{ stats.completes }}</div>
+                    <div class="stat-label">Complètes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon blue"><i class="fa-solid fa-star"></i></div>
+                    </div>
+                    <div class="stat-value">{{ categories|length }}</div>
+                    <div class="stat-label">Catégories</div>
+                </div>
+            </div>
+
+            <form method="get" action="{{ path('admin_agent_activites', {id: agent.id}) }}" class="filter-bar">
+                <input type="text" name="q" value="{{ search }}" placeholder="🔍 Rechercher..." class="filter-input">
+                <select name="categorie" class="filter-select">
+                    <option value="">Toutes les catégories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {{ categorie == cat ? 'selected' : '' }}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+                <select name="disponibilite" class="filter-select">
+                    <option value="toutes" {{ disponibilite == 'toutes' ? 'selected' : '' }}>Toutes disponibilités</option>
+                    <option value="disponibles" {{ disponibilite == 'disponibles' ? 'selected' : '' }}>Disponibles</option>
+                    <option value="completes" {{ disponibilite == 'completes' ? 'selected' : '' }}>Complètes</option>
+                </select>
+                <button type="submit" class="btn-ia">Filtrer</button>
+                <a href="{{ path('admin_agent_activites', {id: agent.id}) }}" class="icon-btn"><i class="fa-solid fa-rotate-left"></i></a>
+            </form>
+
+            <div class="table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Nom</th>
+                            <th>Catégorie</th>
+                            <th>Prix</th>
+                            <th>Places</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for activite in activites %}
+                        <tr>
+                            <td>
+                                {% if activite.image %}
+                                    {% set imagePath = activite.image starts with('/uploads/') or activite.image starts with('uploads/') ? activite.image : 'uploads/images/' ~ activite.image %}
+                                    <img src="{{ asset(imagePath) }}" class="activity-img">
+                                {% else %}
+                                    <div class="activity-img" style="background:var(--bg-body); display:grid; place-items:center">🎯</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="font-weight:600; color:var(--text-heading)">{{ activite.nom }}</div>
+                                <div style="font-size:12px; color:var(--text-body)">{{ activite.ville }}, {{ activite.lieu }}</div>
+                            </td>
+                            <td><span class="badge badge-blue">{{ activite.categorie }}</span></td>
+                            <td><span style="font-weight:700; color:var(--accent)">{{ activite.prix|number_format(2) }} TND</span></td>
+                            <td>{{ activite.nombrePlaces }}</td>
+                            <td>
+                                {% if activite.disponible %}
+                                    <span class="badge badge-green">Disponible</span>
+                                {% else %}
+                                    <span class="badge badge-red">Complet</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ path('admin_activite_detail', {id: activite.idActivite}) }}" class="icon-btn" title="Voir détails">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align:center; padding:40px; color:var(--text-body)">
+                                Aucune activité trouvée pour cet agent.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    {% block javascripts %}
+        {% include 'partials/admin_scripts.html.twig' %}
+    {% endblock %}
+{% endblock %}

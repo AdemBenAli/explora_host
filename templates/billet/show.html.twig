@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Billet{% endblock %}
+
+{% block body %}
+    <h1>Billet</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ billet.id }}</td>
+            </tr>
+            <tr>
+                <th>UserId</th>
+                <td>{{ billet.userId }}</td>
+            </tr>
+            <tr>
+                <th>VoyageId</th>
+                <td>{{ billet.voyageId }}</td>
+            </tr>
+            <tr>
+                <th>NombrePlaces</th>
+                <td>{{ billet.nombrePlaces }}</td>
+            </tr>
+            <tr>
+                <th>PrixTotal</th>
+                <td>{{ billet.prixTotal }}</td>
+            </tr>
+            <tr>
+                <th>DateReservation</th>
+                <td>{{ billet.dateReservation ? billet.dateReservation|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Statut</th>
+                <td>{{ billet.statut }}</td>
+            </tr>
+            <tr>
+                <th>QrCode</th>
+                <td>{{ billet.qrCode }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ billet.createdAt ? billet.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_billet_index') }}">back to list</a>
+
+    <a href="{{ path('app_billet_edit', {'id': billet.id}) }}">edit</a>
+
+    {{ include('billet/_delete_form.html.twig') }}
+{% endblock %}
+

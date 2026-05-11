@@ -1,0 +1,53 @@
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-box">🎯</div>
+        <div class="logo-text">
+            <h2>Explora</h2>
+            <span>Admin Panel</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Overview</div>
+        <a href="{{ path('admin_dashboard') }}" class="nav-item {{ active_route == 'admin_dashboard' ? 'active' : '' }}">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+        </a>
+
+        <div class="nav-section-label">Management</div>
+        <a href="#" class="nav-item"><i class="fa-solid fa-users"></i> Users</a>
+        <a href="{{ path('admin_agent_index') }}" class="nav-item {{ active_route starts with 'admin_agent_' ? 'active' : '' }}">
+            <i class="fa-solid fa-building"></i> Agents
+        </a>
+        
+        <a href="{{ path('app_reservation_history') }}" class="nav-item {{ active_route starts with 'app_reservation_' ? 'active' : '' }}">
+            <i class="fa-regular fa-calendar-check"></i> Bookings
+        </a>
+        <a href="{{ path('admin_billet_index') }}" class="nav-item {{ active_route starts with 'admin_billet_' ? 'active' : '' }}">
+            <i class="fa-solid fa-ticket"></i> Billets
+        </a>
+        <a href="{{ path('admin_transport_index') }}" class="nav-item {{ active_route starts with 'admin_transport_' ? 'active' : '' }}">
+            <i class="fa-solid fa-train"></i> Transport
+        </a>
+        <a href="#" class="nav-item {{ active_route == 'admin_hotel_index' ? 'active' : '' }}">
+            <i class="fa-solid fa-hotel"></i> Hôtels
+        </a>
+
+        <div class="nav-section-label">Configuration</div>
+        <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-flag"></i> Reports</a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="#" class="nav-item" id="theme-nav-btn" onclick="toggleThemeMenu(event)">
+            <i class="fa-solid fa-circle-half-stroke"></i> Theme
+            <span id="theme-nav-icon" style="margin-left:auto;font-size:1rem;"></span>
+        </a>
+        <div id="theme-nav-menu" style="display:none; flex-direction:column; background:rgba(255,255,255,0.06); border-radius:8px; margin:0 12px 8px;">
+            <button class="theme-nav-option" data-mode="light"  onclick="pickTheme('light')">☀️ Light</button>
+            <button class="theme-nav-option" data-mode="dark"   onclick="pickTheme('dark')">🌙 Dark</button>
+            <button class="theme-nav-option" data-mode="auto"   onclick="pickTheme('auto')">🌗 Auto</button>
+        </div>
+        
+        <a href="{{ path('app_logout') }}" class="nav-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+    </div>
+</aside>

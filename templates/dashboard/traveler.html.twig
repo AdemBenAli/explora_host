@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveler Dashboard - Explora</title>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="/css/theme.css">
+    <script src="/js/theme.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --sidebar-bg: #1e5faf;
+            --sidebar-bg-hover: #174b8e;
+            --sidebar-bg-active: #144078;
+            --bg-body: #f4f7f6;
+            --bg-card: #ffffff;
+            --text-heading: #1e293b;
+            --text-body: #64748b;
+            --border-color: #e2e8f0;
+            --gold: #f59e0b;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0F172A;
+            --bg-card: #1E293B;
+            --text-heading: #F1F5F9;
+            --text-body: #94A3B8;
+            --border-color: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-body);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo-box {
+            background: white;
+            color: var(--sidebar-bg);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-text h2 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: white;
+        }
+
+        .logo-text span {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            color: white;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item i {
+            width: 20px;
+            font-size: 16px;
+            margin-right: 12px;
+            text-align: center;
+        }
+
+        .nav-item:hover {
+            background-color: var(--sidebar-bg-hover);
+            color: white;
+        }
+
+        .nav-item.active {
+            background-color: var(--sidebar-bg-active);
+            color: white;
+            border-left-color: var(--gold);
+        }
+
+        .tier-card {
+            margin: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tier-card-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            font-weight: 600;
+        }
+
+        .tier-card-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tier-badge {
+            background: var(--gold);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .tier-card-content span {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .sidebar-footer {
+            padding: 10px 0 20px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Topbar Header */
+        .topbar {
+            height: 70px;
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+
+        .search-bar {
+            background-color: var(--bg-body);
+            border-radius: 30px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            width: 350px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .search-bar:focus-within {
+            border-color: #cbd5e1;
+            background-color: var(--bg-card);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .search-bar i {
+            color: #94a3b8;
+            margin-right: 12px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+            width: 100%;
+            color: var(--text-heading);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-bar input::placeholder {
+            color: #94a3b8;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .icon-btn {
+            background: var(--bg-body);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: #e2e8f0;
+            color: var(--sidebar-bg);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding-left: 10px;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-heading);
+            font-size: 14px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .user-dropdown-icon {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .breadcrumb {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb span {
+            color: var(--text-heading);
+            font-weight: 600;
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            color: #cbd5e1;
+            margin-bottom: 24px;
+        }
+
+        .empty-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-bottom: 12px;
+        }
+
+        .empty-desc {
+            font-size: 14px;
+            color: var(--text-body);
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+        .theme-nav-option {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.85);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            padding: 9px 24px;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.15s;
+            border-radius: 6px;
+        }
+        .theme-nav-option:hover { background: rgba(255,255,255,0.1); }
+        .theme-nav-option.active { color: var(--gold); font-weight: 600; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-box">
+                <i class="fa-solid fa-plane"></i>
+            </div>
+            <div class="logo-text">
+                <h2>Explora</h2>
+                <span>Travel Platform</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active">
+                <i class="fa-solid fa-home"></i> Home
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-regular fa-compass"></i> Explore
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-regular fa-calendar-check"></i> My Bookings
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-regular fa-heart"></i> Wishlist
+            </a>
+            <a href="{{ path('app_profile') }}" class="nav-item">
+                <i class="fa-regular fa-user"></i> Profile
+            </a>
+            
+            <div class="tier-card">
+                <div class="tier-card-label">Tier Status</div>
+                <div class="tier-card-content">
+                    <div class="tier-badge"><i class="fa-solid fa-star"></i></div>
+                    <span>Gold Member</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="theme-nav-btn" onclick="toggleThemeMenu(event)">
+                <i class="fa-solid fa-circle-half-stroke"></i> Theme
+                <span id="theme-nav-icon" style="margin-left:auto;font-size:1rem;"></span>
+            </a>
+            <div id="theme-nav-menu" style="display:none; flex-direction:column; background:rgba(0,0,0,0.15); border-radius:8px; margin:0 12px 8px;">
+                <button class="theme-nav-option" data-mode="light"  onclick="pickTheme('light')">☀️ Light</button>
+                <button class="theme-nav-option" data-mode="dark"   onclick="pickTheme('dark')">🌙 Dark</button>
+                <button class="theme-nav-option" data-mode="auto"   onclick="pickTheme('auto')">🌗 Auto</button>
+            </div>
+            <a href="#" class="nav-item">
+                <i class="fa-regular fa-circle-question"></i> Help Center
+            </a>
+            <a href="{{ path('app_logout') }}" class="nav-item">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search destinations, hotels, flights...">
+            </div>
+
+            <div class="topbar-right">
+                <button class="icon-btn" title="Analytics">
+                    <i class="fa-solid fa-chart-simple"></i>
+                </button>
+                <button class="icon-btn" title="Messages">
+                    <i class="fa-regular fa-envelope"></i>
+                </button>
+                <button class="icon-btn" title="Notifications">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+
+                <div class="user-profile">
+                    <!-- Generic user avatar via unavatar or ui-avatars -->
+                    <img src="https://ui-avatars.com/api/?name=Louay+Ouali&background=1e293b&color=fff" alt="User Avatar" class="user-avatar">
+                    <div class="user-info">
+                        <span class="user-name">Louay Ouali</span>
+                        <span class="user-role">Bronze Member</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down user-dropdown-icon"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="breadcrumb">
+                Dashboard &gt; <span>Home</span>
+            </div>
+
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fa-regular fa-map"></i>
+                </div>
+                <h1 class="empty-title">Welcome to Traveler Dashboard</h1>
+                <p class="empty-desc">Select a menu item from the sidebar to start exploring.</p>
+            </div>
+        </div>
+    </main>
+
+<script>
+    const ICONS = { auto: '🌗', light: '☀️', dark: '🌙' };
+
+    function syncThemeNav() {
+        const mode = localStorage.getItem('explora-theme') || 'auto';
+        const icon = document.getElementById('theme-nav-icon');
+        if (icon) icon.textContent = ICONS[mode];
+        document.querySelectorAll('.theme-nav-option').forEach(el => {
+            el.classList.toggle('active', el.dataset.mode === mode);
+        });
+    }
+
+    function toggleThemeMenu(e) {
+        e.preventDefault();
+        const menu = document.getElementById('theme-nav-menu');
+        menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function pickTheme(mode) {
+        localStorage.setItem('explora-theme', mode);
+        const h = new Date().getHours();
+        const resolved = mode === 'auto' ? ((h >= 7 && h < 19) ? 'light' : 'dark') : mode;
+        document.documentElement.setAttribute('data-theme', resolved);
+        syncThemeNav();
+        document.getElementById('theme-nav-menu').style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', syncThemeNav);
+</script>
+</body>
+</html>

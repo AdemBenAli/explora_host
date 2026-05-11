@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Explora</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="/css/theme.css">
+    <script src="/js/theme.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap');
+        :root { --sidebar-bg:#1e5faf; --sidebar-hover:#174b8e; --sidebar-active:#144078; --bg-body:#f4f7f6; --bg-card:#ffffff; --text-heading:#1e293b; --text-body:#64748b; --border:#e2e8f0; --gold:#f59e0b; }
+        [data-theme="dark"] { --bg-body:#0F172A; --bg-card:#1E293B; --text-heading:#F1F5F9; --text-body:#94A3B8; --border:#334155; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--bg-body); color:var(--text-body); display:flex; height:100vh; overflow:hidden; }
+
+        /* Sidebar */
+        .sidebar { width:260px; background:var(--sidebar-bg); color:white; display:flex; flex-direction:column; flex-shrink:0; }
+        .sidebar-header { padding:20px; display:flex; align-items:center; gap:12px; border-bottom:1px solid rgba(255,255,255,0.1); }
+        .logo-box { background:white; color:var(--sidebar-bg); width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+        .logo-text h2 { font-size:18px; font-weight:700; color:white; }
+        .logo-text span { font-size:10px; text-transform:uppercase; letter-spacing:1px; opacity:0.8; color:white; }
+        .sidebar-nav { flex:1; padding:20px 0; overflow-y:auto; }
+        .nav-item { display:flex; align-items:center; padding:12px 24px; color:rgba(255,255,255,0.85); text-decoration:none; font-size:14px; font-weight:500; transition:all 0.2s; border-left:4px solid transparent; }
+        .nav-item i { width:20px; font-size:16px; margin-right:12px; text-align:center; }
+        .nav-item:hover { background:var(--sidebar-hover); color:white; }
+        .nav-item.active { background:var(--sidebar-active); color:white; border-left-color:var(--gold); }
+        .tier-card { margin:20px; background:rgba(255,255,255,0.1); border-radius:12px; padding:16px; }
+        .tier-card-label { font-size:10px; text-transform:uppercase; letter-spacing:1px; opacity:0.7; font-weight:600; margin-bottom:8px; }
+        .tier-card-content { display:flex; align-items:center; gap:10px; }
+        .tier-badge { background:var(--gold); color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; }
+        .sidebar-footer { padding:10px 0 20px; }
+        .theme-nav-option { background:none; border:none; color:rgba(255,255,255,0.85); font-size:13px; font-family:'Inter',sans-serif; padding:9px 24px; text-align:left; cursor:pointer; border-radius:6px; width:100%; }
+        .theme-nav-option:hover { background:rgba(255,255,255,0.1); }
+        .theme-nav-option.active { color:var(--gold); font-weight:600; }
+
+        /* Main */
+        .main-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+        .topbar { height:70px; background:var(--bg-card); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 30px; }
+        .search-bar { background:var(--bg-body); border-radius:30px; padding:10px 20px; display:flex; align-items:center; width:350px; border:1px solid transparent; }
+        .search-bar i { color:#94a3b8; margin-right:12px; }
+        .search-bar input { border:none; background:transparent; outline:none; font-size:14px; width:100%; color:var(--text-heading); font-family:'Inter',sans-serif; }
+        .search-bar input::placeholder { color:#94a3b8; }
+        .topbar-right { display:flex; align-items:center; gap:20px; }
+        .icon-btn { background:var(--bg-body); border:none; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#64748b; cursor:pointer; }
+        .user-profile { display:flex; align-items:center; gap:12px; cursor:pointer; padding-left:10px; border-left:1px solid var(--border); }
+        .user-avatar { width:40px; height:40px; border-radius:50%; object-fit:cover; }
+        .user-name { font-weight:600; color:var(--text-heading); font-size:14px; }
+        .user-role { font-size:12px; color:#94a3b8; }
+
+        /* Content */
+        .content-area { flex:1; padding:28px 32px; overflow-y:auto; }
+        .breadcrumb { font-size:13px; color:var(--text-body); margin-bottom:20px; }
+        .breadcrumb a { color:var(--text-body); text-decoration:none; }
+        .breadcrumb span { color:var(--text-heading); font-weight:600; }
+
+        /* Profile hero */
+        .profile-hero { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:28px 32px; display:flex; align-items:center; gap:24px; margin-bottom:20px; }
+        .avatar-wrap { position:relative; flex-shrink:0; }
+        .avatar-wrap img { width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid var(--border); }
+        .avatar-edit { background:var(--gold); color:white; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer; border:2px solid var(--bg-card); }
+        .avatar-cam-wrap { position:absolute; bottom:2px; right:2px; }
+        .cam-menu { display:none; position:absolute; bottom:32px; right:0; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.15); overflow:hidden; white-space:nowrap; z-index:10; min-width:160px; }
+        .cam-menu.open { display:block; }
+        .cam-menu button { display:flex; align-items:center; gap:8px; width:100%; padding:10px 14px; background:none; border:none; font-size:13px; font-weight:500; color:var(--text-heading); cursor:pointer; font-family:'Inter',sans-serif; transition:background .15s; }
+        .cam-menu button:hover { background:var(--bg-body); }
+        .cam-menu button i { color:var(--gold); width:14px; }
+
+        /* Camera capture modal */
+        .cam-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:3000; align-items:center; justify-content:center; }
+        .cam-overlay.open { display:flex; }
+        .cam-modal { background:var(--bg-card); border-radius:16px; padding:24px; max-width:480px; width:100%; text-align:center; }
+        .cam-modal h3 { font-size:15px; font-weight:700; color:var(--text-heading); margin-bottom:16px; }
+        .cam-modal video { width:100%; border-radius:10px; background:#000; max-height:300px; }
+        .cam-modal canvas { display:none; }
+        .cam-actions { display:flex; gap:10px; margin-top:14px; }
+        .btn-capture { flex:1; padding:10px; background:var(--gold); color:white; border:none; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+        .btn-cam-cancel { flex:1; padding:10px; background:var(--bg-body); border:1px solid var(--border); border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; color:var(--text-heading); }
+        .avatar-ai-btn { position:absolute; bottom:2px; left:2px; background:#7c3aed; color:white; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; cursor:pointer; border:2px solid var(--bg-card); }
+        .avatar-ai-btn:hover { background:#6d28d9; }
+
+        /* DiceBear Modal */
+        .ai-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center; }
+        .ai-overlay.open { display:flex; }
+        .ai-modal { background:var(--bg-card); border-radius:18px; padding:28px; max-width:520px; width:100%; box-shadow:0 24px 60px rgba(0,0,0,0.2); }
+        .ai-modal h3 { font-size:16px; font-weight:700; color:var(--text-heading); margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+        .ai-modal p { font-size:13px; color:var(--text-body); margin-bottom:18px; }
+        .style-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
+        .style-opt { padding:8px 4px; border:2px solid var(--border); border-radius:10px; text-align:center; cursor:pointer; font-size:11px; font-weight:500; color:var(--text-body); transition:all .2s; background:none; font-family:'Inter',sans-serif; }
+        .style-opt:hover { border-color:#7c3aed; color:#7c3aed; }
+        .style-opt.selected { border-color:#7c3aed; background:#f5f3ff; color:#7c3aed; font-weight:600; }
+        [data-theme="dark"] .style-opt.selected { background:rgba(124,58,237,0.15); }
+        .style-opt .style-emoji { font-size:1.3rem; display:block; margin-bottom:3px; }
+        .dice-preview-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:18px; }
+        .dice-opt { border:3px solid transparent; border-radius:12px; cursor:pointer; overflow:hidden; transition:border-color .2s; aspect-ratio:1; }
+        .dice-opt:hover { border-color:#7c3aed; }
+        .dice-opt.selected { border-color:#7c3aed; box-shadow:0 0 0 2px rgba(124,58,237,0.3); }
+        .dice-opt img { width:100%; height:100%; display:block; }
+        .ai-footer { display:flex; gap:10px; }
+        .btn-ai-cancel { flex:1; padding:10px; background:var(--bg-body); border:1px solid var(--border); border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; color:var(--text-heading); }
+        .btn-ai-generate { flex:2; padding:10px; background:#7c3aed; border:none; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; color:white; display:flex; align-items:center; justify-content:center; gap:7px; }
+        .btn-ai-generate:hover { background:#6d28d9; }
+        .btn-ai-generate:disabled { opacity:0.5; cursor:not-allowed; }
+        .btn-dice-refresh { padding:8px 14px; background:var(--bg-body); border:1px solid var(--border); border-radius:9px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; color:var(--text-body); display:flex; align-items:center; gap:6px; margin-bottom:14px; }
+        .btn-dice-refresh:hover { border-color:#7c3aed; color:#7c3aed; }
+        .hero-info { flex:1; }
+        .hero-name { font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:700; color:var(--text-heading); display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+        .member-badge { background:#fff7ed; color:#d97706; border:1px solid #fed7aa; border-radius:20px; padding:3px 12px; font-size:11px; font-weight:700; display:flex; align-items:center; gap:5px; }
+        .hero-meta { font-size:13px; color:var(--text-body); margin-top:4px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+        .hero-meta i { color:#94a3b8; margin-right:4px; }
+        .hero-actions { display:flex; gap:10px; flex-shrink:0; }
+        .btn-outline { padding:9px 18px; background:none; border:1.5px solid var(--border); border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; color:var(--text-heading); display:flex; align-items:center; gap:7px; transition:border-color 0.2s; }
+        .btn-outline:hover { border-color:var(--gold); }
+        .btn-edit { padding:9px 18px; background:var(--gold); border:none; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; color:white; display:flex; align-items:center; gap:7px; transition:background 0.2s; }
+        .btn-edit:hover { background:#d97706; }
+
+        /* Stats row */
+        .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
+        .stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:18px 20px; }
+        .stat-tag { font-size:11px; font-weight:600; color:var(--gold); margin-bottom:6px; }
+        .stat-val { font-size:1.8rem; font-weight:700; color:var(--text-heading); line-height:1; margin-bottom:4px; }
+        .stat-lbl { font-size:12px; color:var(--text-body); }
+        .stat-icon-wrap { width:40px; height:40px; border-radius:10px; background:#fff7ed; color:var(--gold); display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:10px; }
+        [data-theme="dark"] .stat-icon-wrap { background:rgba(245,158,11,0.15); }
+
+        /* Two-col layout */
+        .two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+
+        /* Cards */
+        .info-card { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:24px; }
+        .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+        .card-title { font-size:16px; font-weight:700; color:var(--text-heading); }
+        .btn-card-action { background:none; border:none; color:var(--gold); font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; display:flex; align-items:center; gap:5px; }
+
+        /* Form fields */
+        .fields-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .field-group { display:flex; flex-direction:column; gap:4px; }
+        .field-group.full { grid-column:span 2; }
+        .field-group label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-body); }
+        .field-group input, .field-group textarea, .field-group select { padding:9px 12px; border:1.5px solid var(--border); border-radius:9px; font-size:13px; color:var(--text-heading); background:var(--bg-card); font-family:'Inter',sans-serif; transition:border-color 0.2s; }
+        .field-group input:focus, .field-group textarea:focus { outline:none; border-color:var(--gold); }
+        .field-group textarea { resize:vertical; min-height:80px; }
+        .btn-save { margin-top:16px; padding:10px 24px; background:var(--gold); border:none; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; color:white; display:flex; align-items:center; gap:7px; transition:background 0.2s; }
+        .btn-save:hover { background:#d97706; }
+
+        /* Preference items */
+        .pref-item { display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid var(--border); }
+        .pref-item:last-child { border-bottom:none; }
+        .pref-icon { width:40px; height:40px; border-radius:10px; background:#eff6ff; color:#3b82f6; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+        [data-theme="dark"] .pref-icon { background:rgba(59,130,246,0.15); }
+        .pref-info { flex:1; }
+        .pref-name { font-size:13px; font-weight:600; color:var(--text-heading); }
+        .pref-val { font-size:12px; color:var(--text-body); margin-top:1px; }
+        .pref-badge { font-size:11px; padding:2px 8px; border-radius:20px; background:#f1f5f9; color:var(--text-body); }
+
+        /* Password section */
+        .pw-section { margin-top:20px; }
+        .pw-section .card-title { font-size:15px; margin-bottom:16px; }
+
+        /* Alerts */
+        .alert { padding:11px 16px; border-radius:9px; font-size:13px; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+        .alert-success { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
+        .alert-error   { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
+
+        .pref-section-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-body); margin:16px 0 10px; display:flex; align-items:center; gap:7px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+        .pref-section-title i { color:var(--gold); }
+
+        /* Axe list */
+        .axe-list { display:flex; flex-direction:column; gap:10px; }
+        .axe-row { display:flex; align-items:center; gap:14px; padding:14px 16px; background:var(--bg-body); border-radius:12px; cursor:pointer; transition:all 0.2s; border:1px solid transparent; }
+        .axe-row:hover { border-color:var(--gold); background:var(--bg-card); box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+        .axe-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+        .axe-info { flex:1; }
+        .axe-name { font-size:14px; font-weight:600; color:var(--text-heading); }
+        .axe-val { font-size:12px; color:var(--text-body); margin-top:2px; }
+        .axe-arrow { color:var(--text-body); font-size:12px; opacity:0.5; }
+
+        /* Pref drawer */
+        .pref-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center; }
+        .pref-overlay.open { display:flex; }
+        .pref-modal { background:var(--bg-card); border-radius:20px; width:100%; max-width:520px; max-height:88vh; overflow-y:auto; box-shadow:0 24px 60px rgba(0,0,0,0.18); animation:slideUp .25s ease; }
+        @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        .pref-modal-header { padding:20px 24px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:14px; position:sticky; top:0; background:var(--bg-card); z-index:1; border-radius:20px 20px 0 0; }
+        .pref-modal-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+        .pref-modal-title { flex:1; font-size:16px; font-weight:700; color:var(--text-heading); }
+        .pref-modal-close { background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-body); padding:6px; border-radius:8px; }
+        .pref-modal-close:hover { background:var(--bg-body); }
+        .pref-modal-body { padding:20px 24px; }
+        .pref-modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; position:sticky; bottom:0; background:var(--bg-card); border-radius:0 0 20px 20px; }
+        .btn-pref-cancel { padding:9px 20px; background:var(--bg-body); border:1px solid var(--border); border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; color:var(--text-heading); }
+        .btn-pref-save { padding:9px 22px; background:var(--gold); border:none; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; color:white; display:flex; align-items:center; gap:7px; }
+        .btn-pref-save:hover { background:#d97706; }
+        .budget-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .toggle-group { display:flex; gap:8px; }
+        .toggle-opt { flex:1; padding:8px; border:1.5px solid var(--border); border-radius:9px; text-align:center; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s; color:var(--text-body); background:none; font-family:'Inter',sans-serif; }
+        .toggle-opt.selected { border-color:var(--gold); background:#fff7ed; color:#d97706; font-weight:600; }
+        [data-theme="dark"] .toggle-opt.selected { background:rgba(245,158,11,0.15); }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-box"><i class="fa-solid fa-plane"></i></div>
+        <div class="logo-text"><h2>Explora</h2><span>Travel Platform</span></div>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="{{ path('app_traveler_dashboard') }}" class="nav-item"><i class="fa-solid fa-home"></i> Home</a>
+        <a href="#" class="nav-item"><i class="fa-regular fa-compass"></i> Explore</a>
+        <a href="#" class="nav-item"><i class="fa-regular fa-calendar-check"></i> My Bookings</a>
+        <a href="#" class="nav-item"><i class="fa-regular fa-heart"></i> Wishlist</a>
+        <a href="{{ path('app_profile') }}" class="nav-item active"><i class="fa-regular fa-user"></i> Profile</a>
+        <div class="tier-card">
+            <div class="tier-card-label">Tier Status</div>
+            <div class="tier-card-content">
+                <div class="tier-badge"><i class="fa-solid fa-star"></i></div>
+                <span style="font-weight:600;font-size:14px;">Gold Member</span>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="#" class="nav-item" id="theme-nav-btn" onclick="toggleThemeMenu(event)">
+            <i class="fa-solid fa-circle-half-stroke"></i> Theme
+            <span id="theme-nav-icon" style="margin-left:auto;font-size:1rem;"></span>
+        </a>
+        <div id="theme-nav-menu" style="display:none;flex-direction:column;background:rgba(255,255,255,0.1);border-radius:8px;margin:0 12px 8px;">
+            <button class="theme-nav-option" data-mode="light" onclick="pickTheme('light')">☀️ Light</button>
+            <button class="theme-nav-option" data-mode="dark"  onclick="pickTheme('dark')">🌙 Dark</button>
+            <button class="theme-nav-option" data-mode="auto"  onclick="pickTheme('auto')">🌗 Auto</button>
+        </div>
+        <a href="#" class="nav-item"><i class="fa-regular fa-circle-question"></i> Help Center</a>
+        <a href="{{ path('app_logout') }}" class="nav-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search destinations, hotels, flights...">
+        </div>
+        <div class="topbar-right">
+            <button class="icon-btn"><i class="fa-solid fa-chart-simple"></i></button>
+            <button class="icon-btn"><i class="fa-regular fa-envelope"></i></button>
+            <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name={{ user.prenom|url_encode }}+{{ user.nom|url_encode }}&background=1e5faf&color=fff" class="user-avatar" alt="Avatar">
+                <div>
+                    <div class="user-name">{{ user.prenom }} {{ user.nom }}</div>
+                    <div class="user-role">Bronze Member</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <div class="breadcrumb">
+            <a href="{{ path('app_traveler_dashboard') }}">Dashboard</a> &rsaquo; <span>Profile</span>
+        </div>
+
+        <!-- Avatar upload form (visually hidden but not display:none) -->
+        <form method="POST" action="{{ path('app_profile') }}" enctype="multipart/form-data" id="avatar-form" style="position:absolute;width:0;height:0;overflow:hidden;opacity:0;">
+            <input type="hidden" name="section" value="avatar">
+            <input type="file" id="avatar-input" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp">
+        </form>
+
+        {% if success %}
+        <div class="alert alert-success"><i class="fa-solid fa-circle-check"></i> {{ success }}</div>
+        {% endif %}
+        {% if error %}
+        <div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i> {{ error }}</div>
+        {% endif %}
+
+        <!-- Hero -->
+        <div class="profile-hero">
+            <div class="avatar-wrap">
+                <img id="avatar-preview" src="{{ user.photoDeProfil ? (user.photoDeProfil starts with 'http' ? user.photoDeProfil : app.request.schemeAndHttpHost ~ user.photoDeProfil) : 'https://ui-avatars.com/api/?name=' ~ user.prenom|url_encode ~ '+' ~ user.nom|url_encode ~ '&background=1e5faf&color=fff&size=90' }}" alt="Avatar">
+                <div class="avatar-cam-wrap">
+                    <button type="button" class="avatar-edit" title="Change photo" onclick="toggleCamMenu(event)"><i class="fa-solid fa-camera"></i></button>
+                    <div class="cam-menu" id="cam-menu">
+                        <button type="button" onclick="document.getElementById('avatar-input').click();document.getElementById('cam-menu').classList.remove('open')"><i class="fa-solid fa-upload"></i> Upload photo</button>
+                        <button type="button" onclick="openCameraCapture()"><i class="fa-solid fa-camera"></i> Take a photo</button>
+                    </div>
+                </div>
+                <button type="button" class="avatar-ai-btn" title="Choose avatar" onclick="document.getElementById('dicebear-modal').classList.add('open')">
+                    <i class="fa-solid fa-dice"></i>
+                </button>
+            </div>
+            <div class="hero-info">
+                <div class="hero-name">
+                    {{ user.prenom }} {{ user.nom }}
+                    <span class="member-badge"><i class="fa-solid fa-star"></i> BRONZE MEMBER</span>
+                </div>
+                <div class="hero-meta">
+                    <span>Elite traveler since {{ user.dateCreation ? user.dateCreation|date('Y') : '—' }}</span>
+                    {% if user.email %}<span><i class="fa-regular fa-envelope"></i>{{ user.email }}</span>{% endif %}
+                    {% if user.telephone %}<span><i class="fa-solid fa-phone"></i>+{{ user.telephone }}</span>{% endif %}
+                </div>
+            </div>
+            <div class="hero-actions">
+                <button class="btn-outline"><i class="fa-solid fa-gear"></i> Settings</button>
+                <button class="btn-outline">Share Profile</button>
+                <button class="btn-edit" onclick="document.getElementById('personal-form').scrollIntoView({behavior:'smooth'})">
+                    <i class="fa-solid fa-pen"></i> Edit Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon-wrap"><i class="fa-solid fa-suitcase"></i></div>
+                <div class="stat-tag">+4 this year</div>
+                <div class="stat-val">0</div>
+                <div class="stat-lbl">Trips Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrap"><i class="fa-solid fa-earth-americas"></i></div>
+                <div class="stat-tag">Top 5% user</div>
+                <div class="stat-val">1</div>
+                <div class="stat-lbl">Countries Visited</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrap"><i class="fa-solid fa-trophy"></i></div>
+                <div class="stat-tag">Gold Tier</div>
+                <div class="stat-val">0</div>
+                <div class="stat-lbl">Travel Points</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrap"><i class="fa-solid fa-plane"></i></div>
+                <div class="stat-tag">Scheduled</div>
+                <div class="stat-val">0</div>
+                <div class="stat-lbl">Upcoming Flights</div>
+            </div>
+        </div>
+
+        <!-- Two columns -->
+        <div class="two-col">
+
+            <!-- Personal Info -->
+            <div class="info-card" id="personal-form">
+                <div class="card-header">
+                    <span class="card-title">Personal Information</span>
+                    <button class="btn-card-action" onclick="toggleEdit('personal')"><i class="fa-solid fa-pen"></i> Update</button>
+                </div>
+                <form method="POST" action="{{ path('app_profile') }}" id="form-personal">
+                    <input type="hidden" name="section" value="personal">
+                    <div class="fields-grid">
+                        <div class="field-group">
+                            <label>Full Name</label>
+                            <input type="text" name="prenom" value="{{ user.prenom }}" placeholder="First name" id="inp-prenom" readonly>
+                        </div>
+                        <div class="field-group">
+                            <label>Last Name</label>
+                            <input type="text" name="nom" value="{{ user.nom }}" placeholder="Last name" id="inp-nom" readonly>
+                        </div>
+                        <div class="field-group">
+                            <label>Email Address</label>
+                            <input type="email" value="{{ user.email }}" readonly style="opacity:0.6;">
+                        </div>
+                        <div class="field-group">
+                            <label>Phone Number</label>
+                            <input type="tel" name="telephone" value="{{ user.telephone }}" id="inp-telephone" readonly>
+                        </div>
+                        <div class="field-group">
+                            <label>Nationality</label>
+                            <input type="text" name="nationalite" value="{{ user.nationalite }}" placeholder="e.g. Tunisian" id="inp-nationalite" readonly>
+                        </div>
+                        <div class="field-group">
+                            <label>Date of Birth</label>
+                            <input type="date" name="date_naissance" value="{{ user.dateNaissance ? user.dateNaissance|date('Y-m-d') : '' }}" id="inp-dob" readonly>
+                        </div>
+                        <div class="field-group">
+                            <label>City</label>
+                            <input type="text" name="ville" value="{{ user.ville }}" placeholder="City" id="inp-ville" readonly>
+                        </div>
+                        <div class="field-group">
+                            <label>Country</label>
+                            <input type="text" name="pays" value="{{ user.pays }}" placeholder="Country" id="inp-pays" readonly>
+                        </div>
+                        <div class="field-group full">
+                            <label>Address</label>
+                            <input type="text" name="adresse" value="{{ user.adresse }}" placeholder="Street address" id="inp-adresse" readonly>
+                        </div>
+                        <div class="field-group full">
+                            <label>Bio</label>
+                            <textarea name="bio" id="inp-bio" readonly>{{ user.bio }}</textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-save" id="btn-save-personal" style="display:none;">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right column -->
+            <div style="display:flex;flex-direction:column;gap:20px;">
+
+                <!-- Travel Preferences -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <span class="card-title">Travel Preferences</span>
+                        <button class="btn-card-action" onclick="openPrefModal('voyage')"><i class="fa-solid fa-pen"></i> Edit</button>
+                    </div>
+                    <p style="font-size:12px;color:var(--text-body);margin-bottom:16px;">Customize your travel experience across all categories</p>
+
+                    <div class="axe-list">
+                        <div class="axe-row" onclick="openPrefModal('transport')">
+                            <div class="axe-icon" style="background:#eff6ff;color:#3b82f6;"><i class="fa-solid fa-car"></i></div>
+                            <div class="axe-info">
+                                <div class="axe-name">Transport</div>
+                                <div class="axe-val">{{ axeT and axeT.typeTransport ? axeT.typeTransport ~ (axeT.classe ? ' · ' ~ axeT.classe : '') : 'Not configured' }}</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right axe-arrow"></i>
+                        </div>
+                        <div class="axe-row" onclick="openPrefModal('hebergement')">
+                            <div class="axe-icon" style="background:#fff7ed;color:#f59e0b;"><i class="fa-solid fa-bed"></i></div>
+                            <div class="axe-info">
+                                <div class="axe-name">Accommodation</div>
+                                <div class="axe-val">{{ axeH and axeH.typeHebergement ? axeH.typeHebergement ~ (axeH.categorieHotel ? ' · ' ~ axeH.categorieHotel : '') : 'Not configured' }}</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right axe-arrow"></i>
+                        </div>
+                        <div class="axe-row" onclick="openPrefModal('activite')">
+                            <div class="axe-icon" style="background:#f0fdf4;color:#22c55e;"><i class="fa-solid fa-person-biking"></i></div>
+                            <div class="axe-info">
+                                <div class="axe-name">Activities</div>
+                                <div class="axe-val">{{ axeA and axeA.typesActivite ? axeA.typesActivite ~ (axeA.niveau ? ' · ' ~ axeA.niveau : '') : 'Not configured' }}</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right axe-arrow"></i>
+                        </div>
+                        <div class="axe-row" onclick="openPrefModal('voyage')">
+                            <div class="axe-icon" style="background:#fdf2f8;color:#ec4899;"><i class="fa-solid fa-earth-americas"></i></div>
+                            <div class="axe-info">
+                                <div class="axe-name">Voyage</div>
+                                <div class="axe-val">{{ axeV and axeV.typesVoyages ? axeV.typesVoyages ~ (axeV.destinations ? ' · ' ~ axeV.destinations : '') : 'Not configured' }}</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right axe-arrow"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Change Password -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <span class="card-title">Change Password</span>
+                    </div>
+                    <form method="POST" action="{{ path('app_profile') }}">
+                        <input type="hidden" name="section" value="password">
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            <div class="field-group">
+                                <label>Current Password</label>
+                                <input type="password" name="current_password" placeholder="Enter current password">
+                            </div>
+                            <div class="field-group">
+                                <label>New Password</label>
+                                <input type="password" name="new_password" placeholder="Min 6 characters">
+                            </div>
+                            <div class="field-group">
+                                <label>Confirm New Password</label>
+                                <input type="password" name="confirm_password" placeholder="Re-enter new password">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-save"><i class="fa-solid fa-lock"></i> Update Password</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Camera Capture Modal -->
+<div class="cam-overlay" id="cam-overlay">
+    <div class="cam-modal">
+        <h3><i class="fa-solid fa-camera" style="color:var(--gold);margin-right:8px;"></i> Take a Photo</h3>
+        <video id="cam-video" autoplay playsinline></video>
+        <canvas id="cam-canvas"></canvas>
+        <div class="cam-actions">
+            <button type="button" class="btn-cam-cancel" onclick="closeCameraCapture()">Cancel</button>
+            <button type="button" class="btn-capture" onclick="capturePhoto()"><i class="fa-solid fa-circle"></i> Capture</button>
+        </div>
+    </div>
+</div>
+
+<!-- DiceBear Avatar Picker -->
+<div class="ai-overlay" id="dicebear-modal" onclick="if(event.target===this)this.classList.remove('open')">
+<div class="ai-modal">
+    <h3><i class="fa-solid fa-dice" style="color:#7c3aed;"></i> Choose Your Avatar</h3>
+    <p>Pick a style and select your favourite avatar.</p>
+
+    <div class="style-grid">
+        <button type="button" class="style-opt selected" data-style="adventurer" onclick="selectDiceStyle(this)"><span class="style-emoji">🧑</span>Adventurer</button>
+        <button type="button" class="style-opt" data-style="avataaars" onclick="selectDiceStyle(this)"><span class="style-emoji">😊</span>Avataaars</button>
+        <button type="button" class="style-opt" data-style="bottts" onclick="selectDiceStyle(this)"><span class="style-emoji">🤖</span>Bottts</button>
+        <button type="button" class="style-opt" data-style="fun-emoji" onclick="selectDiceStyle(this)"><span class="style-emoji">😄</span>Fun Emoji</button>
+        <button type="button" class="style-opt" data-style="lorelei" onclick="selectDiceStyle(this)"><span class="style-emoji">🧝</span>Lorelei</button>
+        <button type="button" class="style-opt" data-style="micah" onclick="selectDiceStyle(this)"><span class="style-emoji">🎨</span>Micah</button>
+        <button type="button" class="style-opt" data-style="miniavs" onclick="selectDiceStyle(this)"><span class="style-emoji">👤</span>Miniavs</button>
+        <button type="button" class="style-opt" data-style="pixel-art" onclick="selectDiceStyle(this)"><span class="style-emoji">🕹️</span>Pixel Art</button>
+    </div>
+
+    <button type="button" class="btn-dice-refresh" onclick="refreshDiceAvatars()">
+        <i class="fa-solid fa-rotate-right"></i> Shuffle
+    </button>
+
+    <div class="dice-preview-grid" id="dice-grid"></div>
+
+    <div class="ai-footer">
+        <button type="button" class="btn-ai-cancel" onclick="document.getElementById('dicebear-modal').classList.remove('open')">Cancel</button>
+        <button type="button" class="btn-ai-generate" id="btn-dice-apply" onclick="applyDiceAvatar()" disabled>
+            <i class="fa-solid fa-check"></i> Apply Avatar
+        </button>
+    </div>
+</div>
+</div>
+
+<script>
+    var diceStyle = 'adventurer';
+    var selectedDiceUrl = null;
+
+    function selectDiceStyle(el) {
+        document.querySelectorAll('.style-opt').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        diceStyle = el.dataset.style;
+        refreshDiceAvatars();
+    }
+
+    function refreshDiceAvatars() {
+        var grid = document.getElementById('dice-grid');
+        grid.innerHTML = '';
+        selectedDiceUrl = null;
+        document.getElementById('btn-dice-apply').disabled = true;
+        for (var i = 0; i < 10; i++) {
+            var seed = Math.random().toString(36).substring(2, 10);
+            var url = 'https://api.dicebear.com/9.x/' + diceStyle + '/svg?seed=' + seed + '&size=80';
+            (function(u) {
+                var div = document.createElement('div');
+                div.className = 'dice-opt';
+                div.innerHTML = '<img src="' + u + '" alt="avatar">';
+                div.onclick = function() {
+                    document.querySelectorAll('.dice-opt').forEach(d => d.classList.remove('selected'));
+                    div.classList.add('selected');
+                    selectedDiceUrl = u;
+                    document.getElementById('btn-dice-apply').disabled = false;
+                };
+                grid.appendChild(div);
+            })(url);
+        }
+    }
+
+    function applyDiceAvatar() {
+        if (!selectedDiceUrl) return;
+        var btn = document.getElementById('btn-dice-apply');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+        var fd = new FormData();
+        fd.append('url', selectedDiceUrl);
+        fetch('{{ path("app_profile_dicebear") }}', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'done') {
+                document.getElementById('avatar-preview').src = selectedDiceUrl;
+                document.getElementById('dicebear-modal').classList.remove('open');
+            } else {
+                alert('Error: ' + (data.error || 'Unknown'));
+            }
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Apply Avatar';
+        })
+        .catch(err => {
+            alert('Request failed: ' + err);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Apply Avatar';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('dicebear-modal').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('open');
+        });
+        // Pre-load avatars when modal opens
+        document.querySelector('[onclick*="dicebear-modal"]').addEventListener('click', function() {
+            if (!document.getElementById('dice-grid').children.length) refreshDiceAvatars();
+        });
+    });
+</script>
+
+<!-- Transport -->
+<div class="pref-overlay" id="pref-transport" onclick="if(event.target===this)closePrefModal('transport')">
+<div class="pref-modal">
+    <div class="pref-modal-header">
+        <div class="pref-modal-icon" style="background:#eff6ff;color:#3b82f6;"><i class="fa-solid fa-car"></i></div>
+        <span class="pref-modal-title">Transport Preferences</span>
+        <button class="pref-modal-close" onclick="closePrefModal('transport')">✕</button>
+    </div>
+    <form method="POST" action="{{ path('app_profile') }}">
+        <input type="hidden" name="section" value="preferences">
+        <input type="hidden" name="axe" value="transport">
+        <div class="pref-modal-body">
+            <div class="fields-grid">
+                <div class="field-group">
+                    <label>Transport Type</label>
+                    <select name="type_transport">
+                        <option value="">— Select —</option>
+                        {% for opt in ['Avion','Train','Bus','Voiture','Bateau'] %}
+                        <option value="{{ opt }}" {{ axeT and axeT.typeTransport == opt ? 'selected' : '' }}>{{ opt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label>Class</label>
+                    <select name="classe">
+                        <option value="">— Select —</option>
+                        {% for opt in ['Économique','Affaires','Première'] %}
+                        <option value="{{ opt }}" {{ axeT and axeT.classe == opt ? 'selected' : '' }}>{{ opt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label>Time Tolerance (min)</label>
+                    <input type="number" name="tolerance_temps" value="{{ axeT ? axeT.toleranceTemps : '' }}" placeholder="e.g. 60">
+                </div>
+            </div>
+            <div class="field-group" style="margin-top:12px;">
+                <label>Accepts Layover</label>
+                <div class="toggle-group">
+                    <button type="button" class="toggle-opt {{ axeT and axeT.accepteEscale == 'oui' ? 'selected' : '' }}" onclick="setToggle(this,'accepte_escale','oui')">✓ Yes</button>
+                    <button type="button" class="toggle-opt {{ axeT and axeT.accepteEscale == 'non' ? 'selected' : '' }}" onclick="setToggle(this,'accepte_escale','non')">✗ No</button>
+                </div>
+                <input type="hidden" name="accepte_escale" id="accepte_escale" value="{{ axeT ? axeT.accepteEscale : '' }}">
+            </div>
+            <div class="field-group" style="margin-top:12px;"><label>Budget (MAD)</label>
+                <div class="budget-row">
+                    <input type="number" name="transport_budget_min" value="{{ axeT ? axeT.budgetMin : '' }}" placeholder="Min">
+                    <input type="number" name="transport_budget_max" value="{{ axeT ? axeT.budgetMax : '' }}" placeholder="Max">
+                </div>
+            </div>
+        </div>
+        <div class="pref-modal-footer">
+            <button type="button" class="btn-pref-cancel" onclick="closePrefModal('transport')">Cancel</button>
+            <button type="submit" class="btn-pref-save"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+        </div>
+    </form>
+</div></div>
+
+<!-- Hebergement -->
+<div class="pref-overlay" id="pref-hebergement" onclick="if(event.target===this)closePrefModal('hebergement')">
+<div class="pref-modal">
+    <div class="pref-modal-header">
+        <div class="pref-modal-icon" style="background:#fff7ed;color:#f59e0b;"><i class="fa-solid fa-bed"></i></div>
+        <span class="pref-modal-title">Accommodation Preferences</span>
+        <button class="pref-modal-close" onclick="closePrefModal('hebergement')">✕</button>
+    </div>
+    <form method="POST" action="{{ path('app_profile') }}">
+        <input type="hidden" name="section" value="preferences">
+        <input type="hidden" name="axe" value="hebergement">
+        <div class="pref-modal-body">
+            <div class="fields-grid">
+                <div class="field-group">
+                    <label>Type</label>
+                    <select name="type_hebergement">
+                        <option value="">— Select —</option>
+                        {% for opt in ['Hôtel','Appartement','Riad','Auberge','Villa'] %}
+                        <option value="{{ opt }}" {{ axeH and axeH.typeHebergement == opt ? 'selected' : '' }}>{{ opt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label>Hotel Category</label>
+                    <select name="categorie_hotel">
+                        <option value="">— Select —</option>
+                        {% for opt in ['1★','2★','3★','4★','5★'] %}
+                        <option value="{{ opt }}" {{ axeH and axeH.categorieHotel == opt ? 'selected' : '' }}>{{ opt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label>Services</label>
+                    <input type="text" name="services" value="{{ axeH ? axeH.services : '' }}" placeholder="WiFi, Pool, Spa">
+                </div>
+                <div class="field-group">
+                    <label>Rooms Needed</label>
+                    <input type="number" name="nombre_chambre" value="{{ axeH ? axeH.nombreDeChambre : 1 }}" min="1">
+                </div>
+            </div>
+            <div class="field-group" style="margin-top:12px;">
+                <label>Accepts Colocation</label>
+                <div class="toggle-group">
+                    <button type="button" class="toggle-opt {{ axeH and axeH.accepteColocation == 'oui' ? 'selected' : '' }}" onclick="setToggle(this,'accepte_colocation','oui')">✓ Yes</button>
+                    <button type="button" class="toggle-opt {{ axeH and axeH.accepteColocation == 'non' ? 'selected' : '' }}" onclick="setToggle(this,'accepte_colocation','non')">✗ No</button>
+                </div>
+                <input type="hidden" name="accepte_colocation" id="accepte_colocation" value="{{ axeH ? axeH.accepteColocation : '' }}">
+            </div>
+            <div class="field-group" style="margin-top:12px;"><label>Budget (MAD)</label>
+                <div class="budget-row">
+                    <input type="number" name="heberg_budget_min" value="{{ axeH ? axeH.budgetMin : '' }}" placeholder="Min">
+                    <input type="number" name="heberg_budget_max" value="{{ axeH ? axeH.budgetMax : '' }}" placeholder="Max">
+                </div>
+            </div>
+        </div>
+        <div class="pref-modal-footer">
+            <button type="button" class="btn-pref-cancel" onclick="closePrefModal('hebergement')">Cancel</button>
+            <button type="submit" class="btn-pref-save"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+        </div>
+    </form>
+</div></div>
+
+<!-- Activite -->
+<div class="pref-overlay" id="pref-activite" onclick="if(event.target===this)closePrefModal('activite')">
+<div class="pref-modal">
+    <div class="pref-modal-header">
+        <div class="pref-modal-icon" style="background:#f0fdf4;color:#22c55e;"><i class="fa-solid fa-person-biking"></i></div>
+        <span class="pref-modal-title">Activity Preferences</span>
+        <button class="pref-modal-close" onclick="closePrefModal('activite')">✕</button>
+    </div>
+    <form method="POST" action="{{ path('app_profile') }}">
+        <input type="hidden" name="section" value="preferences">
+        <input type="hidden" name="axe" value="activite">
+        <div class="pref-modal-body">
+            <div class="fields-grid">
+                <div class="field-group">
+                    <label>Activity Types</label>
+                    <input type="text" name="types_activite" value="{{ axeA ? axeA.typesActivite : '' }}" placeholder="Hiking, Diving...">
+                </div>
+                <div class="field-group">
+                    <label>Level</label>
+                    <select name="niveau">
+                        <option value="">— Select —</option>
+                        {% for opt in ['Débutant','Intermédiaire','Avancé'] %}
+                        <option value="{{ opt }}" {{ axeA and axeA.niveau == opt ? 'selected' : '' }}>{{ opt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="field-group" style="margin-top:12px;">
+                <label>With Guide</label>
+                <div class="toggle-group">
+                    <button type="button" class="toggle-opt {{ axeA and axeA.avecGuide == 'oui' ? 'selected' : '' }}" onclick="setToggle(this,'avec_guide','oui')">✓ Yes</button>
+                    <button type="button" class="toggle-opt {{ axeA and axeA.avecGuide == 'non' ? 'selected' : '' }}" onclick="setToggle(this,'avec_guide','non')">✗ No</button>
+                </div>
+                <input type="hidden" name="avec_guide" id="avec_guide" value="{{ axeA ? axeA.avecGuide : '' }}">
+            </div>
+            <div class="field-group" style="margin-top:12px;">
+                <label>With Group</label>
+                <div class="toggle-group">
+                    <button type="button" class="toggle-opt {{ axeA and axeA.avecGroupe == 'oui' ? 'selected' : '' }}" onclick="setToggle(this,'avec_groupe','oui')">✓ Yes</button>
+                    <button type="button" class="toggle-opt {{ axeA and axeA.avecGroupe == 'non' ? 'selected' : '' }}" onclick="setToggle(this,'avec_groupe','non')">✗ No</button>
+                </div>
+                <input type="hidden" name="avec_groupe" id="avec_groupe" value="{{ axeA ? axeA.avecGroupe : '' }}">
+            </div>
+            <div class="field-group" style="margin-top:12px;"><label>Budget (MAD)</label>
+                <div class="budget-row">
+                    <input type="number" name="activite_budget_min" value="{{ axeA ? axeA.budgetMin : '' }}" placeholder="Min">
+                    <input type="number" name="activite_budget_max" value="{{ axeA ? axeA.budgetMax : '' }}" placeholder="Max">
+                </div>
+            </div>
+        </div>
+        <div class="pref-modal-footer">
+            <button type="button" class="btn-pref-cancel" onclick="closePrefModal('activite')">Cancel</button>
+            <button type="submit" class="btn-pref-save"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+        </div>
+    </form>
+</div></div>
+
+<!-- Voyage -->
+<div class="pref-overlay" id="pref-voyage" onclick="if(event.target===this)closePrefModal('voyage')">
+<div class="pref-modal">
+    <div class="pref-modal-header">
+        <div class="pref-modal-icon" style="background:#fdf2f8;color:#ec4899;"><i class="fa-solid fa-earth-americas"></i></div>
+        <span class="pref-modal-title">Voyage Preferences</span>
+        <button class="pref-modal-close" onclick="closePrefModal('voyage')">✕</button>
+    </div>
+    <form method="POST" action="{{ path('app_profile') }}">
+        <input type="hidden" name="section" value="preferences">
+        <input type="hidden" name="axe" value="voyage">
+        <div class="pref-modal-body">
+            <div class="fields-grid">
+                <div class="field-group">
+                    <label>Trip Types</label>
+                    <input type="text" name="types_voyages" value="{{ axeV ? axeV.typesVoyages : '' }}" placeholder="Adventure, Beach...">
+                </div>
+                <div class="field-group">
+                    <label>Preferred Seasons</label>
+                    <input type="text" name="saisons" value="{{ axeV ? axeV.saisonsPreferees : '' }}" placeholder="Summer, Winter...">
+                </div>
+                <div class="field-group">
+                    <label>Destinations</label>
+                    <input type="text" name="destinations" value="{{ axeV ? axeV.destinations : '' }}" placeholder="Europe, Asia...">
+                </div>
+                <div class="field-group">
+                    <label>Duration (days)</label>
+                    <input type="number" name="duree" value="{{ axeV ? axeV.duree : '' }}" placeholder="e.g. 7" min="1">
+                </div>
+            </div>
+            <div class="field-group" style="margin-top:12px;"><label>Budget (MAD)</label>
+                <div class="budget-row">
+                    <input type="number" name="voyage_budget_min" value="{{ axeV ? axeV.budgetMin : '' }}" placeholder="Min">
+                    <input type="number" name="voyage_budget_max" value="{{ axeV ? axeV.budgetMax : '' }}" placeholder="Max">
+                </div>
+            </div>
+        </div>
+        <div class="pref-modal-footer">
+            <button type="button" class="btn-pref-cancel" onclick="closePrefModal('voyage')">Cancel</button>
+            <button type="submit" class="btn-pref-save"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+        </div>
+    </form>
+</div></div>
+
+<script>
+    function openPrefModal(name) {
+        document.getElementById('pref-' + name).classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closePrefModal(name) {
+        document.getElementById('pref-' + name).classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    function setToggle(btn, fieldId, value) {
+        btn.closest('.toggle-group').querySelectorAll('.toggle-opt').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById(fieldId).value = value;
+    }
+
+    function previewAvatar(input) {
+        if (!input.files || !input.files[0]) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('avatar-preview').src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+        setTimeout(function() { document.getElementById('avatar-form').submit(); }, 400);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('avatar-input').addEventListener('change', function() {
+            previewAvatar(this);
+        });
+    });
+
+    function toggleCamMenu(e) {
+        e.stopPropagation();
+        document.getElementById('cam-menu').classList.toggle('open');
+    }
+    document.addEventListener('click', function() {
+        document.getElementById('cam-menu').classList.remove('open');
+    });
+
+    var camStream = null;
+
+    function openCameraCapture() {
+        document.getElementById('cam-menu').classList.remove('open');
+        document.getElementById('cam-overlay').classList.add('open');
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+        .then(function(stream) {
+            camStream = stream;
+            document.getElementById('cam-video').srcObject = stream;
+        })
+        .catch(function(err) {
+            alert('Camera access denied: ' + err.message);
+            closeCameraCapture();
+        });
+    }
+
+    function closeCameraCapture() {
+        if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+        document.getElementById('cam-overlay').classList.remove('open');
+        document.getElementById('cam-video').srcObject = null;
+    }
+
+    function capturePhoto() {
+        var video  = document.getElementById('cam-video');
+        var canvas = document.getElementById('cam-canvas');
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        canvas.toBlob(function(blob) {
+            closeCameraCapture();
+            // Preview immediately
+            document.getElementById('avatar-preview').src = URL.createObjectURL(blob);
+            // Upload via the avatar form
+            var dt = new DataTransfer();
+            dt.items.add(new File([blob], 'capture.jpg', { type: 'image/jpeg' }));
+            document.getElementById('avatar-input').files = dt.files;
+            document.getElementById('avatar-form').submit();
+        }, 'image/jpeg', 0.9);
+    }
+
+    var editMode = false;
+    var editableIds = ['inp-prenom','inp-nom','inp-telephone','inp-nationalite','inp-dob','inp-ville','inp-pays','inp-adresse','inp-bio'];
+
+    function toggleEdit(section) {
+        editMode = !editMode;
+        editableIds.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.readOnly = !editMode;
+        });
+        document.getElementById('btn-save-personal').style.display = editMode ? 'flex' : 'none';
+    }
+
+    const ICONS = { auto:'🌗', light:'☀️', dark:'🌙' };
+    function syncThemeNav() {
+        const mode = localStorage.getItem('explora-theme') || 'auto';
+        const icon = document.getElementById('theme-nav-icon');
+        if (icon) icon.textContent = ICONS[mode];
+        document.querySelectorAll('.theme-nav-option').forEach(el => el.classList.toggle('active', el.dataset.mode === mode));
+    }
+    function toggleThemeMenu(e) {
+        e.preventDefault();
+        const m = document.getElementById('theme-nav-menu');
+        m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+    }
+    function pickTheme(mode) {
+        localStorage.setItem('explora-theme', mode);
+        const h = new Date().getHours();
+        document.documentElement.setAttribute('data-theme', mode === 'auto' ? (h >= 7 && h < 19 ? 'light' : 'dark') : mode);
+        syncThemeNav();
+        document.getElementById('theme-nav-menu').style.display = 'none';
+    }
+    document.addEventListener('DOMContentLoaded', syncThemeNav);
+</script>
+</body>
+</html>

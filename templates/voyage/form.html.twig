@@ -1,0 +1,114 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }} - Explora{% endblock %}
+
+{% block body %}
+<style>
+    .voyage-form-page {
+        max-width: 760px;
+        margin: 35px auto;
+        padding: 0 16px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .panel {
+        border: 1px solid #d4e1ec;
+        border-radius: 14px;
+        background: white;
+        box-shadow: 0 8px 18px rgba(31, 45, 61, 0.08);
+        overflow: hidden;
+    }
+
+    .panel-head {
+        background: linear-gradient(120deg, #264653 0%, #2a9d8f 100%);
+        color: white;
+        padding: 18px;
+    }
+
+    .panel-head h1 {
+        margin: 0;
+        font-size: 26px;
+    }
+
+    .panel-body {
+        padding: 20px;
+    }
+
+    .panel-body label {
+        display: block;
+        margin-bottom: 6px;
+        color: #334e68;
+        font-weight: 600;
+    }
+
+    .panel-body input,
+    .panel-body textarea {
+        width: 100%;
+        border: 1px solid #b7c9d8;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 14px;
+        font-size: 14px;
+    }
+
+    .panel-body textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .btn-main,
+    .btn-alt {
+        border: none;
+        border-radius: 8px;
+        padding: 10px 14px;
+        text-decoration: none;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .btn-main {
+        background: #1d7b6f;
+        color: white;
+    }
+
+    .btn-alt {
+        border: 1px solid #355070;
+        color: #355070;
+        background: white;
+    }
+
+    ul {
+        color: #a70000;
+        margin: -8px 0 10px;
+        padding-left: 18px;
+    }
+</style>
+
+<div class="voyage-form-page">
+    <div class="panel">
+        <div class="panel-head">
+            <h1>{{ title }}</h1>
+        </div>
+        <div class="panel-body">
+            {{ form_start(form) }}
+                {{ form_row(form.nom) }}
+                {{ form_row(form.description) }}
+                {{ form_row(form.dateDepart) }}
+                {{ form_row(form.dateRetour) }}
+                {{ form_row(form.budgetTotal) }}
+
+                <div class="actions">
+                    <a class="btn-alt" href="{{ path('app_voyage_index') }}">Annuler</a>
+                    <button class="btn-main" type="submit">{{ submit_label }}</button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

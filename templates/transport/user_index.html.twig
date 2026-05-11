@@ -1,0 +1,1091 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Réservez Votre Transport'|trans }} - Explora{% endblock %}
+
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* ═════════════════════════════════════════════════════════════════════
+   EXPLORA — Transport User Page  (CSS inline)
+   Aesthetics: Premium, Modern, Dark Mode ready
+   ═════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --navy:#1a3a5c; --navy-dark:#0f2540; --navy-mid:#2d5a8a;
+  --orange:#f7941d; --orange-dk:#e07800; --orange-lt:#fff3e0;
+  --white:#ffffff; --bg:#f0f4f8; --bg-card:#ffffff;
+  --gray-lt:#f8f9fa; --gray-md:#e9ecef; --gray:#8492a6;
+  --text:#212529; --text-m:#6c757d;
+  --green:#28a745; --green-lt:#d4edda;
+  --red:#dc3545;   --red-lt:#fde8ea;
+  --r-sm:8px; --r:14px; --r-lg:20px;
+  --sh-sm:0 2px 8px rgba(0,0,0,.08);
+  --sh:0 6px 24px rgba(0,0,0,.10);
+  --tr:.25s ease;
+  --fd:'Plus Jakarta Sans',sans-serif;
+  --fb:'DM Sans',sans-serif;
+}
+
+/* ── DARK MODE ── */
+body.dark-mode {
+  --navy:#a8c4e0; --navy-dark:#e8f0f8; --navy-mid:#7aadd4;
+  --white:#1e2d40; --bg:#0f1923; --bg-card:#162032;
+  --gray-lt:#1e2d40; --gray-md:#2a3d52; --gray:#7a8fa3;
+  --text:#e8edf3; --text-m:#8ca0b5;
+  --orange-lt:rgba(247,148,29,.15);
+  --sh-sm:0 2px 8px rgba(0,0,0,.3);
+  --sh:0 6px 24px rgba(0,0,0,.4);
+}
+body.dark-mode .ut-navbar,
+body.dark-mode .ut-tabs-bar { background:#162032; }
+body.dark-mode .ut-tab--active { background:#1a3a5c; color:#fff; }
+body.dark-mode .ut-modal-box { background:#162032; }
+body.dark-mode .ut-toast { background:#1e2d40; color:var(--text); }
+
+/* PAGE */
+body { font-family:var(--fb); background:var(--bg); color:var(--text); min-height:100vh; transition:background var(--tr),color var(--tr); }
+.ut-page { display:flex; flex-direction:column; min-height:100vh; }
+
+/* ── NAVBAR ── */
+.ut-navbar { background:var(--white); box-shadow:var(--sh-sm); position:sticky; top:0; z-index:200; transition:background var(--tr); }
+.ut-navbar__inner { max-width:1440px; margin:0 auto; padding:0 25px; height:70px; display:flex; align-items:center; gap:12px; }
+.ut-navbar__logo { display:flex; align-items:center; gap:10px; text-decoration:none; font-family:var(--fd); font-weight:800; font-size:22px; color:var(--navy); flex-shrink:0; }
+.ut-logo-icon { color:var(--orange); font-size:20px; }
+.ut-navbar__links { display:flex; gap:4px; margin-left:auto; }
+.ut-nav-link { font-family:var(--fd); font-weight:600; font-size:13px; color:var(--navy); text-decoration:none; padding:8px 14px; border-radius:var(--r-sm); transition:var(--tr); }
+.ut-nav-link:hover { background:var(--gray-lt); color:var(--orange); }
+.ut-nav-link--active { color:var(--orange); }
+.ut-navbar__actions { display:flex; align-items:center; gap:8px; margin-left:10px; }
+.ut-theme-btn { background:var(--gray-lt); border:none; border-radius:50%; width:42px; height:42px; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:var(--tr); color:var(--navy); }
+.ut-theme-btn:hover { background:var(--gray-md); transform:rotate(15deg); }
+
+/* ── BUTTONS ── */
+.ut-btn { display:inline-flex; align-items:center; gap:6px; font-family:var(--fd); font-weight:700; font-size:13px; padding:10px 20px; border-radius:25px; border:none; cursor:pointer; text-decoration:none; transition:var(--tr); white-space:nowrap; }
+.ut-btn--primary { background:var(--orange); color:#fff; box-shadow:0 4px 14px rgba(247,148,29,.35); }
+.ut-btn--primary:hover { background:var(--orange-dk); box-shadow:0 6px 20px rgba(247,148,29,.5); transform:translateY(-1px); }
+.ut-btn--secondary { background:transparent; color:var(--navy); border:2px solid var(--navy); }
+.ut-btn--secondary:hover { background:var(--navy); color:#fff; }
+.ut-btn--ghost { background:var(--gray-lt); color:var(--navy); border:2px solid var(--gray-md); }
+.ut-btn--ghost:hover { background:var(--gray-md); }
+.ut-btn--sm { padding:9px 20px; font-size:13px; border-radius:20px; }
+
+/* ── HERO CAROUSEL ── */
+.ut-hero { position:relative; height:280px; overflow:hidden; }
+.ut-hero__carousel { position:absolute; inset:0; }
+.ut-hero__slide { position:absolute; inset:0; opacity:0; transition:opacity 1.2s ease; background-size:cover; background-position:center; background-repeat:no-repeat; }
+.ut-hero__slide.active { opacity:1; }
+.ut-hero__slide::after{
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(120deg,rgba(11,28,46,.62),rgba(26,58,92,.45));
+}
+.ut-hero__slide--1 { background-image:url('https://images.pexels.com/photos/21014/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1600'); }
+.ut-hero__slide--2 { background-image:url('https://images.pexels.com/photos/386009/pexels-photo-386009.jpeg?auto=compress&cs=tinysrgb&w=1600'); }
+.ut-hero__slide--3 { background-image:url('https://images.pexels.com/photos/302428/pexels-photo-302428.jpeg?auto=compress&cs=tinysrgb&w=1600'); }
+.ut-hero__slide--4 { background-image:url('https://images.pexels.com/photos/912050/pexels-photo-912050.jpeg?auto=compress&cs=tinysrgb&w=1600'); }
+.ut-hero__slide--5 { background-image:url('https://images.pexels.com/photos/62623/wing-plane-flying-airplane-62623.jpeg?auto=compress&cs=tinysrgb&w=1600'); }
+.ut-hero__slide--6 { background-image:url('https://images.pexels.com/photos/847393/pexels-photo-847393.jpeg?auto=compress&cs=tinysrgb&w=1600'); }
+.ut-hero__content { position:relative; z-index:2; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:50px 100px; }
+.ut-hero__title { font-family:var(--fd); font-size:42px; font-weight:800; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.8); letter-spacing:-.5px; }
+.ut-hero__subtitle { margin-top:10px; font-size:17px; color:rgba(255,255,255,.95); text-shadow:0 1px 8px rgba(0,0,0,.6); max-width:640px; }
+.ut-hero__dots { display:flex; gap:8px; margin-top:20px; }
+.ut-dot { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,.45); cursor:pointer; transition:var(--tr); border:none; display:inline-block; }
+.ut-dot.active { background:var(--orange); transform:scale(1.3); }
+
+/* ── TABS BAR — CENTREES ── */
+.ut-tabs-bar { background:var(--white); box-shadow:0 2px 12px rgba(0,0,0,.07); transition:background var(--tr); }
+.ut-tabs-inner { max-width:1400px; margin:0 auto; padding:0 50px; display:flex; justify-content:center; }
+.ut-tab { display:flex; align-items:center; gap:8px; padding:0 30px; height:60px; font-family:var(--fd); font-size:15px; font-weight:700; color:var(--navy); text-decoration:none; transition:var(--tr); border-bottom:3px solid transparent; white-space:nowrap; cursor:pointer; }
+.ut-tab:hover { color:var(--orange); background:var(--gray-lt); }
+.ut-tab--active { color:#fff; background:var(--navy-dark); border-bottom-color:var(--orange); }
+.ut-tab--active:hover { color:#fff; background:var(--navy-dark); }
+.ut-tab i { font-size:15px; }
+
+/* ── MAIN CONTENT ── */
+.ut-main { max-width:1440px; margin:0 auto; padding:30px 40px 60px; width:100%; flex:1; }
+
+/* ── SEARCH CARD ── */
+.ut-search-card { background:var(--bg-card); border-radius:var(--r-lg); box-shadow:var(--sh); padding:30px 40px; margin-bottom:40px; transition:background var(--tr); }
+.ut-search-fields { display:grid; grid-template-columns:1fr 1fr auto auto auto; gap:20px; align-items:end; margin-bottom:20px; }
+.ut-field-group { display:flex; flex-direction:column; gap:8px; }
+.ut-label { font-family:var(--fd); font-weight:700; font-size:13px; color:var(--navy); }
+.ut-input { height:50px; padding:0 16px; background:var(--gray-lt); border:2px solid var(--gray-md); border-radius:var(--r-sm); font-family:var(--fb); font-size:14px; color:var(--text); transition:var(--tr); outline:none; width:100%; }
+.ut-input:focus { border-color:var(--orange); background:var(--white); box-shadow:0 0 0 3px rgba(247,148,29,.12); }
+.ut-input::placeholder { color:var(--gray); }
+.ut-select { cursor:pointer; }
+.ut-select--sort { width:180px; }
+.ut-search-footer { display:flex; align-items:center; justify-content:flex-end; gap:16px; padding-top:16px; border-top:1px solid var(--gray-md); }
+.ut-sort-group { display:flex; align-items:center; gap:12px; }
+.ut-search-btns { display:flex; gap:12px; }
+.ut-real-wrap { display:flex; flex-direction:column; align-items:center; gap:6px; }
+.ut-real-badge { font-size:11px; color:#10b981; background:#d1fae5; padding:3px 8px; border-radius:999px; font-weight:700; }
+
+/* ── RESULTS ── */
+.ut-results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.ut-results-title { font-family:var(--fd); font-size:24px; font-weight:800; color:var(--navy); }
+.ut-results-count { background:var(--orange-lt); color:var(--orange); font-family:var(--fd); font-weight:700; font-size:13px; padding:6px 14px; border-radius:20px; }
+
+/* ── EMPTY STATE ── */
+.ut-empty { background:var(--bg-card); border-radius:var(--r-lg); padding:60px; text-align:center; box-shadow:var(--sh-sm); }
+.ut-empty__icon { font-size:40px; color:var(--gray); margin-bottom:16px; }
+.ut-empty__text { font-family:var(--fd); font-size:18px; font-weight:700; color:var(--navy); margin-bottom:8px; }
+.ut-empty__sub { color:var(--text-m); font-size:15px; }
+
+/* ── TRANSPORT CARDS ── */
+.ut-cards-list { display:flex; flex-direction:column; gap:15px; }
+.ut-card { background:var(--bg-card); border-radius:var(--r); box-shadow:var(--sh-sm); padding:25px 30px; display:flex; align-items:center; transition:box-shadow var(--tr),transform var(--tr),border-color var(--tr); border:1px solid var(--gray-md); }
+.ut-card:hover { box-shadow:var(--sh); border-color:var(--orange); transform:translateY(-2px); }
+
+/* Compagnie */
+.ut-card__company { display:flex; flex-direction:column; align-items:center; gap:4px; min-width:110px; padding-right:24px; }
+.ut-card__company-icon { width:46px; height:46px; border-radius:50%; background:var(--gray-lt); display:flex; align-items:center; justify-content:center; margin-bottom:4px; }
+.ut-card__company-icon i { font-size:18px; color:var(--navy); }
+.ut-card__company-name { font-family:var(--fd); font-weight:700; font-size:13px; color:var(--navy); text-align:center; }
+.ut-card__flight-num { font-size:11px; color:var(--text-m); }
+
+/* Route */
+.ut-card__route { display:flex; align-items:center; flex:1; gap:10px; }
+.ut-card__endpoint { display:flex; flex-direction:column; align-items:center; gap:3px; min-width:100px; }
+.ut-card__city { font-family:var(--fd); font-weight:700; font-size:14px; color:var(--navy); text-align:center; }
+.ut-card__time { font-family:var(--fd); font-size:26px; font-weight:800; color:var(--navy); line-height:1; }
+.ut-card__date { font-size:12px; color:var(--text-m); }
+.ut-card__arrow-area { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:0 10px; }
+.ut-card__duration { font-size:12px; color:var(--text-m); font-weight:600; }
+.ut-card__line { display:flex; align-items:center; width:100%; gap:4px; }
+.ut-card__dot { width:8px; height:8px; border-radius:50%; background:var(--navy); flex-shrink:0; }
+.ut-card__dash { flex:1; height:2px; background:var(--gray-md); }
+.ut-card__arrow-icon { font-size:18px; color:var(--orange); flex-shrink:0; font-weight:bold; }
+.ut-card__direct { font-size:11px; color:var(--green); font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+
+/* Séparateur vertical */
+.ut-card__sep { width:1px; height:70px; background:var(--gray-md); margin:0 15px; flex-shrink:0; }
+
+/* Prix */
+.ut-card__price-area { display:flex; flex-direction:column; align-items:center; gap:6px; min-width:155px; }
+.ut-card__price { display:flex; align-items:baseline; gap:4px; }
+.ut-card__price-val { font-family:var(--fd); font-size:28px; font-weight:800; color:var(--orange); line-height:1; }
+.ut-card__price-cur { font-family:var(--fd); font-size:14px; font-weight:700; color:var(--orange); }
+.ut-card__per { font-size:12px; color:var(--text-m); }
+.ut-card__places { font-size:12px; font-weight:600; padding:3px 10px; border-radius:12px; color:var(--green); background:var(--green-lt); }
+.ut-card__places--low { color:var(--red); background:var(--red-lt); }
+
+/* ── MODALS (Refined) ── */
+.ut-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:9999; display:none; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
+.ut-modal-overlay.open { display:flex !important; }
+.ut-weather-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:10000; display:none; align-items:center; justify-content:center; backdrop-filter: blur(5px); }
+.ut-weather-overlay.open { display:flex !important; }
+.ut-modal-box { background:var(--bg-card); border-radius:var(--r-lg); padding:36px 40px; max-width:480px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,.4); position:relative; animation:slideUp .3s cubic-bezier(0.4, 0, 0.2, 1); }
+@keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+.ut-modal-close { position:absolute; top:16px; right:16px; background:var(--gray-lt); border:none; border-radius:50%; width:34px; height:34px; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--navy); transition:var(--tr); }
+.ut-modal-close:hover { background:var(--red-lt); color:var(--red); }
+.ut-modal-title { font-family:var(--fd); font-size:20px; font-weight:800; color:var(--navy); margin-bottom:6px; }
+.ut-modal-route { font-size:14px; color:var(--text-m); margin-bottom:24px; }
+.ut-modal-route strong { color:var(--navy); }
+.ut-modal-info { background:var(--gray-lt); border-radius:var(--r-sm); padding:16px; margin-bottom:20px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.ut-modal-info-row { display:flex; flex-direction:column; gap:3px; }
+.ut-modal-info-label { font-size:11px; color:var(--text-m); font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+.ut-modal-info-val { font-family:var(--fd); font-weight:700; font-size:15px; color:var(--navy); }
+.ut-modal-info-val.orange { color:var(--orange); }
+.ut-modal-field { margin-bottom:18px; }
+.ut-modal-field label { display:block; font-family:var(--fd); font-weight:700; font-size:13px; color:var(--navy); margin-bottom:8px; }
+.ut-modal-field input { width:100%; height:48px; padding:0 16px; border:2px solid var(--gray-md); border-radius:var(--r-sm); font-family:var(--fd); font-size:16px; font-weight:700; color:var(--text); background:var(--gray-lt); outline:none; transition:var(--tr); }
+.ut-modal-field input:focus { border-color:var(--orange); background:var(--white); }
+.ut-modal-total { background:var(--orange-lt); border-radius:var(--r-sm); padding:14px 16px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; }
+.ut-modal-total-label { font-family:var(--fd); font-weight:700; color:var(--navy); }
+.ut-modal-total-val { font-family:var(--fd); font-size:22px; font-weight:800; color:var(--orange); }
+.ut-modal-actions { display:flex; gap:12px; justify-content:flex-end; }
+.ut-modal-error { color:var(--red); font-size:13px; font-weight:600; margin-bottom:12px; display:none; }
+
+/* ── MODAL METEO ── */
+.ut-weather-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:700; display:none; align-items:center; justify-content:center; }
+.ut-weather-overlay.open { display:flex; }
+.ut-weather-box { background:linear-gradient(150deg,#1a3a5c,#2d5a8a); color:#fff; border-radius:20px; width:min(760px,94vw); max-height:88vh; overflow:auto; padding:26px; box-shadow:0 24px 60px rgba(0,0,0,.35); }
+.ut-weather-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:18px; }
+.ut-weather-title { font-family:var(--fd); font-size:26px; font-weight:800; }
+.ut-weather-close { width:34px; height:34px; border-radius:50%; border:0; cursor:pointer; color:#1a3a5c; background:#fff; font-weight:700; }
+.ut-weather-search { display:flex; gap:10px; margin-bottom:14px; }
+.ut-weather-search input { flex:1; height:44px; border:0; border-radius:10px; padding:0 12px; }
+.ut-weather-search button { height:44px; border:0; border-radius:10px; background:#f7941d; color:#fff; font-weight:700; padding:0 14px; cursor:pointer; }
+.ut-weather-main { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
+.ut-weather-icon { font-size:58px; }
+.ut-weather-temp { font-size:48px; font-weight:800; line-height:1; }
+.ut-weather-city { font-size:18px; opacity:.95; }
+.ut-weather-forecast { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; }
+.ut-weather-day { background:rgba(255,255,255,.13); border-radius:12px; padding:10px; text-align:center; }
+.ut-weather-day-date { font-size:12px; opacity:.9; }
+.ut-weather-day-icon { font-size:24px; margin:6px 0; }
+.ut-weather-day-temp { font-size:13px; font-weight:700; }
+.ut-weather-error { display:none; margin-bottom:10px; padding:10px; border-radius:10px; background:rgba(220,53,69,.28); }
+
+/* ── TOAST NOTIFICATION ── */
+.ut-toast { position:fixed; bottom:30px; right:30px; z-index:600; background:var(--navy-dark); color:#fff; font-family:var(--fd); font-weight:700; font-size:14px; padding:14px 22px; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.25); display:none; align-items:center; gap:10px; animation:toastIn .3s ease; max-width:360px; }
+.ut-toast.show { display:flex; }
+.ut-toast.success { background:var(--green); }
+.ut-toast.error { background:var(--red); }
+@keyframes toastIn { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+.ut-toast i { font-size:18px; }
+
+/* ── LOAD MORE ── */
+.ut-load-more-wrap { text-align:center; margin-top:28px; }
+
+/* ── FOOTER ── */
+.ut-footer { background:#0f2540; padding:22px 100px; text-align:center; margin-top:auto; }
+.ut-footer p { color:rgba(255,255,255,.4); font-size:12px; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){
+  .ut-main{padding:30px 40px 50px}
+  .ut-search-fields{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  .ut-navbar__inner{padding:0 20px} .ut-navbar__links{display:none}
+  .ut-main{padding:20px 16px 40px} .ut-hero__title{font-size:26px} .ut-hero__content{padding:20px}
+  .ut-tabs-inner{padding:0 8px;overflow-x:auto;justify-content:flex-start}
+  .ut-tab{padding:0 14px;font-size:13px}
+  .ut-search-fields{grid-template-columns:1fr}
+  .ut-search-footer{flex-direction:column;align-items:stretch}
+  .ut-card{flex-wrap:wrap;gap:16px} .ut-card__sep{display:none}
+  .ut-footer{padding:20px}
+}
+@keyframes pulse { 0%{opacity:.6} 50%{opacity:1} 100%{opacity:.6} }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="ut-page">
+
+{# ════════════════════════════════════ NAVBAR ════════════════════════════════════ #}
+<nav class="ut-navbar">
+    <div class="ut-navbar__inner">
+        <a href="#" class="ut-navbar__logo">
+            {{ include('partials/explora_brand.html.twig', {admin: false, logoHeight: 52}) }}
+        </a>
+        <div class="ut-navbar__links">
+            <a href="#" class="ut-nav-link">{{ 'nav.home'|trans }}</a>
+            <a href="#" class="ut-nav-link">{{ 'nav.voyages'|trans }}</a>
+            <a href="{{ path('user_transport') }}" class="ut-nav-link ut-nav-link--active">{{ 'nav.transport'|trans }}</a>
+            <a href="{{ path('app_hebergement_front') }}" class="ut-nav-link">{{ 'nav.hotels'|trans }}</a>
+            <a href="{{ path('voyageur_index') }}" class="ut-nav-link">Activités</a>
+        </div>
+        <div class="ut-navbar__actions">
+            {# Bouton mode jour/nuit — toggle dark mode #}
+            <button class="ut-theme-btn" id="btnTheme" title="Mode nuit / jour">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <button type="button" id="btnEcoScore" class="ut-btn ut-btn--secondary ut-btn--sm" style="color: #10b981; border-color: #10b981;" title="Votre Score Écologique">
+                🌿 <span id="navEcoPoints">{{ ecoScore.pointsActuels ?? 0 }}</span> PTS
+            </button>
+            <button type="button" id="btnWeatherApi" class="ut-btn ut-btn--secondary ut-btn--sm">
+                <i class="fas fa-cloud-sun"></i> {{ 'nav.weather'|trans }}
+            </button>
+            <a href="{{ path('user_transport_route_map', {
+                origin: searchOrigine ?: 'Tunis',
+                destination: searchDestination ?: 'Sousse'
+            }) }}" class="ut-btn ut-btn--secondary ut-btn--sm">
+                <i class="fas fa-map-marked-alt"></i> {{ 'nav.map'|trans }}
+            </a>
+            <a href="{{ path('user_transport_flight_map') }}" class="ut-btn ut-btn--secondary ut-btn--sm">
+                <i class="fas fa-plane-departure"></i> {{ 'nav.flight_map'|trans }}
+            </a>
+            {# Bouton Mes Réservations — ouvre la page billets #}
+            <a href="{{ path('user_billets') }}" class="ut-btn ut-btn--primary">
+                <i class="fas fa-ticket-alt"></i> {{ 'nav.reservations'|trans }}
+            </a>
+        </div>
+    </div>
+</nav>
+
+{# ════════════════════════════════════ HERO CAROUSEL ════════════════════════════════════ #}
+<section class="ut-hero">
+    <div class="ut-hero__carousel">
+        <div class="ut-hero__slide ut-hero__slide--1 active"></div>
+        <div class="ut-hero__slide ut-hero__slide--2"></div>
+        <div class="ut-hero__slide ut-hero__slide--3"></div>
+        <div class="ut-hero__slide ut-hero__slide--4"></div>
+        <div class="ut-hero__slide ut-hero__slide--5"></div>
+        <div class="ut-hero__slide ut-hero__slide--6"></div>
+    </div>
+    <div class="ut-hero__content">
+        <h1 class="ut-hero__title">{{ 'hero.title'|trans }}</h1>
+        <p class="ut-hero__subtitle">{{ 'hero.subtitle'|trans }}</p>
+        <div class="ut-hero__dots">
+            <span class="ut-dot active" data-slide="0"></span>
+            <span class="ut-dot" data-slide="1"></span>
+            <span class="ut-dot" data-slide="2"></span>
+            <span class="ut-dot" data-slide="3"></span>
+            <span class="ut-dot" data-slide="4"></span>
+            <span class="ut-dot" data-slide="5"></span>
+        </div>
+    </div>
+</section>
+
+{# ════════════════════════════════════ TABS — TYPE TRANSPORT (centrés) ════════════════════════════════════ #}
+{% set fp = {
+    origine: searchOrigine,
+    destination: searchDestination,
+    dateDepart: searchDateDepart,
+    dateRetour: searchDateRetour,
+    passagers: searchPassagers,
+    sort: sort
+} %}
+<div class="ut-tabs-bar">
+    <div class="ut-tabs-inner">
+        <a href="{{ path('user_transport', fp|merge({'type':'AVION'})) }}"
+           class="ut-tab {{ currentType=='AVION'   ? 'ut-tab--active' : '' }}">
+            {{ 'tab.flights'|trans }}
+        </a>
+        <a href="{{ path('user_transport', fp|merge({'type':'BATEAU'})) }}"
+           class="ut-tab {{ currentType=='BATEAU'  ? 'ut-tab--active' : '' }}">
+            {{ 'tab.boats'|trans }}
+        </a>
+        <a href="{{ path('user_transport', fp|merge({'type':'TRAIN'})) }}"
+           class="ut-tab {{ currentType=='TRAIN'   ? 'ut-tab--active' : '' }}">
+            {{ 'tab.trains'|trans }}
+        </a>
+        <a href="{{ path('user_transport', fp|merge({'type':'VOITURE'})) }}"
+           class="ut-tab {{ currentType=='VOITURE' ? 'ut-tab--active' : '' }}">
+            {{ 'tab.rentals'|trans }}
+        </a>
+        <a href="{{ path('user_transport', fp|merge({'type':'BUS'})) }}"
+           class="ut-tab {{ currentType=='BUS'     ? 'ut-tab--active' : '' }}">
+            {{ 'tab.bus'|trans }}
+        </a>
+        <a href="{{ path('user_transport', fp|merge({'type':'TAXI'})) }}"
+           class="ut-tab {{ currentType=='TAXI'    ? 'ut-tab--active' : '' }}">
+            {{ 'tab.taxi'|trans }}
+        </a>
+    </div>
+</div>
+
+{# ════════════════════════════════════ MAIN ════════════════════════════════════ #}
+<div class="ut-main">
+
+    {# ── FORMULAIRE DE RECHERCHE ── #}
+    <div class="ut-search-card">
+        <form method="get" action="{{ path('user_transport') }}" id="searchForm">
+            <input type="hidden" name="type" value="{{ currentType }}">
+            <div class="ut-search-fields">
+                <div class="ut-field-group">
+                    <label class="ut-label">{{ 'search.origin'|trans }}</label>
+                    <input type="text"
+                           name="origine"
+                           id="inputOrigine"
+                           value="{{ searchOrigine }}"
+                           placeholder="{{ 'search.origin_placeholder'|trans }}"
+                           class="ut-input">
+                </div>
+                <div class="ut-field-group">
+                    <label class="ut-label">{{ 'search.destination'|trans }}</label>
+                    <input type="text"
+                           name="destination"
+                           id="inputDestination"
+                           value="{{ searchDestination }}"
+                           placeholder="{{ 'search.destination_placeholder'|trans }}"
+                           class="ut-input">
+                </div>
+                <div class="ut-field-group">
+                    <label class="ut-label">{{ 'search.departure'|trans }}</label>
+                    <input type="date"
+                           name="dateDepart"
+                           value="{{ searchDateDepart }}"
+                           class="ut-input">
+                </div>
+                <div class="ut-field-group">
+                    <label class="ut-label">{{ 'search.return'|trans }}</label>
+                    <input type="date"
+                           name="dateRetour"
+                           value="{{ searchDateRetour }}"
+                           class="ut-input">
+                </div>
+                <div class="ut-field-group">
+                    <label class="ut-label">{{ 'search.passengers'|trans }}</label>
+                    <select name="passagers" class="ut-input ut-select">
+                        {% for i in 1..5 %}
+                            <option value="{{ i }}" {{ searchPassagers == i ? 'selected' : '' }}>
+                                {{ i }} {{ (i > 1 ? 'search.passenger_plural' : 'search.passenger_singular')|trans }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="ut-search-footer">
+                <div class="ut-sort-group">
+                    <label class="ut-label">{{ 'search.sort_by'|trans }} :</label>
+                    <select name="sort" class="ut-input ut-select ut-select--sort" id="sortSelect">
+                        <option value="prix_asc"  {{ sort == 'prix_asc'  ? 'selected' : '' }}>{{ 'sort.price_asc'|trans }}</option>
+                        <option value="prix_desc" {{ sort == 'prix_desc' ? 'selected' : '' }}>{{ 'sort.price_desc'|trans }}</option>
+                        <option value="date_asc"  {{ sort == 'date_asc'  ? 'selected' : '' }}>{{ 'sort.date_asc'|trans }}</option>
+                        <option value="date_desc" {{ sort == 'date_desc' ? 'selected' : '' }}>{{ 'sort.date_desc'|trans }}</option>
+                    </select>
+                </div>
+                <div class="ut-search-btns">
+                    <a href="{{ path('user_transport', {'type': currentType}) }}"
+                       class="ut-btn ut-btn--ghost"
+                       id="btnRefresh">
+                        <i class="fas fa-sync-alt"></i> {{ 'btn.refresh'|trans }}
+                    </a>
+                    <button type="submit" class="ut-btn ut-btn--primary">
+                        <i class="fas fa-search"></i> {{ 'btn.search'|trans }}
+                    </button>
+                    <div class="ut-real-wrap">
+                        <button type="button" class="ut-btn ut-btn--secondary" id="btnRealFlights">
+                            <i class="fas fa-plane"></i> {{ 'btn.real_flights'|trans }}
+                        </button>
+                        <span class="ut-real-badge">{{ 'badge.real_time'|trans }}</span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {# ── RÉSULTATS ── #}
+    <div class="ut-results">
+        <div class="ut-results-header">
+            <h2 class="ut-results-title">{{ 'results.title'|trans }}</h2>
+            {% if transports is not empty %}
+                <span class="ut-results-count">
+                    {{ transports|length }} {{ (transports|length > 1 ? 'results.count_plural' : 'results.count_singular')|trans }}
+                </span>
+{% endif %}
+        </div>
+
+        {% if transports is empty %}
+            <div class="ut-empty">
+                <div class="ut-empty__icon"><i class="fas fa-search"></i></div>
+                <p class="ut-empty__text">Aucun transport disponible</p>
+                <p class="ut-empty__text-sub">Modifiez vos critères et réessayez</p>
+            </div>
+        {% else %}
+            <div class="ut-cards-list" id="cardsList">
+                {% for transport in transports %}
+                <article class="ut-card" id="card-{{ transport.id }}">
+
+                    {# — Compagnie — #}
+                    <div class="ut-card__company">
+                        <div class="ut-card__type">
+                            <div class="ut-type-icon">
+                                {% if transport.type.value == 'AVION' %}<i class="fas fa-plane"></i>
+                                {% elseif transport.type.value == 'TRAIN' %}<i class="fas fa-train"></i>
+                                {% elseif transport.type.value == 'BUS' %}<i class="fas fa-bus"></i>
+                                {% elseif transport.type.value == 'VOITURE' %}<i class="fas fa-car"></i>
+                                {% elseif transport.type.value == 'BATEAU' %}<i class="fas fa-ship"></i>
+                                {% else %}<i class="fas fa-taxi"></i>{% endif %}
+                            </div>
+                            <span>{{ ('type.' ~ transport.type.value)|lower|trans }}</span>
+                        </div>
+                        <div class="ut-card__company-name">
+                            {{ transport.compagnie ?: 'Explora' }}
+                        </div>
+                        {% if transport.numeroVol %}
+                            <div class="ut-card__flight-num">{{ transport.numeroVol }}</div>
+                        {% endif %}
+                    </div>
+
+                    {# — Route (Origine → Destination) — #}
+                    <div class="ut-card__route">
+                        <div class="ut-card__endpoint">
+                            <div class="ut-card__city">{{ transport.origine|trans }}</div>
+                            <div class="ut-card__time">
+                                {{ transport.heureDepart ? transport.heureDepart|date('H:i') : '--:--' }}
+                            </div>
+                            <div class="ut-card__date">
+                                {{ transport.dateDepart ? transport.dateDepart|date('d/m/Y') : '' }}
+                            </div>
+                        </div>
+
+                        <div class="ut-card__arrow-area">
+                            {% if transport.heureArrivee and transport.heureDepart %}
+                                {% set dep = transport.heureDepart|date('H') * 60 + transport.heureDepart|date('i') %}
+                                {% set arr = transport.heureArrivee|date('H') * 60 + transport.heureArrivee|date('i') %}
+                                {% set diff = arr - dep %}
+                                {% if diff < 0 %}{% set diff = diff + 1440 %}{% endif %}
+                                {% set h = (diff // 60) %}
+                                {% set m = (diff % 60) %}
+                                <div class="ut-card__duration">
+                                    {{ h }}{{ 'unit.hour'|trans }}{{ m > 0 ? (m ~ 'unit.minute'|trans) : '' }}
+                                </div>
+                            {% else %}
+                                <div class="ut-card__duration">--</div>
+                            {% endif %}
+                            <div class="ut-card__line">
+                                <div class="ut-card__dot"></div>
+                                <div class="ut-card__dash"></div>
+                                <i class="fas fa-long-arrow-alt-right ut-card__arrow-icon"></i>
+                                <div class="ut-card__dash"></div>
+                                <div class="ut-card__dot"></div>
+                            </div>
+                            <div class="ut-card__direct">{{ 'badge.direct'|trans }}</div>
+                        </div>
+
+                        <div class="ut-card__endpoint">
+                            <div class="ut-card__city">{{ transport.destination }}</div>
+                            <div class="ut-card__time">
+                                {{ transport.heureArrivee ? transport.heureArrivee|date('H:i') : '--:--' }}
+                            </div>
+                            <div class="ut-card__date">
+                                {{ transport.dateArrivee ? transport.dateArrivee|date('d/m/Y') : '' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {# — Séparateur vertical — #}
+                    <div class="ut-card__sep"></div>
+
+                    {# — Prix + Bouton Réserver + Badges — #}
+                    <div class="ut-card__price-area">
+                        <div class="ut-card__price">
+                            {% set isDiscount = transport.prixOriginal and transport.prix < transport.prixOriginal %}
+                            
+                            {% if isDiscount %}
+                                <div style="font-size: 14px; text-decoration: line-through; color: #9ca3af; margin-bottom: -5px;">
+                                    {{ (transport.prixOriginal * currency_rate())|number_format(0, '.', '') }} {{ current_currency_symbol() }}
+                                </div>
+                            {% endif %}
+
+                            <span class="ut-card__price-val">
+                                {{ (transport.prix * currency_rate())|number_format(0, '.', '') }}
+                            </span>
+                            <span class="ut-card__price-cur">{{ current_currency_symbol() }}</span>
+                            
+                            {% if isDiscount %}
+                                {% set pct = ((transport.prixOriginal - transport.prix) / transport.prixOriginal * 100)|round(0) %}
+                                <div title="Promotion spéciale" 
+                                     style="font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; display: inline-block; margin-left: 8px; vertical-align: middle; background: #d1fae5; color: #10b981; border: 1px solid #10b98133; animation: pulse 2s infinite;">
+                                    -{{ pct }}%
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="ut-card__per">{{ 'card.per_person'|trans }}</div>
+                        <button type="button" 
+                                class="ut-btn ut-btn--primary ut-btn--sm btn-reserver"
+                                style="margin-top: 10px; width: 100%; justify-content: center;"
+                                data-id="{{ transport.id }}"
+                                data-type="{{ ('type.' ~ transport.type.value)|lower|trans }}"
+                                data-origine="{{ transport.origine }}"
+                                data-destination="{{ transport.destination }}"
+                                data-prix="{{ (transport.prix * currency_rate())|number_format(0, '.', '') }}"
+                                data-places="{{ transport.placesDisponibles }}"
+                                data-compagnie="{{ transport.compagnie ?: 'Explora' }}"
+                                data-heuredepart="{{ transport.heureDepart ? transport.heureDepart|date('H:i') : '' }}">
+                            <i class="fas fa-ticket-alt"></i> {{ 'btn.book'|trans }}
+                        </button>
+                        <div class="ut-card__places
+                            {{ transport.placesDisponibles <= 5 ? 'ut-card__places--low' : '' }}">
+                            {{ transport.placesDisponibles }}
+                            {{ (transport.placesDisponibles > 1 ? 'card.places_plural' : 'card.places_singular')|trans }}
+                        </div>
+
+                        {# Trafic / CO2 (Badges) #}
+                        {% if transport.etatTrafic %}
+                            {% set delayKey = transport.etatTrafic == 'EMBOUTEILLAGE' ? 'traffic.heavy' : (transport.etatTrafic == 'DENSE' ? 'traffic.dense' : (transport.etatTrafic == 'MODERE' ? 'traffic.moderate' : 'traffic.on_time')) %}
+                            {% set delayColor = transport.etatTrafic == 'EMBOUTEILLAGE' ? '#ef4444' : (transport.etatTrafic == 'DENSE' ? '#f97316' : (transport.etatTrafic == 'MODERE' ? '#eab308' : '#22c55e')) %}
+                            <div style="background-color: {{ delayColor }}22; color: {{ delayColor }}; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 20px; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid {{ delayColor }}44; width: 100%;">
+                                {{ delayKey|trans }}
+                            </div>
+                        {% endif %}
+
+                        {% if transport.emissionsKgCO2 and transport.emissionsKgCO2 > 0 %}
+                            {% set cc = transport.categorieEcologique|default('INCONNU') %}
+                            
+                            {# Palette de couleurs écologique (Design Premium) #}
+                            {% set couleurBadge = '#6b7280' %} {# Gris par défaut #}
+                            {% if cc == 'EXCELLENT' %}   {% set couleurBadge = '#10b981' %} {# Vert Émeraude #}
+                            {% elseif cc == 'BON' %}     {% set couleurBadge = '#22c55e' %} {# Vert #}
+                            {% elseif cc == 'MOYEN' %}   {% set couleurBadge = '#f59e0b' %} {# Ambre #}
+                            {% elseif cc == 'MAUVAIS' %}  {% set couleurBadge = '#ef4444' %} {# Rouge #}
+                            {% elseif cc == 'MEDIOCRE' %} {% set couleurBadge = '#991b1b' %} {# Rouge Foncé #}
+                            {% endif %}
+
+                            <div title="Catégorie Écologique: {{ cc }}" 
+                                 style="background-color: {{ couleurBadge }}15; color: {{ couleurBadge }}; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 12px; margin-top: 8px; text-align: center; width: 100%; border: 1px solid {{ couleurBadge }}33; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="fas fa-leaf" style="font-size: 9px; margin-right: 4px;"></i>
+                                {{ transport.emissionsKgCO2|number_format(1, '.', ' ') }} KG CO₂
+                            </div>
+                        {% endif %}
+
+                        {# 📊 PRÉVISION DE SATURATION (N'afficher que si > 70%) #}
+                        {% if saturationData[transport.id] is defined %}
+                            {% set sat = saturationData[transport.id] %}
+                            {% if sat.score >= 70 %}
+                                <div title="Saturation prévue au départ : {{ sat.score }}%" 
+                                     style="background-color: {{ sat.color }}15; color: {{ sat.color }}; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 12px; margin-top: 6px; text-align: center; width: 100%; border: 1px solid {{ sat.color }}33; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    {{ sat.icon }} {{ sat.niveau|trans }} ({{ sat.score }}%)
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+</div>{# /ut-main #}
+
+<footer class="ut-footer">
+    <p>&copy; 2026 Explora. Tous droits réservés.</p>
+</footer>
+
+</div>{# /ut-page #}
+
+{# ════════════════════════════════════ MODALS ════════════════════════════════════ #}
+<div class="ut-modal-overlay" id="modalReserver">
+    <div class="ut-modal-box">
+        <button class="ut-modal-close" id="btnCloseModal"><i class="fas fa-times"></i></button>
+        <h3 class="ut-modal-title">{{ 'modal.title'|trans }}</h3>
+        <p class="ut-modal-route" id="modalRouteText">
+            {{ 'modal.route_from'|trans }} <strong id="mOrig"></strong> {{ 'modal.route_to'|trans }} <strong id="mDest"></strong>
+        </p>
+        
+        <div id="modalError" class="ut-modal-error"></div>
+
+        <div class="ut-modal-info">
+            <div class="ut-modal-info-row">
+                <span class="ut-modal-info-label">{{ 'nav.transport'|trans }}</span>
+                <span class="ut-modal-info-val" id="mType"></span>
+            </div>
+            <div class="ut-modal-info-row">
+                <span class="ut-modal-info-label">{{ 'modal.unit_price'|trans }}</span>
+                <span class="ut-modal-info-val orange" id="mPrix"></span>
+            </div>
+            <div class="ut-modal-info-row">
+                <span class="ut-modal-info-label">{{ 'search.departure'|trans }}</span>
+                <span class="ut-modal-info-val" id="mHeure"></span>
+            </div>
+            <div class="ut-modal-info-row">
+                <span class="ut-modal-info-label">{{ 'modal.available'|trans }}</span>
+                <span class="ut-modal-info-val" id="mPlaces"></span>
+            </div>
+        </div>
+
+        <form id="formReserver" method="post" action="{{ path('user_billet_reserver') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('reserver') }}">
+            <input type="hidden" name="transportId" id="inId">
+            <input type="hidden" name="type" id="inType">
+            
+            <div class="ut-modal-field">
+                <label>{{ 'search.passengers'|trans }}</label>
+                <input type="number" name="nombrePlaces" id="inPlacesCount" value="{{ searchPassagers|default(1) }}" min="1" max="9" class="ut-input" style="font-weight: 800; font-size: 18px; text-align: center; background: #fff; border-color: var(--orange);">
+            </div>
+
+
+
+            <div class="ut-modal-total">
+                <span class="ut-modal-total-label">{{ 'modal.total'|trans }}</span>
+                <span class="ut-modal-total-val" id="mTotalLabel">0.00</span>
+            </div>
+
+            <div class="ut-modal-actions">
+                <button type="submit" class="ut-btn ut-btn--primary" style="width:100%; justify-content:center;">
+                    <i class="fas fa-check-circle"></i> {{ 'modal.btn_confirm'|trans }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="ut-weather-overlay" id="weatherOverlay" role="dialog" aria-modal="true">
+    <div class="ut-weather-box">
+        <div class="ut-weather-head">
+            <div class="ut-weather-title">{{ 'weather.title'|trans }}</div>
+            <button class="ut-weather-close" id="weatherClose">&times;</button>
+        </div>
+        <div class="ut-weather-search">
+            <input id="weatherCityInput" value="{{ searchDestination ?: 'Tunis' }}" placeholder="Entrez une ville...">
+            <button type="button" id="weatherSearchBtn">{{ 'btn.search'|trans }}</button>
+        </div>
+        <div class="ut-weather-error" id="weatherError"></div>
+        <div class="ut-weather-main">
+            <div class="ut-weather-icon" id="weatherMainIcon">⛅</div>
+            <div>
+                <div class="ut-weather-temp" id="weatherMainTemp">--°C</div>
+                <div class="ut-weather-city" id="weatherMainCity">--</div>
+            </div>
+        </div>
+        <div class="ut-weather-forecast" id="weatherForecast"></div>
+    </div>
+</div>
+
+<div class="ut-modal-overlay" id="veloModalOverlay" role="dialog" aria-modal="true">
+    <div class="ut-modal-box" style="text-align: center;">
+        <button class="ut-modal-close" id="veloModalClose"><i class="fas fa-times"></i></button>
+        <div style="font-size: 60px; margin-bottom: 20px; color: #10b981;"><i class="fas fa-bicycle"></i></div>
+        <h3 class="ut-modal-title" style="color: #10b981;">{{ 'eco.bike_alert_title'|trans }}</h3>
+        <p style="margin-bottom: 20px;">{{ 'eco.bike_alert_text'|trans({'%dist%': '<strong id="veloDistance"></strong>'})|raw }}</p>
+        <div class="ut-modal-actions" style="flex-direction: column; gap: 10px;">
+            <button type="button" class="ut-btn ut-btn--primary" id="btnChooseVelo" style="width: 100%; background: #10b981; border: none;">
+                <i class="fas fa-bicycle"></i> {{ 'eco.btn_rent_bike'|trans }}
+            </button>
+            <button type="button" class="ut-btn ut-btn--ghost" id="btnContinueTransport" style="width: 100%;">
+                {{ 'eco.btn_continue_standard'|trans }} <span id="veloTransportType"></span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="ut-modal-overlay" id="promoModalOverlay" role="dialog" aria-modal="true">
+    <div class="ut-modal-box" style="text-align: center;">
+        <button class="ut-modal-close" id="promoModalClose"><i class="fas fa-times"></i></button>
+        <div style="font-size: 50px; margin-bottom: 15px;">🎁</div>
+        <h3 class="ut-modal-title">{{ 'eco.promo_title'|trans }}</h3>
+        <div style="background: var(--navy); color: #fff; padding: 20px; border-radius: 12px; margin-top: 15px;">
+            <span style="font-size: 14px; opacity: 0.8; display: block;">{{ 'eco.promo_code_label'|trans }}</span>
+            <strong id="promoCodeVal" style="font-size: 28px; letter-spacing: 2px;"></strong>
+        </div>
+        <button type="button" class="ut-btn ut-btn--primary" id="btnCopyPromo" style="width: 100%; margin-top: 20px;"><i class="fas fa-copy"></i> {{ 'btn.copy_close'|trans }}</button>
+    </div>
+</div>
+
+<div class="ut-modal-overlay" id="ecoScoreModalOverlay" role="dialog" aria-modal="true">
+    <div class="ut-modal-box" style="text-align: center; max-width: 500px;">
+        <button class="ut-modal-close" id="ecoScoreModalClose"><i class="fas fa-times"></i></button>
+        <div style="font-size: 50px; margin-bottom: 15px;">🌱</div>
+        <h3 class="ut-modal-title">{{ 'eco.impact_title'|trans }}</h3>
+        <p style="margin-bottom: 20px;">{{ ecoScore.badgeNiveau|trans }} — {{ 'eco.level'|trans }} {{ ecoScore.niveauActuel }}</p>
+        <div style="background: var(--gray-lt); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-weight: 700;">{{ 'eco.progress'|trans }}</span>
+                <span id="modalEcoPointsVal" style="color: var(--orange);">{{ ecoScore.pointsActuels }}/1000 PTS</span>
+            </div>
+            <div style="height: 12px; background: var(--gray-md); border-radius: 6px; overflow: hidden;"><div id="modalEcoProgressBar" style="width: {{ ecoScore.progressionPourcent }}%; height: 100%; background: linear-gradient(90deg, #10b981, #f7941d);"></div></div>
+            <p id="modalEcoPointsStatus" style="font-size: 12px; margin-top: 10px;">
+                {% if ecoScore.reductionDisponible %}
+                    🎉 {{ 'eco.reduction_ready'|trans|raw }}
+                {% else %}
+                    {{ 'eco.reduction_needed'|trans({'%pts%': ecoScore.pointsRestants})|raw }}
+                {% endif %}
+            </p>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+            <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; border: 1px solid #bbf7d0;">🌳 <span style="font-size: 18px; font-weight: 800; color: #166534;">{{ (ecoScore.co2Economise / 25)|round(1) }}</span><br><span style="font-size: 10px;">{{ 'eco.trees_saved'|trans }}</span></div>
+            <div style="background: #eff6ff; padding: 15px; border-radius: 10px; border: 1px solid #bfdbfe;">✅ <span style="font-size: 18px; font-weight: 800; color: #1e40af;">{{ ecoScore.voyagesEco }}</span><br><span style="font-size: 10px;">{{ 'eco.eco_trips'|trans }}</span></div>
+        </div>
+        <button type="button" class="ut-btn ut-btn--primary" id="ecoScoreDone" style="width: 100%;">{{ 'btn.continue'|trans }}</button>
+    </div>
+</div>
+
+<div class="ut-toast" id="toastMsg"><i class="fas fa-check-circle" id="toastIcon"></i><span id="toastText"></span></div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 0. Globals & Helpers
+    const CURRENCY_RATE = {{ currency_rate()|number_format(6, '.', '') }};
+    const CURRENCY_SYMBOL = '{{ current_currency_symbol()|e('js') }}';
+    const q = (id) => document.getElementById(id);
+    const qa = (sel) => document.querySelectorAll(sel);
+
+    // Helper Toast (manquant)
+    function showToast(msg, type = "success") {
+        const t = q('toastMsg'), txt = q('toastText'), icon = q('toastIcon');
+        if (!t) return;
+        txt.textContent = msg;
+        t.className = 'ut-toast show ' + type;
+        if (icon) icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // 1. Theme Toggle
+    const themeBtn = q('btnTheme'), themeIcon = q('themeIcon');
+    if (themeBtn) {
+        let dark = localStorage.getItem('ut-dark') === '1';
+        const applyTheme = () => { document.body.classList.toggle('dark-mode', dark); if(themeIcon) themeIcon.className = dark ? 'fas fa-sun' : 'fas fa-moon'; };
+        applyTheme();
+        themeBtn.onclick = () => { dark = !dark; localStorage.setItem('ut-dark', dark ? '1' : '0'); applyTheme(); };
+    }
+
+    // 2. Navigation & Hero
+    (function initHero() {
+        const slides = qa('.ut-hero__slide'), dots = qa('.ut-dot');
+        if (!slides.length) return;
+        let cur = 0, timer;
+        const goTo = (n) => { 
+            slides[cur].classList.remove('active'); dots[cur].classList.remove('active'); 
+            cur = (n + slides.length) % slides.length; 
+            slides[cur].classList.add('active'); dots[cur].classList.add('active'); 
+        };
+        dots.forEach(d => d.onclick = () => { clearInterval(timer); goTo(+d.dataset.slide); startAuto(); });
+        const startAuto = () => { timer = setInterval(() => goTo(cur + 1), 4500); };
+        startAuto();
+    })();
+
+    // 3. Reservation System
+    let currentReservation = null;
+    const resOverlay = q('modalReserver'), resForm = q('formReserver');
+    const inPlaces = q('inPlacesCount'), mTotalLabel = q('mTotalLabel');
+    
+    function updateTotal() {
+        if (!currentReservation || !mTotalLabel) return;
+        const count = parseInt(inPlaces?.value || 1);
+        const total = (parseFloat(currentReservation.prix) * count);
+        mTotalLabel.textContent = total.toFixed(0) + ' ' + CURRENCY_SYMBOL;
+    }
+
+    if (inPlaces) inPlaces.oninput = updateTotal;
+
+    window.initReservationEvents = () => {
+        qa('.btn-reserver').forEach(btn => {
+            if (btn.dataset.init) return; btn.dataset.init = "1";
+            btn.onclick = () => {
+                currentReservation = btn.dataset;
+                
+                if(q('mOrig')) q('mOrig').textContent = currentReservation.origine;
+                if(q('mDest')) q('mDest').textContent = currentReservation.destination;
+                if(q('mType')) q('mType').textContent = currentReservation.type;
+                if(q('mPrix')) q('mPrix').textContent = currentReservation.prix + ' ' + CURRENCY_SYMBOL;
+                if(q('mHeure')) q('mHeure').textContent = currentReservation.heuredepart;
+                if(q('mPlaces')) q('mPlaces').textContent = currentReservation.places;
+                
+                if(q('inId')) q('inId').value = currentReservation.id;
+                if(q('inType')) q('inType').value = currentReservation.type;
+                
+                updateTotal();
+                resOverlay?.classList.add('open');
+            };
+        });
+    };
+    initReservationEvents();
+    if(q('btnCloseModal')) q('btnCloseModal').onclick = () => resOverlay?.classList.remove('open');
+    if(resOverlay) resOverlay.onclick = (e) => { if(e.target === resOverlay) resOverlay.classList.remove('open'); };
+
+    // 4. Weather Tool
+    const weatherBtn = q('btnWeatherApi'), weatherOv = q('weatherOverlay'), weatherCity = q('weatherCityInput'), weatherSearch = q('weatherSearchBtn');
+    const weatherError = q('weatherError');
+    if (weatherBtn && weatherOv) {
+        function showWeatherError(msg) {
+            if (weatherError) { weatherError.textContent = msg; weatherError.style.display = 'block'; }
+        }
+        function hideWeatherError() {
+            if (weatherError) { weatherError.textContent = ''; weatherError.style.display = 'none'; }
+        }
+        async function updateWeather() {
+            try {
+                hideWeatherError();
+                const cityValue = weatherCity.value.trim();
+                if (!cityValue) {
+                    showWeatherError('Veuillez entrer un nom de ville.');
+                    return;
+                }
+                // Loading state
+                q('weatherMainTemp').textContent = '...';
+                q('weatherMainCity').textContent = cityValue;
+                q('weatherMainIcon').textContent = '⏳';
+
+                const res = await fetch(`{{ path('user_transport_weather') }}?city=${encodeURIComponent(cityValue)}`);
+                const d = await res.json();
+                if (d.error) {
+                    showWeatherError('Ville introuvable. Vérifiez le nom et réessayez.');
+                    q('weatherMainTemp').textContent = '--°C';
+                    q('weatherMainCity').textContent = '--';
+                    q('weatherMainIcon').textContent = '⛅';
+                    return;
+                }
+                if (d.temperature !== undefined) {
+                    q('weatherMainTemp').textContent = Math.round(d.temperature) + '°C';
+                    q('weatherMainCity').textContent = d.ville + ' (' + d.pays + ')';
+                    const getIcon = (c) => c<=1?'☀️':(c<=3?'⛅':(c<=48?'🌫️':(c<=82?'🌧️':'⛈️')));
+                    q('weatherMainIcon').textContent = getIcon(d.weatherCode);
+                    const fore = q('weatherForecast'); fore.innerHTML = '';
+                    d.forecasts.forEach(f => {
+                        const dv = document.createElement('div'); dv.className='ut-weather-day';
+                        dv.innerHTML = `<div style="font-size:10px;">${new Date(f.date).toLocaleDateString('{{ app.request.locale }}',{weekday:'short'})}</div><div style="font-size:24px;">${getIcon(f.weatherCode)}</div><div style="font-weight:700">${Math.round(f.maxTemp)}°</div>`;
+                        fore.appendChild(dv);
+                    });
+                }
+            } catch(e) {
+                console.error("Weather error", e);
+                showWeatherError('Erreur de connexion. Réessayez.');
+                q('weatherMainTemp').textContent = '--°C';
+                q('weatherMainCity').textContent = '--';
+                q('weatherMainIcon').textContent = '⛅';
+            }
+        }
+        weatherBtn.onclick = () => { 
+            weatherOv.classList.add('open'); 
+            if (!weatherCity.value.trim()) {
+                const destination = q('inputDestination')?.value?.trim();
+                if (destination) weatherCity.value = destination;
+            }
+            updateWeather(); 
+        };
+        if(weatherSearch) weatherSearch.onclick = updateWeather;
+        // Support touche Entrée dans le champ de recherche
+        if(weatherCity) weatherCity.addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); updateWeather(); } });
+        if(q('weatherClose')) q('weatherClose').onclick = () => weatherOv.classList.remove('open');
+    }
+
+    // 5. Eco-Score Tool
+    const ecoBtn = q('btnEcoScore'), ecoOv = q('ecoScoreModalOverlay');
+    if (ecoBtn && ecoOv) {
+        ecoBtn.onclick = () => ecoOv.classList.add('open');
+        if(q('ecoScoreModalClose')) q('ecoScoreModalClose').onclick = () => ecoOv.classList.remove('open');
+        if(q('ecoScoreDone')) q('ecoScoreDone').onclick = () => ecoOv.classList.remove('open');
+    }
+
+    // 6. Sync Eco UI
+    function updateEcoUI(totalPoints) {
+        // Navbar
+        const navPoints = q('navEcoPoints');
+        if (navPoints) {
+            navPoints.textContent = totalPoints;
+            navPoints.classList.add('pulse');
+            setTimeout(() => navPoints.classList.remove('pulse'), 500);
+        }
+        // Modal
+        const modalPointsVal = q('modalEcoPointsVal');
+        if (modalPointsVal) modalPointsVal.textContent = totalPoints + '/1000 PTS';
+        
+        const progressBar = q('modalEcoProgressBar');
+        if (progressBar) {
+            const pct = Math.min(100, Math.round((totalPoints / 1000) * 100));
+            progressBar.style.width = pct + '%';
+        }
+        
+        const statusText = q('modalEcoPointsStatus');
+        if (statusText) {
+            if (totalPoints >= 1000) {
+                statusText.innerHTML = "🎉 {{ 'eco.reduction_ready'|trans|e('js') }}";
+            } else {
+                const rest = 1000 - totalPoints;
+                statusText.innerHTML = "Plus que <strong>" + rest + " points</strong> pour -20% !";
+            }
+        }
+    }
+
+    // 6. Bike Rental Tool
+    const veloOv = q('veloModalOverlay'), promoOv = q('promoModalOverlay');
+    if (veloOv && promoOv) {
+        if(q('veloModalClose')) q('veloModalClose').onclick = () => veloOv.classList.remove('open');
+        if(q('btnContinueTransport')) q('btnContinueTransport').onclick = () => veloOv.classList.remove('open');
+        
+        const btnVelo = q('btnChooseVelo');
+        if (btnVelo) {
+            btnVelo.onclick = async () => {
+                const dep = q('inputOrigine')?.value.trim() || 'Tunis';
+                const dest = q('inputDestination')?.value.trim() || 'Carthage';
+                
+                btnVelo.disabled = true;
+                btnVelo.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+                
+                try {
+                    const res = await fetch("{{ path('user_eco_generer_code') }}", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ origine: dep, destination: dest })
+                    });
+                    const d = await res.json();
+                    
+                    if (d.code) {
+                        veloOv.classList.remove('open');
+                        const codeEl = q('promoCodeVal');
+                        if(codeEl) codeEl.textContent = d.code;
+                        promoOv.classList.add('open');
+                        
+                        // Mettre à jour les points partout
+                        const currentNav = parseInt(q('navEcoPoints')?.textContent || 0);
+                        const gain = d.pointsVelo || 300;
+                        updateEcoUI(currentNav + gain);
+                        showToast("Points ajoutés ! 🌱 +" + gain + " PTS", "success");
+                    } else if (d.error) {
+                        showToast(d.error, "error");
+                    }
+                } catch(e) {
+                    console.error("Eco error", e);
+                    showToast("Erreur lors de la génération du code", "error");
+                } finally {
+                    btnVelo.disabled = false;
+                    btnVelo.innerHTML = '<i class="fas fa-bicycle"></i> {{ 'eco.btn_rent_bike'|trans|e('js') }}';
+                }
+            };
+        }
+        
+        if(q('promoModalClose')) q('promoModalClose').onclick = () => promoOv.classList.remove('open');
+        if(q('btnCopyPromo')) {
+            q('btnCopyPromo').onclick = () => {
+                const code = q('promoCodeVal')?.textContent;
+                if(code) {
+                    // Méthode robuste pour copier (fallback HTTP)
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(code).then(() => showToast("Code copié ! ✅", "success"));
+                    } else {
+                        const textArea = document.createElement("textarea");
+                        textArea.value = code;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        try {
+                            document.execCommand('copy');
+                            showToast("Code copié ! ✅", "success");
+                        } catch (err) {
+                            console.error('Erreur de copie manuelle', err);
+                        }
+                        document.body.removeChild(textArea);
+                    }
+                }
+                promoOv.classList.remove('open');
+            };
+        }
+    }
+
+    // 7. Real Flights System
+    const realBtn = q('btnRealFlights'), cardsList = q('cardsList');
+    if (realBtn && cardsList) {
+        realBtn.onclick = async () => {
+            const dep = q('inputOrigine')?.value.trim() || 'TUN', arr = q('inputDestination')?.value.trim() || '';
+            realBtn.disabled = true; realBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>...';
+            try {
+                const res = await fetch(`{{ path('user_transport_real_flights') }}?dep=${encodeURIComponent(dep)}&arr=${encodeURIComponent(arr)}`);
+                const data = await res.json();
+                if(data.items && data.items.length > 0) {
+                    cardsList.innerHTML = '';
+                    data.items.forEach(t => {
+                        cardsList.insertAdjacentHTML('beforeend', `
+                            <article class="ut-card" style="animation: slideUp 0.4s ease forwards;">
+                                <div class="ut-card__company">
+                                    <div class="ut-card__company-icon"><i class="fas fa-plane"></i></div>
+                                    <div class="ut-card__company-name">${t.compagnie}</div>
+                                </div>
+                                <div class="ut-card__route">
+                                    <div class="ut-card__endpoint"><div class="ut-card__city">${t.origine}</div><div class="ut-card__time">${t.heureDepart}</div></div>
+                                    <div class="ut-card__arrow-area"><div class="ut-card__line"><span class="ut-card__dot"></span><span class="ut-card__dash"></span><i class="fas fa-plane" style="color:var(--orange); font-size:12px;"></i><span class="ut-card__dash"></span><span class="ut-card__dot"></span></div></div>
+                                    <div class="ut-card__endpoint"><div class="ut-card__city">${t.destination}</div><div class="ut-card__time">${t.heureArrivee}</div></div>
+                                </div>
+                                <div class="ut-card__sep"></div>
+                                <div class="ut-card__price-area">
+                                    <div class="ut-card__price"><span class="ut-card__price-val">${(parseFloat(t.prix) * CURRENCY_RATE).toFixed(0)}</span><span class="ut-card__price-cur">${CURRENCY_SYMBOL}</span></div>
+                                    <button class="ut-btn ut-btn--primary ut-btn--sm btn-reserver" data-id="${t.id}" data-type="AVION" data-origine="${t.origine}" data-destination="${t.destination}" data-prix="${t.prix}" data-compagnie="${t.compagnie}" style="width:100%">{{ 'btn.book'|trans }}</button>
+                                </div>
+                            </article>
+                        `);
+                    });
+                    initReservationEvents();
+                }
+            } catch(e) { console.error("Real flights error", e); }
+            realBtn.disabled = false; realBtn.innerHTML = '<i class="fas fa-plane"></i> {{ 'badge.real_flights'|trans|default('Vols Réels') }}';
+        };
+    }
+
+    // 9. Short Trip (Bike) Detection
+    {% if shortTrip is defined and shortTrip is not null %}
+        const st = {{ shortTrip|json_encode|raw }};
+        if (veloOv) {
+            const vDist = q('veloDistance');
+            if(vDist) vDist.textContent = st.distance + ' km';
+            const vType = q('veloTransportType');
+            if(vType) vType.textContent = st.type;
+            
+            // Show shortly after load
+            setTimeout(() => {
+                veloOv.classList.add('open');
+            }, 800);
+        }
+    {% endif %}
+});
+</script>
+{% endblock %}

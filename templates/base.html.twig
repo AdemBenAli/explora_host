@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale|default('fr') }}" dir="{{ app.request.locale|default('fr') starts with 'ar' ? 'rtl' : 'ltr' }}">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Explora{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>✈</text></svg>">
+
+        {# ── Google Fonts ── #}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+        {# ── Font Awesome ── #}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="{{ asset('css/at_admin.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/explora.css') }}">
+
+        {% block stylesheets %}{% endblock %}
+        {% block javascripts_head %}{% endblock %}
+        <style>
+            .floating-prefbar {
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 12px;
+            }
+            .floating-prefbar-content {
+                display: none;
+                flex-direction: column;
+                gap: 16px;
+                background: rgba(15,37,64,.95);
+                backdrop-filter: blur(8px);
+                border-radius: 16px;
+                padding: 20px;
+                box-shadow: 0 8px 32px rgba(0,0,0,.3);
+                border: 1px solid rgba(255,255,255,.1);
+                min-width: 250px;
+            }
+            .floating-prefbar:hover .floating-prefbar-content {
+                display: flex;
+            }
+            .floating-prefbar-btn {
+                background: #f7941d;
+                color: #fff;
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                box-shadow: 0 4px 12px rgba(247, 148, 29, 0.4);
+                cursor: pointer;
+                transition: transform 0.3s ease;
+            }
+            .floating-prefbar:hover .floating-prefbar-btn {
+                transform: rotate(90deg);
+            }
+            .floating-prefbar-content .pref-group {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            .floating-prefbar-content .pref-label {
+                color: #d5dfec;
+                font-size: 12px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                padding-bottom: 6px;
+            }
+            .floating-prefbar-content .pref-links {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .floating-prefbar-content a {
+                color: #fff;
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 600;
+                padding: 8px 14px;
+                border-radius: 8px;
+                background: rgba(255,255,255,.05);
+                transition: all 0.2s;
+                border: 1px solid rgba(255,255,255,.1);
+            }
+            .floating-prefbar-content a:hover {
+                background: rgba(255,255,255,.15);
+            }
+            .floating-prefbar-content a.active {
+                background: #f7941d;
+                color: #fff;
+                border-color: #f7941d;
+                box-shadow: 0 2px 8px rgba(247, 148, 29, 0.3);
+            }
+        </style>
+
+        {% set frankenphpHotReload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
+        {% if frankenphpHotReload %}
+            <meta name="frankenphp-hot-reload:url" content="{{ frankenphpHotReload }}">
+            <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
+            <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
+        {% endif %}
+    </head>
+    <body>
+        {% set _redirect = app.request.uri %}
+        {% set route = app.request.attributes.get('_route') %}
+        {% if route starts with 'admin_transport' or route starts with 'admin_billet' or route starts with 'user_transport' or route starts with 'app_transport' %}
+        <div class="floating-prefbar">
+            <div class="floating-prefbar-content">
+                {# --- LANGUES NATIVES --- #}
+                <div class="pref-group">
+                    <span class="pref-label"><i class="fas fa-language"></i> {{ 'prefs.language'|trans }}</span>
+                    <div class="pref-links">
+                        <a href="{{ path('app_set_locale', {locale: 'fr', redirect: _redirect}) }}" 
+                           class="{{ app.request.locale == 'fr' ? 'active' : '' }}">
+                            <img src="https://flagcdn.com/w20/fr.png" width="16" style="vertical-align:middle; margin-right:5px"> FR
+                        </a>
+                        <a href="{{ path('app_set_locale', {locale: 'en', redirect: _redirect}) }}" 
+                           class="{{ app.request.locale == 'en' ? 'active' : '' }}">
+                            <img src="https://flagcdn.com/w20/gb.png" width="16" style="vertical-align:middle; margin-right:5px"> EN
+                        </a>
+                        <a href="{{ path('app_set_locale', {locale: 'ar', redirect: _redirect}) }}" 
+                           class="{{ app.request.locale == 'ar' ? 'active' : '' }}">
+                            <img src="https://flagcdn.com/w20/tn.png" width="16" style="vertical-align:middle; margin-right:5px"> AR
+                        </a>
+                    </div>
+                </div>
+
+                {# --- DEVISES --- #}
+                <div class="pref-group">
+                    <span class="pref-label"><i class="fas fa-coins"></i> {{ 'prefs.currency'|trans }}</span>
+                    <div class="pref-links">
+                        {% for cc in supported_currencies() %}
+                            <a href="{{ path('app_set_currency', {currency: cc, redirect: _redirect}) }}"
+                               class="{{ current_currency() == cc ? 'active' : '' }}">
+                                {{ cc }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="floating-prefbar-btn">
+                <i class="fas fa-globe"></i>
+            </div>
+        </div>
+        {% endif %}
+
+        {# ── Floating Cart Button (all pages) ── #}
+        <style>
+            .floating-cart-btn {
+                position: fixed;
+                bottom: 100px;
+                right: 24px;
+                z-index: 9998;
+            }
+            .floating-cart-btn a {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                background: #f7941d;
+                color: #fff;
+                font-size: 24px;
+                box-shadow: 0 4px 12px rgba(247, 148, 29, 0.4);
+                text-decoration: none;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                position: relative;
+            }
+            .floating-cart-btn a:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 20px rgba(247, 148, 29, 0.5);
+            }
+            .floating-cart-badge {
+                position: absolute;
+                top: -4px;
+                right: -4px;
+                background: #e74c3c;
+                color: #fff;
+                font-size: 11px;
+                font-weight: 800;
+                min-width: 20px;
+                height: 20px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0 5px;
+                box-shadow: 0 2px 6px rgba(0,0,0,.2);
+            }
+            .floating-cart-badge:empty,
+            .floating-cart-badge[data-count="0"] {
+                display: none;
+            }
+        </style>
+        <div class="floating-cart-btn">
+            <a href="{{ path('app_panier_index') }}" title="Shopping Cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="floating-cart-badge" id="floatingCartBadge"></span>
+            </a>
+        </div>
+        <script>
+        (function(){
+            try {
+                fetch('{{ path('cart_count') }}')
+                    .then(function(r){ return r.json(); })
+                    .then(function(data){
+                        var badge = document.getElementById('floatingCartBadge');
+                        if (badge && data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.setAttribute('data-count', data.count);
+                        }
+                    })
+                    .catch(function(){});
+            } catch(e){}
+        })();
+        </script>
+
+        {% block body %}{% endblock %}
+        {% block javascripts %}{% endblock %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    </body>
+</html>

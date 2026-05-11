@@ -1,0 +1,520 @@
+{% macro agentModalBody(agent) %}
+<div class="modal-body">
+    <div class="modal-section">
+        <div class="modal-section-title">Agency Information</div>
+        <div class="modal-grid">
+            <div class="modal-field"><label>Agency Name</label><span>{{ agent.nomAgence }}</span></div>
+            <div class="modal-field"><label>Legal Name</label><span>{{ agent.nomLegalAgence }}</span></div>
+            <div class="modal-field"><label>Email</label><span>{{ agent.emailAgence }}</span></div>
+            <div class="modal-field"><label>Phone</label><span>{{ agent.telephoneAgence }}</span></div>
+            <div class="modal-field"><label>Country</label><span>{{ agent.paysAgence }}</span></div>
+            <div class="modal-field"><label>City</label><span>{{ agent.villeAgence }}</span></div>
+            <div class="modal-field"><label>Address</label><span>{{ agent.adresseAgence }}</span></div>
+            {% if agent.siteWebUrl %}<div class="modal-field"><label>Website</label><span>{{ agent.siteWebUrl }}</span></div>{% endif %}
+            {% if agent.descriptionAgence %}<div class="modal-field" style="grid-column:span 2"><label>Description</label><span>{{ agent.descriptionAgence }}</span></div>{% endif %}
+        </div>
+    </div>
+    <div class="modal-section">
+        <div class="modal-section-title">Legal Information</div>
+        <div class="modal-grid">
+            <div class="modal-field"><label>Trade Register</label><span>{{ agent.numeroRegistreCommerce }}</span></div>
+            <div class="modal-field"><label>Tax Number</label><span>{{ agent.numeroFiscal }}</span></div>
+            <div class="modal-field"><label>Licence Number</label><span>{{ agent.numeroLicenceAgence }}</span></div>
+            <div class="modal-field"><label>Registration Date</label><span>{{ agent.dateEnregistrement ? agent.dateEnregistrement|date('d M Y') : '-' }}</span></div>
+            <div class="modal-field"><label>Submitted</label><span>{{ agent.dateSoumission ? agent.dateSoumission|date('d M Y') : '-' }}</span></div>
+        </div>
+    </div>
+    <div class="modal-section">
+        <div class="modal-section-title">Documents</div>
+        <div class="doc-links">
+            <a href="{{ app.request.schemeAndHttpHost ~ agent.docRegistreCommerceUrl }}" target="_blank" class="doc-link"><i class="fa-regular fa-file"></i> Trade Register</a>
+            <a href="{{ app.request.schemeAndHttpHost ~ agent.docMatriculeFiscalUrl }}" target="_blank" class="doc-link"><i class="fa-regular fa-file"></i> Tax Certificate</a>
+            <a href="{{ app.request.schemeAndHttpHost ~ agent.docLicenceAgenceUrl }}" target="_blank" class="doc-link"><i class="fa-regular fa-file"></i> Agency Licence</a>
+            <a href="{{ app.request.schemeAndHttpHost ~ agent.docPieceIdentiteRectoUrl }}" target="_blank" class="doc-link"><i class="fa-regular fa-file"></i> ID Card (Front)</a>
+            <a href="{{ app.request.schemeAndHttpHost ~ agent.docPieceIdentiteVersoUrl }}" target="_blank" class="doc-link"><i class="fa-regular fa-file"></i> ID Card (Back)</a>
+            <a href="{{ app.request.schemeAndHttpHost ~ agent.docJustificatifAdresseUrl }}" target="_blank" class="doc-link"><i class="fa-regular fa-file"></i> Proof of Address</a>
+            <a href="{{ app.request.schemeAndHttpHost ~ agent.docRibOuReleveBancaireUrl }}" target="_blank" class="doc-link"><i class="fa-regular fa-file"></i> Bank Details</a>
+            {% if agent.docAssuranceUrl and agent.docAssuranceUrl != 'pending' %}
+            <a href="{{ app.request.schemeAndHttpHost ~ agent.docAssuranceUrl }}" target="_blank" class="doc-link"><i class="fa-regular fa-file"></i> Insurance</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partnerships - Explora Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="/css/theme.css">
+    <script src="/js/theme.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root { --sidebar-bg:#1a2332; --bg-body:#f1f5f9; --bg-card:#ffffff; --text-heading:#0f172a; --text-body:#64748b; --border-color:#e2e8f0; }
+        [data-theme="dark"] { --bg-body:#0F172A; --bg-card:#1E293B; --text-heading:#F1F5F9; --text-body:#94A3B8; --border-color:#334155; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--bg-body); color:var(--text-body); display:flex; height:100vh; overflow:hidden; }
+        .sidebar { width:260px; background:var(--sidebar-bg); color:white; display:flex; flex-direction:column; flex-shrink:0; }
+        .sidebar-header { margin:16px; background:rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
+        .logo-box { background:#e53935; color:white; width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+        .logo-text h2 { font-size:16px; font-weight:800; color:white; text-transform:uppercase; }
+        .logo-text span { font-size:10px; text-transform:uppercase; color:rgba(255,255,255,0.45); }
+        .sidebar-nav { flex:1; padding:8px 0; overflow-y:auto; }
+        .nav-section-label { font-size:10px; text-transform:uppercase; letter-spacing:2px; color:rgba(255,255,255,0.3); font-weight:700; padding:20px 20px 8px; }
+        .nav-divider { height:1px; background:rgba(255,255,255,0.08); margin:8px 20px 4px; }
+        .nav-item { display:flex; align-items:center; gap:14px; padding:12px 20px; margin:2px 12px; color:rgba(255,255,255,0.65); text-decoration:none; font-size:14px; font-weight:500; transition:all 0.2s; border-radius:10px; }
+        .nav-item i { font-size:16px; width:20px; text-align:center; }
+        .nav-item:hover { background:rgba(255,255,255,0.06); color:white; }
+        .nav-item.active { background:#e53935; color:white; font-weight:600; box-shadow:0 4px 12px rgba(229,57,53,0.4); }
+        .nav-item.logout { color:#e53935; background:rgba(229,57,53,0.08); }
+        .nav-item.logout:hover { background:rgba(229,57,53,0.18); color:#ff6b6b; }
+        .sidebar-footer { padding:12px; border-top:1px solid rgba(255,255,255,0.06); }
+        .theme-nav-option { background:none; border:none; color:rgba(255,255,255,0.65); font-size:13px; font-family:'Inter',sans-serif; padding:9px 20px; text-align:left; cursor:pointer; border-radius:6px; width:100%; }
+        .theme-nav-option:hover { background:rgba(255,255,255,0.06); color:white; }
+        .theme-nav-option.active { color:#e53935; font-weight:600; }
+        .main-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+        .topbar { height:64px; background:var(--bg-card); border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; padding:0 28px; flex-shrink:0; }
+        .topbar-title { font-size:18px; font-weight:700; color:var(--text-heading); }
+        .topbar-right { display:flex; align-items:center; gap:16px; }
+        .icon-btn { background:var(--bg-body); border:none; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--text-body); cursor:pointer; }
+        .user-profile { display:flex; align-items:center; gap:10px; padding-left:16px; border-left:1px solid var(--border-color); }
+        .user-avatar { width:36px; height:36px; border-radius:50%; }
+        .user-name { font-weight:600; color:var(--text-heading); font-size:14px; }
+        .user-role-label { font-size:11px; color:var(--text-body); }
+        .content-area { flex:1; padding:24px 28px; overflow-y:auto; }
+        .breadcrumb { font-size:13px; color:var(--text-body); margin-bottom:20px; }
+        .breadcrumb a { color:var(--text-body); text-decoration:none; }
+        .breadcrumb span { color:var(--text-heading); font-weight:600; }
+        .tab-bar { display:flex; gap:4px; margin-bottom:20px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:4px; width:fit-content; }
+        .tab-btn { padding:8px 20px; border:none; border-radius:9px; font-size:0.85rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; background:none; color:var(--text-body); display:flex; align-items:center; gap:7px; transition:all 0.2s; }
+        .tab-btn.active { background:#e53935; color:white; box-shadow:0 2px 8px rgba(229,57,53,0.3); }
+        .tab-btn .cnt { background:rgba(255,255,255,0.25); border-radius:20px; padding:1px 7px; font-size:0.75rem; }
+        .tab-btn:not(.active) .cnt { background:var(--border-color); color:var(--text-body); }
+        .tab-panel { display:none; }
+        .tab-panel.active { display:block; }
+        .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
+        .agency-card { background:var(--bg-card); border:1px solid var(--border-color); border-radius:14px; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+        .card-top { display:flex; align-items:flex-start; gap:14px; margin-bottom:14px; }
+        .agency-avatar { width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg,#1e3a6e,#2B4E7A); display:flex; align-items:center; justify-content:center; color:white; font-size:1.2rem; font-weight:700; flex-shrink:0; }
+        .card-info { flex:1; min-width:0; }
+        .agency-name { font-size:15px; font-weight:700; color:var(--text-heading); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .agency-legal { font-size:12px; color:var(--text-body); }
+        .status-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap; }
+        .badge-pending  { background:#fffbeb; color:#d97706; }
+        .badge-review   { background:#eff6ff; color:#3b82f6; }
+        .badge-approuve { background:#f0fdf4; color:#16a34a; }
+        .badge-refused  { background:#fef2f2; color:#dc2626; }
+        [data-theme="dark"] .badge-pending  { background:rgba(217,119,6,0.15); }
+        [data-theme="dark"] .badge-review   { background:rgba(59,130,246,0.15); }
+        [data-theme="dark"] .badge-approuve { background:rgba(22,163,74,0.15); }
+        [data-theme="dark"] .badge-refused  { background:rgba(220,38,38,0.15); }
+        .card-meta { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:14px; }
+        .meta-item { font-size:12px; color:var(--text-body); display:flex; align-items:center; gap:5px; }
+        .meta-item i { color:#94a3b8; width:14px; }
+        .card-actions { display:flex; gap:8px; padding-top:14px; border-top:1px solid var(--border-color); }
+        .btn-approve { flex:1; padding:8px; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s; }
+        .btn-approve:hover { background:#16a34a; color:white; }
+        .btn-deny { flex:1; padding:8px; background:#fef2f2; color:#dc2626; border:1px solid #fecaca; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s; }
+        .btn-deny:hover { background:#dc2626; color:white; }
+        .btn-details { padding:8px 14px; background:var(--bg-body); color:var(--text-body); border:1px solid var(--border-color); border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; display:flex; align-items:center; gap:6px; transition:all 0.2s; }
+        .btn-details:hover { border-color:#3b82f6; color:#3b82f6; }
+        .btn-analyse { padding:8px 14px; background:#f5f3ff; color:#7c3aed; border:1px solid #ddd6fe; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s; display:flex; align-items:center; gap:6px; }
+        .btn-analyse:hover { background:#7c3aed; color:white; }
+        [data-theme="dark"] .btn-analyse { background:rgba(124,58,237,0.15); border-color:rgba(124,58,237,0.3); }
+
+        /* AI Report Modal */
+        .report-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2000; align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto; }
+        .report-overlay.open { display:flex; }
+        .report-modal { background:var(--bg-card); border-radius:16px; width:100%; max-width:720px; box-shadow:0 24px 60px rgba(0,0,0,0.2); }
+        .report-header { padding:20px 24px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; }
+        .report-header h3 { font-size:16px; font-weight:700; color:var(--text-heading); display:flex; align-items:center; gap:8px; }
+        .report-close { background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-body); padding:4px 8px; border-radius:6px; }
+        .report-body { padding:24px; }
+        .report-overall { display:flex; align-items:center; gap:16px; padding:16px; border-radius:12px; margin-bottom:20px; flex-wrap:wrap; }
+        .report-overall.approved { background:#f0fdf4; border:1px solid #bbf7d0; }
+        .report-overall.rejected { background:#fef2f2; border:1px solid #fecaca; }
+        .report-overall.review   { background:#fffbeb; border:1px solid #fed7aa; }
+        .overall-icon { font-size:2rem; }
+        .overall-info strong { font-size:15px; font-weight:700; color:var(--text-heading); display:block; }
+        .overall-info span { font-size:13px; color:var(--text-body); }
+        .confidence-bar-wrap { flex:1; min-width:160px; }
+        .confidence-label { font-size:12px; font-weight:600; color:var(--text-body); margin-bottom:4px; }
+        .confidence-bar { height:8px; background:var(--border-color); border-radius:4px; overflow:hidden; }
+        .confidence-fill { height:100%; border-radius:4px; }
+        .doc-results { display:flex; flex-direction:column; gap:10px; }
+        .doc-result { border:1px solid var(--border-color); border-radius:10px; overflow:hidden; }
+        .doc-result-header { display:flex; align-items:center; gap:10px; padding:12px 16px; cursor:pointer; background:var(--bg-body); user-select:none; }
+        .doc-result-header:hover { filter:brightness(0.97); }
+        .doc-status-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+        .doc-result-name { font-size:13px; font-weight:600; color:var(--text-heading); flex:1; }
+        .doc-confidence-pill { font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; }
+        .pill-approved { background:#f0fdf4; color:#16a34a; }
+        .pill-rejected { background:#fef2f2; color:#dc2626; }
+        .pill-review   { background:#fffbeb; color:#d97706; }
+        .doc-result-body { padding:12px 16px; border-top:1px solid var(--border-color); display:none; }
+        .doc-result-body.open { display:block; }
+        .doc-summary { font-size:13px; color:var(--text-body); margin-bottom:10px; font-style:italic; }
+        .doc-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+        .tag-reason { background:#eff6ff; color:#3b82f6; padding:3px 8px; border-radius:6px; font-size:11px; }
+        .tag-risk   { background:#fef2f2; color:#dc2626; padding:3px 8px; border-radius:6px; font-size:11px; }
+        .report-loading { text-align:center; padding:40px; color:var(--text-body); }
+        .report-loading i { font-size:2rem; color:#7c3aed; margin-bottom:12px; display:block; }
+        [data-theme="dark"] .btn-approve { background:rgba(22,163,74,0.12); border-color:rgba(22,163,74,0.3); }
+        [data-theme="dark"] .btn-deny    { background:rgba(220,38,38,0.12); border-color:rgba(220,38,38,0.3); }
+        .empty-state { text-align:center; padding:60px 20px; color:var(--text-body); }
+        .empty-state i { font-size:3rem; color:var(--border-color); margin-bottom:16px; display:block; }
+
+        /* Modal */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; padding:20px; }
+        .modal-overlay.open { display:flex; }
+        .modal { background:var(--bg-card); border-radius:16px; width:100%; max-width:680px; max-height:90vh; overflow-y:auto; box-shadow:0 24px 60px rgba(0,0,0,0.2); }
+        .modal-header { padding:20px 24px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:var(--bg-card); z-index:1; }
+        .modal-header h3 { font-size:16px; font-weight:700; color:var(--text-heading); }
+        .modal-close { background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-body); padding:4px 8px; border-radius:6px; }
+        .modal-close:hover { background:var(--bg-body); }
+        .modal-body { padding:24px; }
+        .modal-section { margin-bottom:20px; }
+        .modal-section-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-body); margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid var(--border-color); }
+        .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .modal-field label { font-size:11px; font-weight:600; color:var(--text-body); display:block; margin-bottom:2px; }
+        .modal-field span { font-size:13px; color:var(--text-heading); }
+        .doc-links { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .doc-link { display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--bg-body); border:1px solid var(--border-color); border-radius:8px; font-size:12px; color:var(--text-heading); text-decoration:none; transition:border-color 0.2s; }
+        .doc-link:hover { border-color:#3b82f6; color:#3b82f6; }
+        .doc-link i { color:#94a3b8; }    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-box"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="logo-text"><h2>Explora</h2><span>Admin Panel</span></div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+        <a href="{{ path('app_admin_dashboard') }}" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+        <a href="{{ path('app_admin_users') }}" class="nav-item"><i class="fa-solid fa-users"></i> User Management</a>
+        <a href="{{ path('app_admin_partnerships') }}" class="nav-item active"><i class="fa-solid fa-handshake"></i> Partnerships</a>
+        <div class="nav-divider"></div>
+        <div class="nav-section-label">Management</div>
+        <a href="#" class="nav-item"><i class="fa-solid fa-user-tie"></i> Agents</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-circle-exclamation"></i> Complaints</a>
+        <a href="{{ path('app_admin_coupons') }}" class="nav-item"><i class="fa-solid fa-tag"></i> Coupons</a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="#" class="nav-item" id="theme-nav-btn" onclick="toggleThemeMenu(event)">
+            <i class="fa-solid fa-circle-half-stroke"></i> Theme
+            <span id="theme-nav-icon" style="margin-left:auto;font-size:1rem;"></span>
+        </a>
+        <div id="theme-nav-menu" style="display:none;flex-direction:column;background:rgba(255,255,255,0.04);border-radius:8px;margin:0 12px 4px;">
+            <button class="theme-nav-option" data-mode="light" onclick="pickTheme('light')">☀️ Light</button>
+            <button class="theme-nav-option" data-mode="dark"  onclick="pickTheme('dark')">🌙 Dark</button>
+            <button class="theme-nav-option" data-mode="auto"  onclick="pickTheme('auto')">🌗 Auto</button>
+        </div>
+        <a href="{{ path('app_logout') }}" class="nav-item logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <div class="topbar-title">Partnerships</div>
+        <div class="topbar-right">
+            <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=e53935&color=fff" class="user-avatar" alt="Admin">
+                <div><div class="user-name">Administrator</div><div class="user-role-label">Super Admin</div></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <div class="breadcrumb">
+            <a href="{{ path('app_admin_dashboard') }}">Dashboard</a> &rsaquo; <span>Partnerships</span>
+        </div>
+
+        <div class="tab-bar">
+            <button class="tab-btn active" id="tab-requests" onclick="switchTab('requests')">
+                <i class="fa-regular fa-clock"></i> Pending
+                <span class="cnt">{{ pending|length }}</span>
+            </button>
+            <button class="tab-btn" id="tab-review" onclick="switchTab('review')">
+                <i class="fa-solid fa-magnifying-glass"></i> Under Review
+                <span class="cnt">{{ inReview|length }}</span>
+            </button>
+            <button class="tab-btn" id="tab-partners" onclick="switchTab('partners')">
+                <i class="fa-solid fa-handshake"></i> Partners
+                <span class="cnt">{{ approved|length }}</span>
+            </button>
+            <button class="tab-btn" id="tab-refused" onclick="switchTab('refused')">
+                <i class="fa-solid fa-ban"></i> Refused
+                <span class="cnt">{{ refused|length }}</span>
+            </button>
+        </div>
+
+        <div class="tab-panel active" id="panel-requests">
+            {% if pending is empty %}
+            <div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>No pending requests.</p></div>
+            {% else %}
+            <div class="cards-grid">
+                {% for agent in pending %}
+                <div class="agency-card">
+                    <div class="card-top">
+                        <div class="agency-avatar">{{ agent.nomAgence|first|upper }}</div>
+                        <div class="card-info">
+                            <div class="agency-name">{{ agent.nomAgence }}</div>
+                            <div class="agency-legal">{{ agent.nomLegalAgence }}</div>
+                        </div>
+                        <span class="status-badge badge-pending"><i class="fa-regular fa-clock"></i> Pending</span>
+                    </div>
+                    <div class="card-meta">
+                        <div class="meta-item"><i class="fa-solid fa-envelope"></i> {{ agent.emailAgence }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ agent.telephoneAgence }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ agent.villeAgence }}, {{ agent.paysAgence }}</div>
+                        <div class="meta-item"><i class="fa-regular fa-calendar"></i> {{ agent.dateSoumission ? agent.dateSoumission|date('d M Y') : '-' }}</div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-details" onclick="openModal('modal-p-{{ agent.id }}')"><i class="fa-solid fa-eye"></i> Details</button>
+                        <form method="POST" action="{{ path('app_admin_partnership_review', {id: agent.id}) }}" style="flex:1;display:flex;">
+                            <button class="btn-analyse" type="submit" style="flex:1;justify-content:center;"><i class="fa-solid fa-magnifying-glass"></i> Start Review</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-overlay" id="modal-p-{{ agent.id }}" onclick="closeModalOutside(event, 'modal-p-{{ agent.id }}')">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h3><i class="fa-solid fa-building" style="color:#e53935;margin-right:8px;"></i>{{ agent.nomAgence }}</h3>
+                            <button class="modal-close" onclick="closeModal('modal-p-{{ agent.id }}')">✕</button>
+                        </div>
+                        {{ _self.agentModalBody(agent) }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="tab-panel" id="panel-review">
+            {% if inReview is empty %}
+            <div class="empty-state"><i class="fa-solid fa-magnifying-glass"></i><p>No applications under review.</p></div>
+            {% else %}
+            <div class="cards-grid">
+                {% for agent in inReview %}
+                <div class="agency-card">
+                    <div class="card-top">
+                        <div class="agency-avatar">{{ agent.nomAgence|first|upper }}</div>
+                        <div class="card-info">
+                            <div class="agency-name">{{ agent.nomAgence }}</div>
+                            <div class="agency-legal">{{ agent.nomLegalAgence }}</div>
+                        </div>
+                        <span class="status-badge badge-review"><i class="fa-solid fa-magnifying-glass"></i> Under Review</span>
+                    </div>
+                    <div class="card-meta">
+                        <div class="meta-item"><i class="fa-solid fa-envelope"></i> {{ agent.emailAgence }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ agent.telephoneAgence }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ agent.villeAgence }}, {{ agent.paysAgence }}</div>
+                        <div class="meta-item"><i class="fa-regular fa-calendar"></i> {{ agent.dateSoumission ? agent.dateSoumission|date('d M Y') : '-' }}</div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-details" onclick="openModal('modal-r-{{ agent.id }}')"><i class="fa-solid fa-eye"></i> Details</button>
+                        <button class="btn-analyse" onclick="analyseAgent({{ agent.id }}, '{{ agent.nomAgence|e('js') }}')"><i class="fa-solid fa-robot"></i> AI Analysis</button>
+                        <form method="POST" action="{{ path('app_admin_partnership_approve', {id: agent.id}) }}" style="flex:1;display:flex;">
+                            <button class="btn-approve" type="submit"><i class="fa-solid fa-check"></i> Approve</button>
+                        </form>
+                        <form method="POST" action="{{ path('app_admin_partnership_deny', {id: agent.id}) }}" style="flex:1;display:flex;">
+                            <button class="btn-deny" type="submit"><i class="fa-solid fa-xmark"></i> Refuse</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-overlay" id="modal-r-{{ agent.id }}" onclick="closeModalOutside(event, 'modal-r-{{ agent.id }}')">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h3><i class="fa-solid fa-building" style="color:#e53935;margin-right:8px;"></i>{{ agent.nomAgence }}</h3>
+                            <button class="modal-close" onclick="closeModal('modal-r-{{ agent.id }}')">✕</button>
+                        </div>
+                        {{ _self.agentModalBody(agent) }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="tab-panel" id="panel-partners">
+            {% if approved is empty %}
+            <div class="empty-state"><i class="fa-solid fa-handshake-slash"></i><p>No approved partners yet.</p></div>
+            {% else %}
+            <div class="cards-grid">
+                {% for agent in approved %}
+                <div class="agency-card">
+                    <div class="card-top">
+                        <div class="agency-avatar">{{ agent.nomAgence|first|upper }}</div>
+                        <div class="card-info">
+                            <div class="agency-name">{{ agent.nomAgence }}</div>
+                            <div class="agency-legal">{{ agent.nomLegalAgence }}</div>
+                        </div>
+                        <span class="status-badge badge-approuve"><i class="fa-solid fa-circle-check"></i> Partner</span>
+                    </div>
+                    <div class="card-meta">
+                        <div class="meta-item"><i class="fa-solid fa-envelope"></i> {{ agent.emailAgence }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ agent.telephoneAgence }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ agent.villeAgence }}, {{ agent.paysAgence }}</div>
+                        <div class="meta-item"><i class="fa-regular fa-calendar-check"></i> {{ agent.dateValidation ? agent.dateValidation|date('d M Y') : '-' }}</div>
+                    </div>
+                    <div class="card-actions">
+                        <form method="POST" action="{{ path('app_admin_partnership_revoke', {id: agent.id}) }}" style="display:flex;flex:1;">
+                            <button class="btn-deny" type="submit" style="flex:1;justify-content:center;"><i class="fa-solid fa-ban"></i> Revoke</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="tab-panel" id="panel-refused">
+            {% if refused is empty %}
+            <div class="empty-state"><i class="fa-solid fa-circle-xmark"></i><p>No refused applications.</p></div>
+            {% else %}
+            <div class="cards-grid">
+                {% for agent in refused %}
+                <div class="agency-card">
+                    <div class="card-top">
+                        <div class="agency-avatar">{{ agent.nomAgence|first|upper }}</div>
+                        <div class="card-info">
+                            <div class="agency-name">{{ agent.nomAgence }}</div>
+                            <div class="agency-legal">{{ agent.nomLegalAgence }}</div>
+                        </div>
+                        <span class="status-badge badge-refused"><i class="fa-solid fa-circle-xmark"></i> Refused</span>
+                    </div>
+                    <div class="card-meta">
+                        <div class="meta-item"><i class="fa-solid fa-envelope"></i> {{ agent.emailAgence }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ agent.telephoneAgence }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ agent.villeAgence }}, {{ agent.paysAgence }}</div>
+                        <div class="meta-item"><i class="fa-regular fa-calendar"></i> {{ agent.dateSoumission ? agent.dateSoumission|date('d M Y') : '-' }}</div>
+                    </div>
+                    <div class="card-actions">
+                        <form method="POST" action="{{ path('app_admin_partnership_reopen', {id: agent.id}) }}" style="flex:1;display:flex;">
+                            <button class="btn-analyse" type="submit" style="flex:1;justify-content:center;"><i class="fa-solid fa-rotate-left"></i> Re-open Review</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<script>
+    function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+    function closeModalOutside(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('panel-' + tab).classList.add('active');
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const tab = new URLSearchParams(window.location.search).get('tab');
+        if (tab) switchTab(tab);
+    });
+    const ICONS = { auto:'🌗', light:'☀️', dark:'🌙' };
+    function syncThemeNav() {
+        const mode = localStorage.getItem('explora-theme') || 'auto';
+        const icon = document.getElementById('theme-nav-icon');
+        if (icon) icon.textContent = ICONS[mode];
+        document.querySelectorAll('.theme-nav-option').forEach(el => el.classList.toggle('active', el.dataset.mode === mode));
+    }
+    function toggleThemeMenu(e) {
+        e.preventDefault();
+        const m = document.getElementById('theme-nav-menu');
+        m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+    }
+    function pickTheme(mode) {
+        localStorage.setItem('explora-theme', mode);
+        const h = new Date().getHours();
+        document.documentElement.setAttribute('data-theme', mode === 'auto' ? (h >= 7 && h < 19 ? 'light' : 'dark') : mode);
+        syncThemeNav();
+        document.getElementById('theme-nav-menu').style.display = 'none';
+    }
+    document.addEventListener('DOMContentLoaded', syncThemeNav);
+</script>
+
+<!-- AI Analysis Report Modal -->
+<div class="report-overlay" id="report-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="report-modal">
+        <div class="report-header">
+            <h3><i class="fa-solid fa-robot" style="color:#7c3aed;"></i> <span id="report-title">AI Document Analysis</span></h3>
+            <button class="report-close" onclick="document.getElementById('report-overlay').classList.remove('open')">✕</button>
+        </div>
+        <div class="report-body" id="report-body">
+            <div class="report-loading"><i class="fa-solid fa-spinner fa-spin"></i><p>Analysing...</p></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function analyseAgent(agentId, agencyName) {
+        document.getElementById('report-title').textContent = 'AI Analysis — ' + agencyName;
+        document.getElementById('report-body').innerHTML = '<div class="report-loading"><i class="fa-solid fa-spinner fa-spin"></i><p>Analysing documents with Gemini AI...</p><p style="font-size:12px;margin-top:6px;color:#94a3b8;">This may take 20–40 seconds</p></div>';
+        document.getElementById('report-overlay').classList.add('open');
+
+        fetch('/admin/partnerships/' + agentId + '/analyse', { method: 'POST' })
+        .then(r => r.json())
+        .then(data => renderReport(data))
+        .catch(err => {
+            document.getElementById('report-body').innerHTML = '<div class="report-loading"><p style="color:#dc2626;">Error: ' + err.message + '</p></div>';
+        });
+    }
+
+    function renderReport(data) {
+        const statusColors = { approved:'#16a34a', rejected:'#dc2626', review:'#d97706' };
+        const statusIcons  = { approved:'✅', rejected:'❌', review:'⚠️' };
+        const overall = data.overall || 'review';
+        const conf    = data.confidence || 0;
+        const fillColor = conf >= 70 ? '#16a34a' : conf >= 40 ? '#d97706' : '#dc2626';
+
+        let html = `<div class="report-overall ${overall}">
+            <div class="overall-icon">${statusIcons[overall]||'❓'}</div>
+            <div class="overall-info"><strong>Overall: ${overall.toUpperCase()}</strong><span>Average confidence across all documents</span></div>
+            <div class="confidence-bar-wrap">
+                <div class="confidence-label">${conf}% Confidence</div>
+                <div class="confidence-bar"><div class="confidence-fill" style="width:${conf}%;background:${fillColor};"></div></div>
+            </div>
+        </div><div class="doc-results">`;
+
+        for (const [docName, result] of Object.entries(data.documents || {})) {
+            const s = result.status || 'review';
+            const c = result.confidence || 0;
+            const id = 'doc-' + docName.replace(/\W+/g, '-');
+            const reasons = (result.reasons||[]).map(r=>`<span class="tag-reason">${r}</span>`).join('');
+            const risks   = (result.risk_flags||[]).map(r=>`<span class="tag-risk">⚠ ${r}</span>`).join('');
+            html += `<div class="doc-result">
+                <div class="doc-result-header" onclick="toggleDoc('${id}')">
+                    <div class="doc-status-dot" style="background:${statusColors[s]||'#64748b'};"></div>
+                    <span class="doc-result-name">${docName}</span>
+                    <span class="doc-confidence-pill pill-${s}">${c}%</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size:11px;color:#94a3b8;margin-left:6px;"></i>
+                </div>
+                <div class="doc-result-body" id="${id}">
+                    <div class="doc-summary">${result.summary||''}</div>
+                    ${reasons||risks ? `<div class="doc-tags">${reasons}${risks}</div>` : ''}
+                </div>
+            </div>`;
+        }
+        html += '</div>';
+        document.getElementById('report-body').innerHTML = html;
+    }
+
+    function toggleDoc(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('open');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Itinéraire – {{ date|date('d/m/Y') }}</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Outfit',sans-serif;background:#0f1117;color:#e2e8f0}
+#app{display:flex;height:100vh}
+#sidebar{width:340px;min-width:300px;background:#16181f;display:flex;flex-direction:column;border-right:1px solid #2a2d3a;z-index:500;overflow:hidden}
+#sidebar-header{background:linear-gradient(135deg,#1a1f35,#0f1420);padding:18px 16px 14px;border-bottom:1px solid #2a2d3a}
+#sidebar-header h1{font-size:15px;color:#e8d5a3;margin-bottom:2px;font-style:italic}
+#sidebar-header p{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+.badge-hdr{display:inline-block;background:rgba(232,213,163,.12);border:1px solid rgba(232,213,163,.25);border-radius:20px;padding:3px 12px;font-size:10px;color:#e8d5a3;margin-top:6px}
+#etapes-list{flex:1;overflow-y:auto;padding:10px 12px;scrollbar-width:thin;scrollbar-color:#2a2d3a transparent}
+#etapes-list::-webkit-scrollbar{width:4px}
+#etapes-list::-webkit-scrollbar-thumb{background:#2a2d3a;border-radius:4px}
+.etape-card{border-radius:14px;margin-bottom:8px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;border:1px solid #2a2d3a;background:#1e2130}
+.etape-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.etape-header{padding:10px 13px;display:flex;align-items:center;gap:9px}
+.etape-num{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0}
+.etape-title{font-weight:600;font-size:12px;color:white;line-height:1.3}
+.etape-body{padding:10px 13px;background:#1a1d2e}
+.etape-row{font-size:11px;color:#94a3b8;margin-bottom:3px}
+.etape-heure{font-size:10px;font-weight:600;color:white;border-radius:8px;padding:2px 9px;display:inline-block;margin-top:4px}
+.travel-row{background:#111420;border-radius:10px;margin:6px 0;padding:8px 12px;display:flex;align-items:center;gap:10px;border:1px solid #2a2d3a}
+.travel-mode{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px}
+.travel-icon{font-size:18px}
+.travel-time{font-size:10px;font-weight:700;color:#e8d5a3}
+.travel-dist{font-size:9px;color:#64748b}
+.travel-sep{width:1px;height:32px;background:#2a2d3a;flex-shrink:0}
+.calo-box{flex:1;text-align:right}
+.calo-val{font-size:15px;font-weight:700;color:#f97316}
+.calo-lbl{font-size:9px;color:#64748b;margin-top:1px}
+.tag-exact{font-size:9px;color:#34d399;background:rgba(52,211,153,.1);border-radius:6px;padding:1px 7px;margin-top:3px;display:inline-block;border:1px solid rgba(52,211,153,.2)}
+.tag-approx{font-size:9px;color:#fbbf24;background:rgba(251,191,36,.1);border-radius:6px;padding:1px 7px;margin-top:3px;display:inline-block}
+.tag-city{font-size:9px;color:#f87171;background:rgba(248,113,113,.1);border-radius:6px;padding:1px 7px;margin-top:3px;display:inline-block}
+.osm-name{font-size:9px;color:#475569;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#calo-panel{background:#0f1117;border-top:1px solid #2a2d3a;padding:14px 16px}
+#weight-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+#weight-input{background:#1a1d2e;border:1px solid #2a2d3a;border-radius:8px;padding:6px 10px;font-size:20px;font-weight:700;color:#e2e8f0;width:80px;font-family:'Outfit',sans-serif;outline:none;-moz-appearance:textfield}
+#weight-input::-webkit-inner-spin-button{-webkit-appearance:none}
+#weight-unit{font-size:14px;color:#475569}
+#calc-btn{background:linear-gradient(135deg,#e8d5a3,#c9a84c);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;color:#0f1117;cursor:pointer;flex:1}
+#calc-btn:disabled{opacity:.4;cursor:not-allowed}
+#calo-result{display:none;text-align:center;padding:8px 0 4px}
+#calo-num{font-size:36px;font-weight:700;color:#f97316}
+#calo-lbl{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.1em}
+#ai-msg{font-size:11px;color:#cbd5e1;font-style:italic;margin-top:8px;line-height:1.6;min-height:16px}
+#sidebar-footer{padding:8px 14px;border-top:1px solid #2a2d3a}
+#status-txt{font-size:10px;color:#667eea;font-weight:600;text-transform:uppercase}
+#progress-bar{height:3px;background:#1e2130;border-radius:4px;margin-top:5px;overflow:hidden}
+#progress-fill{height:100%;background:linear-gradient(90deg,#667eea,#e8d5a3);border-radius:4px;width:0%;transition:width .4s}
+#map{flex:1;height:100vh;filter:hue-rotate(200deg) brightness(.85) saturate(.8)}
+#loader{position:fixed;inset:0;background:#0f1117;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999}
+.spinner{width:48px;height:48px;border:3px solid #1e2130;border-top:3px solid #e8d5a3;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loader-title{font-size:18px;color:#e8d5a3;font-style:italic;margin-bottom:4px}
+#loader-sub{font-size:12px;color:#475569}
+#loader-step{font-size:10px;color:#667eea;margin-top:10px;font-weight:600;min-height:16px;text-transform:uppercase}
+#toast{position:fixed;bottom:20px;right:20px;z-index:8000;background:#1e2130;color:#e2e8f0;padding:10px 16px;border-radius:10px;font-size:11px;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);border:1px solid #2a2d3a;border-left:3px solid #e8d5a3;max-width:280px}
+.leaflet-popup-content-wrapper{border-radius:14px!important;padding:0!important;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.6)!important;border:1px solid #2a2d3a!important}
+.leaflet-popup-content{margin:0!important}
+.pop-hd{padding:10px 14px;color:white;font-weight:700;font-size:13px}
+.pop-bd{padding:10px 14px;background:#1e2130}
+.pop-row{font-size:11px;color:#94a3b8;margin-bottom:3px}
+.pop-prix{font-size:13px;font-weight:700;color:#34d399;margin-top:4px}
+.pop-travel{font-size:10px;color:#e8d5a3;margin-top:5px;background:rgba(232,213,163,.08);border-radius:6px;padding:4px 8px}
+.leaflet-popup-tip-container{display:none}
+#back-btn{position:fixed;top:16px;left:356px;z-index:600;background:#1e2130;color:#e8d5a3;border:1px solid #2a2d3a;border-radius:10px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:background .2s}
+#back-btn:hover{background:#2a2d3a}
+</style>
+</head>
+<body>
+<div id="loader">
+  <div class="spinner"></div>
+  <div id="loader-title">Préparation de votre itinéraire</div>
+  <div id="loader-sub">Géolocalisation en cours...</div>
+  <div id="loader-step"></div>
+</div>
+<div id="toast"></div>
+<button id="back-btn" onclick="history.back()">← Retour</button>
+<div id="app">
+  <div id="sidebar">
+    <div id="sidebar-header">
+      <h1>🗺️ Votre Itinéraire</h1>
+      <p>{{ date|date('l d F Y') }}</p>
+      <div class="badge-hdr" id="nb-badge">Localisation...</div>
+    </div>
+    <div id="etapes-list"></div>
+    <div id="calo-panel">
+      <div id="weight-row">
+        <input id="weight-input" type="number" min="30" max="250" placeholder="70" title="Votre poids en kg">
+        <span id="weight-unit">kg</span>
+        <button id="calc-btn" onclick="calculerCalories()">🔥 Calories</button>
+      </div>
+      <div id="calo-result">
+        <div id="calo-num">0</div>
+        <div id="calo-lbl">kcal brûlées à pied</div>
+        <div id="ai-msg"></div>
+      </div>
+    </div>
+    <div id="sidebar-footer">
+      <div id="status-txt">Géocodage...</div>
+      <div id="progress-bar"><div id="progress-fill"></div></div>
+    </div>
+  </div>
+  <div id="map"></div>
+</div>
+
+<script>
+'use strict';
+const COULEURS = ['#667eea','#e74c3c','#27ae60','#f6a821','#9b59b6','#1abc9c','#e67e22','#3498db'];
+
+const ACTIVITES = [
+{% for p in plannings %}
+  {
+    index: {{ loop.index }},
+    nom: {{ p.activite.nom|json_encode|raw }},
+    lieu: {{ p.activite.lieu|json_encode|raw }},
+    ville: {{ p.activite.ville|json_encode|raw }},
+    cat: {{ p.activite.categorie|json_encode|raw }},
+    prix: '{{ p.activite.prix }} TND',
+    heure: '{% if p.heureDebut %}⏰ {{ p.heureDebut|date('H:i') }}{% if p.heureFin %} – {{ p.heureFin|date('H:i') }}{% endif %}{% else %}Heure non définie{% endif %}'
+  }{{ not loop.last ? ',' : '' }}
+{% endfor %}
+];
+
+const map = L.map('map');
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap', maxZoom:19}).addTo(map);
+map.setView([36.8, 10.18], 7);
+
+let _toast;
+function toast(msg, dur=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(_toast); _toast = setTimeout(() => t.style.display = 'none', dur);
+}
+
+function makePin(n, c) {
+  const h = '<div style="width:36px;height:36px;border-radius:50% 50% 50% 0;background:'+c+';transform:rotate(-45deg);border:3px solid rgba(255,255,255,.9);box-shadow:0 4px 16px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);color:white;font-weight:700;font-size:13px">'+n+'</span></div>';
+  return L.divIcon({html:h,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-40],className:''});
+}
+
+function fmtDist(la1,lo1,la2,lo2) {
+  const dx = Math.abs(la1-la2), dy = Math.abs(lo1-lo2);
+  if(dx<1e-5 && dy<1e-5) return {d:0, txt:'< 10 m'};
+  const R=6371, dL=(la2-la1)*Math.PI/180, dO=(lo2-lo1)*Math.PI/180;
+  const a = Math.sin(dL/2)**2 + Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;
+  const d = R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  return {d, txt: d<1?(d*1000).toFixed(0)+' m':d.toFixed(2)+' km'};
+}
+
+function travelTime(km, spd) {
+  const min = Math.round((km/spd)*60);
+  return min < 60 ? min+' min' : Math.floor(min/60)+'h'+String(min%60).padStart(2,'0');
+}
+
+function walkCal(km, poids) { return Math.round(4.5 * poids * (km/5)); }
+
+async function fetchTimeout(url, ms) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  try { const r = await fetch(url, {signal:ctrl.signal}); clearTimeout(id); return r; }
+  catch(e) { clearTimeout(id); throw e; }
+}
+
+async function searchPhoton(q) {
+  try {
+    const r = await fetchTimeout('https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&limit=5&lang=fr', 4000);
+    if(!r.ok) return null;
+    const d = await r.json();
+    if(!d?.features?.length) return null;
+    const CITY = ['city','town','village','municipality','state','country','district','county','region'];
+    const poi = d.features.find(f => !CITY.includes(f.properties.osm_value) && !CITY.includes(f.properties.type));
+    const best = poi || d.features[0];
+    const p = best.properties;
+    const isPoi = !CITY.includes(p.osm_value) && !CITY.includes(p.type);
+    return {lat:best.geometry.coordinates[1], lng:best.geometry.coordinates[0], name:p.name||p.street||q, rank:isPoi?30:16};
+  } catch(e) { return null; }
+}
+
+async function searchNominatim(q) {
+  try {
+    const r = await fetchTimeout('https://nominatim.openstreetmap.org/search?format=json&limit=5&q='+encodeURIComponent(q), 4000);
+    if(!r.ok) return null;
+    const d = await r.json();
+    if(!d?.length) return null;
+    const b = [...d].sort((a,b) => +b.place_rank - +a.place_rank)[0];
+    return {lat:+b.lat, lng:+b.lon, name:b.display_name, rank:+b.place_rank};
+  } catch(e) { return null; }
+}
+
+async function geocode(nom, lieu, ville) {
+  let r = await searchPhoton(nom+' '+ville);
+  if(r && r.rank >= 25) return r;
+  let r2 = await searchPhoton(lieu+' '+ville);
+  if(r2 && r2.rank >= 25) return r2;
+  let r3 = await searchNominatim(nom+' '+ville);
+  if(r3 && r3.rank >= 25) return r3;
+  const best = [r,r2,r3].filter(Boolean).sort((a,b) => b.rank-a.rank)[0];
+  if(best) return best;
+  return await searchPhoton(ville);
+}
+
+function drawRoute(pts) {
+  if(pts.length < 2) return;
+  L.polyline(pts.map(p=>[p.lat,p.lng]), {color:'rgba(102,126,234,.3)',weight:8}).addTo(map);
+  L.polyline(pts.map(p=>[p.lat,p.lng]), {color:'#667eea',weight:3,dashArray:'12,8'}).addTo(map);
+  for(let i=0;i<pts.length-1;i++) {
+    const mid = {lat:(pts[i].lat+pts[i+1].lat)/2, lng:(pts[i].lng+pts[i+1].lng)/2};
+    const {txt} = fmtDist(pts[i].lat,pts[i].lng,pts[i+1].lat,pts[i+1].lng);
+    L.marker([mid.lat,mid.lng], {icon:L.divIcon({html:'<div style="background:#1e2130;border:1px solid #2a2d3a;border-radius:8px;padding:2px 9px;font-size:10px;font-weight:700;color:#e8d5a3;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4)">'+txt+'</div>',className:'',iconSize:[90,22],iconAnchor:[45,11]}),interactive:false}).addTo(map);
+  }
+}
+
+let _results = [];
+window._totalKm = 0;
+
+function buildSidebar(results) {
+  const poids = parseFloat(document.getElementById('weight-input').value) || 70;
+  const c = document.getElementById('etapes-list');
+  c.innerHTML = '';
+  const ok = results.filter(r=>r.coords).length;
+  document.getElementById('nb-badge').textContent = ok+'/'+results.length+' localisés';
+
+  let totalKm = 0;
+  results.forEach((res, i) => {
+    const a = res.activite, col = COULEURS[i % COULEURS.length];
+    if(i > 0 && res.dist) {
+      const km = res.dist.d; totalKm += km;
+      const carT = travelTime(km,90), walkT = travelTime(km,5), cals = walkCal(km,poids);
+      c.insertAdjacentHTML('beforeend',
+        '<div class="travel-row">'
+        +'<div class="travel-mode"><div class="travel-icon">🚗</div><div class="travel-time">'+carT+'</div><div class="travel-dist">en voiture</div></div>'
+        +'<div class="travel-sep"></div>'
+        +'<div class="travel-mode"><div class="travel-icon">🚶</div><div class="travel-time">'+walkT+'</div><div class="travel-dist">à pied</div></div>'
+        +'<div class="travel-sep"></div>'
+        +'<div class="calo-box"><div class="calo-val">'+cals+'</div><div class="calo-lbl">kcal</div></div>'
+        +'</div>'
+      );
+    }
+    const tag = res.coords
+      ? (res.coords.rank>=25?'<span class="tag-exact">✓ POI exact</span>'
+        :res.coords.rank>=18?'<span class="tag-approx">~ Quartier</span>'
+        :'<span class="tag-city">⚠ Ville</span>')
+      :'<span class="tag-city">Non localisé</span>';
+
+    const card = document.createElement('div');
+    card.className = 'etape-card';
+    card.innerHTML =
+      '<div class="etape-header" style="background:'+col+'">'
+      +'<div class="etape-num">'+a.index+'</div>'
+      +'<div class="etape-title">'+a.nom+'</div></div>'
+      +'<div class="etape-body">'
+      +'<div class="etape-row">📍 '+a.lieu+'</div>'
+      +'<div class="etape-row">🏙️ '+a.ville+'</div>'
+      +'<div class="etape-row" style="color:#34d399;font-weight:600">'+a.prix+'</div>'
+      +'<span class="etape-heure" style="background:'+col+'">'+a.heure+'</span>'
+      +(res.coords?'<div class="osm-name">'+res.coords.name.substring(0,55)+'</div>':'')
+      +tag+'</div>';
+
+    if(res.coords && res.marker)
+      card.addEventListener('click', () => { map.setView([res.coords.lat,res.coords.lng],17,{animate:true}); res.marker.openPopup(); });
+    c.appendChild(card);
+  });
+  window._totalKm = totalKm;
+}
+
+function calculerCalories() {
+  const poids = parseFloat(document.getElementById('weight-input').value);
+  if(!poids || poids<30 || poids>250) {
+    document.getElementById('weight-input').style.boxShadow = '0 0 0 2px #f87171';
+    setTimeout(() => document.getElementById('weight-input').style.boxShadow = '', 1500);
+    return;
+  }
+  const km = window._totalKm || 0;
+  const cals = km>0 ? walkCal(km,poids) : Math.round(4.5*poids*0.5);
+  const res = document.getElementById('calo-result');
+  res.style.display = 'block';
+  let step=0, steps=40;
+  const ticker = setInterval(() => {
+    step++;
+    document.getElementById('calo-num').textContent = Math.round(cals*(step/steps));
+    if(step>=steps) { clearInterval(ticker); document.getElementById('calo-num').textContent=cals; }
+  }, 25);
+  // Appel Gemini AI pour le message de motivation
+  const btn = document.getElementById('calc-btn');
+  btn.disabled = true; btn.textContent = '⏳ ...';
+  const prompt = 'Tu es un coach sportif. En 1 phrase (max 25 mots), encourage quelqu\'un de '+poids+'kg qui brûlera '+cals+' kcal en marchant '+km.toFixed(1)+' km. Sois chaleureux, cite les chiffres, utilise un emoji fort.';
+  fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=AIzaSyCf27NUT16mbYgfthqluyQJIv8bkpndfz4', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+  }).then(r=>r.json()).then(d => {
+    const txt = d?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    document.getElementById('ai-msg').textContent = txt || '💪 Chaque pas compte !';
+  }).catch(() => {
+    document.getElementById('ai-msg').textContent = cals>300 ? '🔥 '+cals+' kcal ! Vous êtes incroyable !' : '💪 Bravo ! '+cals+' kcal brûlées !';
+  }).finally(() => { btn.disabled=false; btn.textContent='🔄 Recalculer'; });
+  buildSidebar(_results);
+}
+
+async function init() {
+  const results = [], points = [];
+  for(let i=0; i<ACTIVITES.length; i++) {
+    const a = ACTIVITES[i], col = COULEURS[i%COULEURS.length];
+    document.getElementById('loader-step').textContent = (i+1)+'/'+ACTIVITES.length+' : '+a.nom;
+    document.getElementById('progress-fill').style.width = ((i/ACTIVITES.length)*100)+'%';
+    toast('📍 '+a.nom+' ('+a.ville+')');
+    let coords = null;
+    try { coords = await geocode(a.nom, a.lieu, a.ville); } catch(e) {}
+    const result = {activite:a, coords, marker:null, dist:null};
+    if(coords) {
+      points.push({lat:coords.lat, lng:coords.lng});
+      if(points.length >= 2) {
+        const prev = points[points.length-2];
+        result.dist = fmtDist(prev.lat,prev.lng,coords.lat,coords.lng);
+      }
+      const rankTxt = coords.rank>=25?'✓ POI exact':coords.rank>=18?'~ Quartier':'⚠ Ville';
+      const popup = '<div class="pop-hd" style="background:'+col+'">'+a.index+'. '+a.nom+'</div>'
+        +'<div class="pop-bd">'
+        +'<div class="pop-row">📍 '+a.lieu+'</div>'
+        +'<div class="pop-row">🏙️ '+a.ville+'</div>'
+        +'<div class="pop-row">'+a.cat+'</div>'
+        +'<div class="pop-prix">'+a.prix+'</div>'
+        +'<span style="background:'+col+';color:white;font-size:11px;font-weight:700;border-radius:8px;padding:3px 10px;display:inline-block;margin-top:6px">'+a.heure+'</span>'
+        +(result.dist?'<div class="pop-travel">🚗 '+travelTime(result.dist.d,90)+' · 🚶 '+travelTime(result.dist.d,5)+'</div>':'')
+        +'<div style="font-size:9px;color:#475569;margin-top:4px">'+rankTxt+'</div>'
+        +'</div>';
+      const m = L.marker([coords.lat,coords.lng], {icon:makePin(a.index,col)}).addTo(map).bindPopup(popup,{maxWidth:260});
+      result.marker = m;
+    } else {
+      toast('Non localisé : '+a.lieu, 3500);
+    }
+    results.push(result);
+    _results = results;
+    buildSidebar(results);
+  }
+  if(points.length >= 2) drawRoute(points);
+  if(points.length === 1) map.setView([points[0].lat,points[0].lng],16);
+  else if(points.length > 1) map.fitBounds(L.latLngBounds(points.map(p=>[p.lat,p.lng])),{padding:[60,60]});
+  document.getElementById('progress-fill').style.width = '100%';
+  const nbOk = results.filter(r=>r.coords).length;
+  document.getElementById('status-txt').textContent = nbOk+'/'+ACTIVITES.length+' localisé(s)';
+  document.getElementById('loader').style.display = 'none';
+  toast(nbOk===ACTIVITES.length ? '✅ Carte prête — '+nbOk+' POI localisés' : '⚠️ '+nbOk+'/'+ACTIVITES.length+' localisés', 3500);
+}
+
+init().catch(err => {
+  console.error('init error:', err);
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('status-txt').textContent = 'Erreur : '+err.message;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<h1>Bonjour !</h1>
+<p>Merci d'avoir choisi <strong>Explora Travel</strong> pour votre voyage.</p>
+<p>Vous trouverez ci-joint votre billet officiel pour le trajet <strong>{{ billet.transport.origine }} â†’ {{ billet.transport.destination }}</strong>.</p>
+<p>Informations clÃ©s :</p>
+<ul>
+    <li>Date : {{ billet.transport.dateDepart|date('d/m/Y') }}</li>
+    <li>Places : {{ billet.nombrePlaces }}</li>
+    <li>Statut : {{ billet.statut.value|upper }}</li>
+</ul>
+<p>Bon voyage !</p>
+

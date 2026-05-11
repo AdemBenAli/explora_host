@@ -1,0 +1,463 @@
+{% extends 'base.html.twig' %}
+{% block title %}Recommandations IA | Explora{% endblock %}
+
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root{
+        --navy:#1a3a5c; --navy-dark:#0f2540;
+        --orange:#f7941d; --orange-dk:#e07800; --orange-lt:#fff3e0;
+        --white:#fff; --bg:#f4f7f6; --bg-card:#fff;
+        --gray-lt:#f8f9fa; --gray-md:#e9ecef; --gray:#8492a6;
+        --text:#212529; --text-m:#6c757d;
+        --text-heading:#1e293b; --text-body:#64748b;
+        --green:#28a745; --green-lt:#d4edda;
+        --red:#dc3545;
+        --r-sm:8px; --r-lg:16px;
+        --sh-sm:0 2px 8px rgba(0,0,0,.08);
+        --sh:0 4px 20px rgba(0,0,0,.10);
+        --tr:.22s ease;
+        --fd:'Plus Jakarta Sans',sans-serif;
+        --fb:'DM Sans',sans-serif;
+        --border-color:#e2e8f0; --border:#e2e8f0;
+        --bg-body: #f4f7f6;
+    }
+
+    [data-theme="dark"], body.dark-mode {
+        --bg:#0F172A; --bg-card:#1E293B; --bg-body: #0F172A;
+        --text:#F1F5F9; --text-m:#94A3B8; --text-heading:#F1F5F9; --text-body:#94A3B8;
+        --border-color:#334155; --border:#334155;
+        --gray-lt:#1e2d40; --gray-md:#2a3d52;
+        --white:#1E293B;
+    }
+
+    body{
+        font-family:var(--fb);
+        background:var(--bg-body);
+        color:var(--text);
+        display:flex;
+        flex-direction:column;
+        min-height:100vh;
+        transition: background var(--tr), color var(--tr);
+    }
+
+    /* ══════════════ NAVBAR ══════════════ */
+    .ut-navbar{
+        background:var(--bg-card);
+        box-shadow:var(--sh-sm);
+        position:sticky;
+        top:0;
+        z-index:200;
+        transition:background var(--tr);
+    }
+    .ut-navbar__inner{
+        max-width:1440px;
+        margin:0 auto;
+        padding:0 25px;
+        height:64px;
+        display:flex;
+        align-items:center;
+        gap:12px;
+    }
+    .ut-navbar__logo{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        text-decoration:none;
+        font-family:var(--fd);
+        font-weight:800;
+        font-size:20px;
+        color:var(--text-heading);
+        flex-shrink:0;
+    }
+    .logo-globe{
+        width:38px; height:38px;
+        border-radius:50%;
+        background:var(--navy);
+        display:flex; align-items:center; justify-content:center;
+        flex-shrink:0;
+    }
+    .logo-globe i{ color:#fff; font-size:16px; }
+    .logo-name em{ color:var(--orange); font-style:normal; }
+
+    /* Nav links */
+    .ut-navbar__links{
+        display:flex;
+        gap:4px;
+        margin-left:auto;
+    }
+    .ut-nav-link{
+        font-family:var(--fd);
+        font-weight:600;
+        font-size:13px;
+        color:var(--text-heading);
+        text-decoration:none;
+        padding:8px 14px;
+        border-radius:var(--r-sm);
+        transition:var(--tr);
+        white-space:nowrap;
+        position:relative;
+        padding-bottom:10px;
+    }
+    .ut-nav-link:hover{ color:var(--orange); }
+
+    .ut-nav-link--active{
+        color:var(--orange);
+    }
+    .ut-nav-link--active::after{
+        content:'';
+        position:absolute;
+        bottom:0;
+        left:14px;
+        right:14px;
+        height:3px;
+        background:var(--orange);
+        border-radius:3px 3px 0 0;
+    }
+
+    .ut-navbar__actions{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        margin-left:10px;
+    }
+    .ut-theme-btn{
+        background:var(--gray-lt);
+        border:none;
+        border-radius:50%;
+        width:40px; height:40px;
+        font-size:15px;
+        cursor:pointer;
+        display:flex; align-items:center; justify-content:center;
+        color:var(--text-heading);
+        transition:var(--tr);
+        flex-shrink:0;
+    }
+    .ut-theme-btn:hover{ background:var(--gray-md); transform:rotate(15deg); }
+
+    .ut-btn{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        font-family:var(--fd);
+        font-weight:700;
+        font-size:12px;
+        padding:9px 16px;
+        border-radius:25px;
+        border:none;
+        cursor:pointer;
+        text-decoration:none;
+        transition:var(--tr);
+        white-space:nowrap;
+    }
+    .ut-btn--primary{ background:var(--orange); color:#fff; box-shadow:0 4px 14px rgba(247,148,29,.35); }
+    .ut-btn--primary:hover{ background:var(--orange-dk); transform:translateY(-1px); }
+    .ut-btn--secondary{ background:transparent; color:var(--text-heading); border:1.5px solid var(--text-heading); }
+    .ut-btn--secondary:hover{ background:var(--text-heading); color:var(--bg-card); }
+    .ut-btn--sm{ padding:8px 14px; font-size:12px; }
+
+    /* ══════════════ USER DROPDOWN ══════════════ */
+    .user-profile-wrap{
+        position:relative;
+    }
+    .user-profile{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        cursor:pointer;
+        padding-left:14px;
+        border-left:1px solid var(--border-color);
+        padding:8px 10px 8px 14px;
+        border-radius:var(--r-sm);
+        transition:var(--tr);
+    }
+    .user-profile:hover{ background:var(--gray-lt); }
+    .user-avatar{
+        width:36px; height:36px;
+        border-radius:50%;
+        object-fit:cover;
+    }
+    .user-name{ font-weight:600; color:var(--text); font-size:13px; font-family:var(--fd); }
+    .user-role{ font-size:11px; color:#94a3b8; }
+    .user-dropdown-icon{ color:#94a3b8; font-size:11px; transition:transform .2s; }
+    .user-profile-wrap.open .user-dropdown-icon{ transform:rotate(180deg); }
+
+    .user-dropdown{
+        display:none;
+        position:absolute;
+        top:calc(100% + 8px);
+        right:0;
+        background:var(--bg-card);
+        border:1px solid var(--border-color);
+        border-radius:var(--r-lg);
+        box-shadow:var(--sh);
+        min-width:200px;
+        z-index:300;
+        overflow:hidden;
+        animation:dropIn .18s ease;
+    }
+    @keyframes dropIn{ from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+    .user-profile-wrap.open .user-dropdown{ display:block; }
+
+    .main-content{
+        flex:1;
+        display:flex;
+        flex-direction:column;
+        overflow:hidden;
+        background:var(--bg-body);
+    }
+    .content-area{
+        flex:1;
+        padding:28px 30px;
+        overflow-y:auto;
+        display:flex;
+        flex-direction:column;
+        max-width: 1440px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* ── RECOMMENDATION SPECIFICS ── */
+    .reco-container { background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--sh-sm); flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-top: 20px; }
+    .reco-header-bar { background: var(--navy); padding: 20px 30px; display: flex; align-items: center; justify-content: space-between; color: white; }
+    .reco-header-bar h2 { font-size: 18px; font-weight: 800; font-family: var(--fd); margin: 0; }
+    
+    .steps-bar{display:flex;align-items:center;padding:12px 28px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);gap:0}
+    .step-dot{display:flex;align-items:center;gap:7px;flex:1}
+    .step-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0}
+    .step-circle--active{background:var(--orange);color:white}
+    .step-circle--done{background:var(--green);color:white}
+    .step-circle--future{background:var(--gray-lt);color:var(--text-m)}
+    .step-label{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+    .step-sep{height:3px;flex:1;border-radius:2px;margin:0 6px}
+    .step-sep--done{background:var(--green)}
+    .step-sep--future{background:var(--gray-lt)}
+
+    .question-pane{flex:1;display:flex;flex-direction:column;align-items:center;padding:40px 24px; text-align: center;}
+    .question-emoji{font-size:48px;display:block;margin-bottom:15px}
+    .question-title{font-size:24px;font-weight:800;color:var(--text-heading);margin-bottom:10px; font-family: var(--fd);}
+    .question-hint{font-size:12px;color:var(--orange);background:var(--orange-lt);border:1px solid var(--orange);border-radius:20px;padding:5px 16px;display:inline-block; margin-bottom: 20px;}
+
+    .choices-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;max-width:820px;width:100%}
+    .choice-btn{border-radius:16px;border:1.5px solid var(--border);background:var(--bg-card);cursor:pointer;padding:20px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:130px;transition:all .2s;box-shadow:var(--sh-sm); color: var(--text-heading);}
+    .choice-btn:hover{border-color:var(--orange);transform: translateY(-2px);}
+    .choice-btn.selected{background:var(--orange-lt);border:2px solid var(--orange);box-shadow:var(--sh);}
+    .choice-btn__emoji{font-size:32px}
+    .choice-btn__label{font-size:13px;font-weight:700; font-family: var(--fd);}
+
+    .nav-bar{background:var(--bg-card);border-top:1px solid var(--border);padding:24px 48px;display:flex;align-items:center;gap:16px;margin-top:auto}
+    .btn-prev{background:var(--bg-body);border:1.5px solid var(--border);color:var(--text-m);border-radius:12px;padding:12px 26px;font-size:14px;font-weight:700;cursor:pointer; font-family: var(--fb);}
+    .btn-next{background:var(--navy);color:white;border:none;border-radius:14px;padding:14px 40px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:var(--sh); font-family: var(--fb);}
+    .btn-analyse{background:var(--orange);color:white;border:none;border-radius:14px;padding:14px 40px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:var(--sh); font-family: var(--fb);}
+
+    .loading-pane{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:60px;text-align:center;gap:22px}
+    .loading-pane.active{display:flex}
+    .progress-bar{width:340px;height:10px;background:var(--gray-lt);border-radius:10px;overflow:hidden}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--navy),var(--orange));border-radius:10px;width:0;transition:width .5s}
+
+    .results-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:24px;padding:24px 30px 40px}
+    .reco-card{background:var(--bg-card);border-radius:16px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--sh-sm);transition:all .2s; animation:fadeUp .4s ease forwards}
+    .reco-card:hover{transform:translateY(-4px);box-shadow:var(--sh);border-color:var(--orange)}
+    .reco-card__photo{position:relative;height:180px;overflow:hidden}
+    .reco-card__photo img{width:100%;height:100%;object-fit:cover}
+    .reco-card__rank{position:absolute;top:10px;left:10px;font-size:11px;font-weight:800;color:white;padding:4px 12px;border-radius:20px; background: var(--navy);}
+    .reco-card__body{padding:16px;}
+    .reco-card__nom{font-size:15px;font-weight:800;color:var(--text-heading);margin-bottom:6px; font-family: var(--fd);}
+    .reco-card__prix{font-size:14px;font-weight:800;color:var(--green); background: var(--green-lt); padding: 4px 10px; border-radius: 8px;}
+    .reco-card__btn{width:100%;background:var(--gray-lt);border:none;border-top:1px solid var(--border);color:var(--navy);font-weight:800;padding:12px;cursor:pointer;font-size:13px; font-family: var(--fb);}
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- ══════════════ NAVBAR ══════════════ -->
+<nav class="ut-navbar">
+    <div class="ut-navbar__inner">
+        <a href="{{ path('app_home') }}" class="ut-navbar__logo">
+            {{ include('partials/explora_brand.html.twig', {admin: false, logoHeight: 52}) }}
+        </a>
+        <div class="ut-navbar__links">
+            <a href="{{ path('app_home') }}" class="ut-nav-link">{{ 'nav.home'|trans|default('Accueil') }}</a>
+            <a href="#" class="ut-nav-link">Voyages</a>
+            <a href="#" class="ut-nav-link">Transport</a>
+            <a href="#" class="ut-nav-link">Hôtels</a>
+            <a href="{{ path('voyageur_index') }}" class="ut-nav-link ut-nav-link--active">Activités</a>
+        </div>
+        <div class="ut-navbar__actions">
+            <button class="ut-theme-btn" id="btnThemeGlobal" title="Mode nuit / jour">
+                <i class="fas fa-moon" id="themeIconGlobal"></i>
+            </button>
+            <button type="button" class="ut-btn ut-btn--secondary ut-btn--sm" style="color:#059669;border-color:#059669;background:rgba(5,150,105,.07)">
+                🌿 <span>{{ ecoScore.pointsActuels ?? 0 }}</span> PTS
+            </button>
+            <a href="#" class="ut-btn ut-btn--primary">
+                <i class="fas fa-ticket-alt"></i> Mes Réservations
+            </a>
+            <div class="user-profile-wrap" id="userWrap">
+                <div class="user-profile" id="userToggle">
+                    <img src="https://ui-avatars.com/api/?name={{ voyageur.prenom|default('Louay') }}+{{ voyageur.nom|default('Ouali') }}&background=1e293b&color=fff" alt="Avatar" class="user-avatar">
+                    <div>
+                        <div class="user-name">{{ voyageur.prenom|default('Louay') }} {{ voyageur.nom|default('Ouali') }}</div>
+                        <div class="user-role">Voyageur</div>
+                    </div>
+                    <i class="fas fa-chevron-down user-dropdown-icon"></i>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#" class="dropdown-item"><i class="fas fa-user"></i> Mon profil</a>
+                    <a href="#" class="dropdown-item"><i class="fas fa-cog"></i> Paramètres</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ path('app_logout') }}" class="dropdown-item dropdown-item--danger"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="page-body">
+    <main class="main-content">
+        <div class="content-area">
+            <div class="explora-breadcrumb">
+                Activités &gt; <span>Recommandations IA</span>
+            </div>
+
+            <div class="reco-container" id="app">
+                <div class="reco-header-bar">
+                    <h2>✨ Assistant Voyage IA</h2>
+                    <div id="step-label" style="font-size:12px; font-weight:700; opacity:0.8;">Étape 1 / 5</div>
+                </div>
+
+                <div class="steps-bar" id="steps-bar"></div>
+
+                <div id="questionnaire-pane" style="display:flex;flex-direction:column;flex:1">
+                    <div class="question-pane">
+                        <span class="question-emoji" id="q-emoji"></span>
+                        <div class="question-title" id="q-title"></div>
+                        <span class="question-hint" id="q-hint">✦ Plusieurs choix possibles</span>
+                        <div class="choices-grid" id="choices-grid"></div>
+                    </div>
+                    <div class="nav-bar">
+                        <button class="btn-prev" id="btn-prev" onclick="handlePrev()">Précédent</button>
+                        <div style="flex:1;"></div>
+                        <button class="btn-next" id="btn-next" onclick="handleNext()">Suivant</button>
+                        <button class="btn-analyse" id="btn-analyse" style="display:none" onclick="handleAnalyse()">✨ Analyser mes préférences</button>
+                    </div>
+                </div>
+
+                <div class="loading-pane" id="loading-pane">
+                    <div style="font-size:64px; margin-bottom:20px;">🤖</div>
+                    <div style="font-size:22px; font-weight:800; color:var(--text-heading); margin-bottom:10px;">Analyse par Gemini AI...</div>
+                    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+                </div>
+
+                <div class="results-pane" id="results-pane" style="display:none; flex-direction:column;">
+                    <div style="padding:20px 30px; background:var(--orange-lt); border-bottom:1px solid var(--orange); display:flex; align-items:center; gap:15px;">
+                        <span style="font-size:24px;">✨</span>
+                        <p id="ai-msg" style="font-size:14px; color:var(--orange-dk); font-weight:700; margin:0;"></p>
+                        <button class="ut-btn ut-btn--secondary ut-btn--sm" style="margin-left:auto;" onclick="handleReset()">🔄 Recommencer</button>
+                    </div>
+                    <div class="results-grid" id="results-grid"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<form id="add-form" method="post" style="display:none">
+  <input type="hidden" name="_token" value="{{ csrf_token('planning_add_reco') }}">
+  <input type="hidden" name="nombrePlaces" value="1">
+  <input type="hidden" name="date" id="add-date">
+  <input type="hidden" name="heureDebut" id="add-hd">
+  <input type="hidden" name="heureFin" id="add-hf">
+</form>
+
+<script>
+// Logic preserved from original
+const QUESTIONS = [
+  { emoji:'🌟', texte:'Quels types d\'activités vous attirent ?', clef:'types', multi:true, choix:[{e:'🏛️',l:'Culture',v:'CULTURE'},{e:'🏄',l:'Sport',v:'SPORT'},{e:'🍽️',l:'Gastronomie',v:'GASTRONOMIE'},{e:'🌿',l:'Nature',v:'NATURE'},{e:'🎨',l:'Arts',v:'ART'},{e:'🛁',l:'Bien-être',v:'BIENETRE'},{e:'🎭',l:'Spectacles',v:'SPECTACLE'},{e:'🧒',l:'Famille',v:'FAMILLE'}]},
+  { emoji:'⏰', texte:'Quel moment de la journée préférez-vous ?', clef:'moments', multi:false, choix:[{e:'🌅',l:'Matin',v:'MATIN'},{e:'☀️',l:'Après-midi',v:'APRES_MIDI'},{e:'🌙',l:'Soir',v:'SOIR'},{e:'Peu importe',l:'Indifférent',v:'ALL'}]},
+  { emoji:'💰', texte:'Quel est votre budget par activité ?', clef:'budget', multi:false, choix:[{e:'💚',l:'Petit budget',v:'LOW'},{e:'💛',l:'Modéré',v:'MED'},{e:'🧡',l:'Premium',v:'HIGH'},{e:'❤️',l:'Luxe',v:'PREMIUM'}]},
+  { emoji:'🏙️', texte:'Quelle ambiance recherchez-vous ?', clef:'ambiance', multi:true, choix:[{e:'🏙️',l:'Urbain',v:'URBAIN'},{e:'🌊',l:'Mer',v:'MER'},{e:'🏔️',l:'Nature',v:'NATURE'},{e:'🤝',l:'Groupe',v:'GROUPE'},{e:'🧘',l:'Solo',v:'SOLO'}]},
+  { emoji:'⚡', texte:'Votre niveau d\'énergie ?', clef:'energie', multi:false, choix:[{e:'🛌',l:'Détente',v:'REPOS'},{e:'🚶',l:'Modéré',v:'MODERE'},{e:'🏃',l:'Actif',v:'ACTIF'},{e:'🔥',l:'Intense',v:'EXTREME'}]}
+];
+let step = 0; const answers = {};
+function renderStepsBar() {
+    const bar = document.getElementById('steps-bar'); bar.innerHTML = '';
+    QUESTIONS.forEach((q, i) => {
+        const dot = document.createElement('div'); dot.className = 'step-dot';
+        const cls = i < step ? 'done' : i === step ? 'active' : 'future';
+        dot.innerHTML = `<div class="step-circle step-circle--${cls}">${i < step ? '✓' : i+1}</div><span class="step-label">${q.texte.substring(0,15)}...</span>`;
+        bar.appendChild(dot);
+        if (i < QUESTIONS.length-1) { const sep = document.createElement('div'); sep.className = 'step-sep ' + (i < step ? 'step-sep--done' : 'step-sep--future'); bar.appendChild(sep); }
+    });
+}
+function renderQuestion() {
+    const q = QUESTIONS[step]; document.getElementById('q-emoji').textContent = q.emoji; document.getElementById('q-title').textContent = q.texte;
+    document.getElementById('q-hint').style.display = q.multi ? 'inline-block' : 'none';
+    document.getElementById('step-label').textContent = `Étape ${step+1} / ${QUESTIONS.length}`;
+    document.getElementById('btn-next').style.display = step < QUESTIONS.length-1 ? 'inline-block' : 'none';
+    document.getElementById('btn-analyse').style.display = step === QUESTIONS.length-1 ? 'inline-block' : 'none';
+    const grid = document.getElementById('choices-grid'); grid.innerHTML = '';
+    const prev = answers[q.clef] || [];
+    q.choix.forEach(c => {
+        const btn = document.createElement('button'); btn.className = 'choice-btn' + (prev.includes(c.v) ? ' selected' : '');
+        btn.innerHTML = `<span class="choice-btn__emoji">${c.e}</span><span class="choice-btn__label">${c.l}</span>`;
+        btn.onclick = () => { if (!q.multi) grid.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected')); btn.classList.toggle('selected'); };
+        grid.appendChild(btn);
+    });
+    renderStepsBar();
+}
+function getSelected() { return [...document.querySelectorAll('#choices-grid .choice-btn.selected')].map((b,i)=>QUESTIONS[step].choix[i].v); }
+function handlePrev() { if(step>0){step--;renderQuestion();} }
+function handleNext() { const vals = [...document.querySelectorAll('#choices-grid .choice-btn.selected')].map(b=>QUESTIONS[step].choix[[...document.querySelectorAll('#choices-grid .choice-btn')].indexOf(b)].v); if(!vals.length)return; answers[QUESTIONS[step].clef] = vals; step++; renderQuestion(); }
+async function handleAnalyse() {
+    const vals = [...document.querySelectorAll('#choices-grid .choice-btn.selected')].map(b=>QUESTIONS[step].choix[[...document.querySelectorAll('#choices-grid .choice-btn')].indexOf(b)].v); if(!vals.length)return; answers[QUESTIONS[step].clef] = vals;
+    document.getElementById('questionnaire-pane').style.display = 'none'; document.getElementById('loading-pane').classList.add('active');
+    let pct = 0; const fill = document.getElementById('progress-fill'); const iv = setInterval(() => { pct = Math.min(pct + 10, 90); fill.style.width = pct + '%'; }, 800);
+    try {
+        const res = await fetch('{{ path('voyageur_recommandation_analyser') }}', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(answers) });
+        const data = await res.json(); clearInterval(iv); fill.style.width = '100%'; setTimeout(() => showResults(data), 400);
+    } catch(e) { clearInterval(iv); alert('Erreur IA'); }
+}
+function showResults(data) {
+    document.getElementById('loading-pane').classList.remove('active'); document.getElementById('results-pane').style.display = 'flex';
+    document.getElementById('ai-msg').textContent = data.message;
+    const grid = document.getElementById('results-grid'); grid.innerHTML = '';
+    (data.activites || []).forEach((a, i) => {
+        const imageUrl = a.image ? (a.image.startsWith('/uploads/') || a.image.startsWith('uploads/') ? a.image : `/uploads/images/${a.image}`) : null;
+        const photoHtml = imageUrl ? `<img src="${imageUrl}">` : `<div style="height:100%; display:flex; align-items:center; justify-content:center; font-size:40px; background:var(--gray-lt);">🎯</div>`;
+        const card = document.createElement('div'); card.className = 'reco-card';
+        card.innerHTML = `<div class="reco-card__photo">${photoHtml}<span class="reco-card__rank">#${i+1} Recommandé</span></div><div class="reco-card__body"><div class="reco-card__nom">${a.nom}</div><span class="reco-card__prix">${a.prix} TND</span></div><button class="reco-card__btn" onclick="ajouterPlanning(${a.id},'${a.date||''}','${a.heureDebut||''}','${a.heureFin||''}')">Ajouter au planning</button>`;
+        grid.appendChild(card);
+    });
+}
+function ajouterPlanning(id, date, hd, hf) {
+  const form = document.getElementById('add-form');
+  document.getElementById('add-date').value = date || new Date().toISOString().split('T')[0];
+  document.getElementById('add-hd').value = hd || '10:00';
+  document.getElementById('add-hf').value = hf || '12:00';
+  form.action = `/voyageur/planning/ajouter/${id}`;
+  form.submit();
+}
+function handleReset() { step = 0; document.getElementById('results-pane').style.display = 'none'; document.getElementById('questionnaire-pane').style.display = 'flex'; renderQuestion(); }
+renderQuestion();
+
+// Theme Global
+const btnTheme = document.getElementById('btnThemeGlobal');
+const iconTheme = document.getElementById('themeIconGlobal');
+let darkTheme = localStorage.getItem('explora-dark') === '1';
+function applyTheme() {
+    document.documentElement.setAttribute('data-theme', darkTheme ? 'dark' : 'light');
+    if (darkTheme) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
+    if (iconTheme) iconTheme.className = darkTheme ? 'fas fa-sun' : 'fas fa-moon';
+}
+applyTheme();
+if (btnTheme) btnTheme.addEventListener('click', () => { darkTheme = !darkTheme; localStorage.setItem('explora-dark', darkTheme ? '1' : '0'); applyTheme(); });
+const userWrap = document.getElementById('userWrap');
+const userToggle = document.getElementById('userToggle');
+if (userToggle) { userToggle.addEventListener('click', (e) => { e.stopPropagation(); userWrap.classList.toggle('open'); }); document.addEventListener('click', () => userWrap.classList.remove('open')); }
+</script>
+{% endblock %}

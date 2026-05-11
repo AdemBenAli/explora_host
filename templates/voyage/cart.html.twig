@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explora - Cart</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8f9fa;
+            color: #1a3a5c;
+        }
+
+        .wrap {
+            max-width: 980px;
+            margin: 28px auto;
+            padding: 0 16px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .top h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .btn-back {
+            background: #1a3a5c;
+            color: white;
+        }
+
+        .box {
+            background: white;
+            border: 1px solid #dbe7f1;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #edf2f7;
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #334155;
+        }
+
+        .total {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            padding: 16px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #f7941d;
+        }
+
+        .remove {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .empty {
+            padding: 40px;
+            text-align: center;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="top">
+        <h1>Your Cart</h1>
+        <a class="btn btn-back" href="{{ path('app_voyage_index') }}">Back to Voyages</a>
+    </div>
+
+    <div class="box">
+        {% if items is empty %}
+            <div class="empty">Cart is empty.</div>
+        {% else %}
+            <table>
+                <thead>
+                <tr>
+                    <th>Voyage</th>
+                    <th>Destination</th>
+                    <th>Unit Price</th>
+                    <th>Quantity</th>
+                    <th>Line Total</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td>{{ item.voyage.titre }}</td>
+                        <td>{{ item.voyage.destination }}</td>
+                        <td>EUR {{ item.voyage.budgetTotal|number_format(2, '.', ' ') }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>EUR {{ item.lineTotal|number_format(2, '.', ' ') }}</td>
+                        <td>
+                            <form method="post" action="{{ path('cart_remove', {id: item.voyage.id}) }}">
+                                <button type="submit" class="remove">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="total">Total: EUR {{ total|number_format(2, '.', ' ') }}</div>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

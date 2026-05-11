@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail hébergement | Explora{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Détail de l'hébergement</h1>
+            <p class="page-subtitle">Consultez les informations complètes de cet hébergement.</p>
+        </div>
+    </div>
+
+    <div class="card-custom">
+        <div class="detail-grid">
+            <div class="detail-label">ID</div>
+            <div class="detail-value">{{ hebergement.id }}</div>
+
+            <div class="detail-label">Nom</div>
+            <div class="detail-value">{{ hebergement.nom }}</div>
+
+            <div class="detail-label">Description</div>
+            <div class="detail-value">{{ hebergement.description }}</div>
+
+            <div class="detail-label">Type</div>
+            <div class="detail-value">{{ hebergement.type }}</div>
+
+            <div class="detail-label">Localisation</div>
+            <div class="detail-value">{{ hebergement.localisation }}</div>
+
+            <div class="detail-label">Prix / nuit</div>
+            <div class="detail-value">{{ hebergement.prixParNuit }} TND</div>
+
+            <div class="detail-label">Image</div>
+            <div class="detail-value">{{ hebergement.image ?: '—' }}</div>
+
+            <div class="detail-label">Capacité</div>
+            <div class="detail-value">{{ hebergement.capacite }}</div>
+
+            <div class="detail-label">Spécial couple</div>
+            <div class="detail-value">{{ hebergement.specialCouple ? 'Oui' : 'Non' }}</div>
+
+            <div class="detail-label">-18 autorisé</div>
+            <div class="detail-value">{{ hebergement.under18Allowed ? 'Oui' : 'Non' }}</div>
+
+            <div class="detail-label">Vue sur mer</div>
+            <div class="detail-value">{{ hebergement.seaView ? 'Oui' : 'Non' }}</div>
+
+            <div class="detail-label">Latitude</div>
+            <div class="detail-value">{{ hebergement.latitude ?? '—' }}</div>
+
+            <div class="detail-label">Longitude</div>
+            <div class="detail-value">{{ hebergement.longitude ?? '—' }}</div>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn-custom btn-primary" href="{{ path('app_hebergement_edit', {'id': hebergement.id}) }}">Modifier</a>
+            <a class="btn-custom btn-secondary" href="{{ path('app_hebergement_index') }}">Retour à la liste</a>
+            {{ include('hebergement/_delete_form.html.twig') }}
+        </div>
+    </div>
+{% endblock %}

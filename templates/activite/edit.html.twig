@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin — Modifier Activité{% endblock %}
+
+{% block stylesheets %}
+    {{ include('partials/admin_styles.html.twig') }}
+    <style>
+        .af-form-card { background: var(--bg-card); border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 40px; max-width: 900px; margin: 0 auto; }
+        .af-form-header { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 30px; }
+        .af-form-icon { width: 60px; height: 60px; border-radius: 50%; background: #fff3e0; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #f7941d; }
+        
+        .admin-input { width: 100%; padding: 10px 15px; border-radius: 8px; border: 1.5px solid var(--border-color); background: var(--bg-body); color: var(--text-heading); outline: none; transition: all 0.2s; }
+        .admin-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+        .form-label { display: block; font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {# Sidebar #}
+    {% set active_route = app.request.attributes.get('_route') %}
+    {{ include('partials/agent_sidebar.html.twig', { active_route: 'admin_activite_index' }) }}
+
+    <main class="main-content">
+        {# Topbar #}
+        {{ include('partials/agent_topbar.html.twig') }}
+
+        <div class="content-area">
+            <div class="breadcrumb">Admin > Activités > <span>Modifier</span></div>
+
+            <div class="af-form-card">
+                <div class="af-form-header">
+                    <div class="af-form-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-size:24px; font-weight:800; color:var(--text-heading); margin:0;">Modifier l'activité</h2>
+                        <p style="color:var(--text-muted); margin:4px 0 0;">Mettez à jour les informations de <strong>{{ activite.nom }}</strong></p>
+                    </div>
+                    <div style="flex:1"></div>
+                    <a href="{{ path('admin_activite_index') }}" class="at-btn at-btn--gray">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+
+                {# Flash erreurs #}
+                {% for message in app.flashes('error') %}
+                    <div class="at-toast error show" style="position:static; margin-bottom:20px; width:100%;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+
+
+
+                {{ form_start(form) }}
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:25px;">
+
+                    <div style="grid-column:1/-1;">
+                        {{ form_label(form.nom, 'Nom de l\'activité *', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.nom, {'attr': {'class': 'admin-input'}}) }}
+                        {{ form_errors(form.nom) }}
+                    </div>
+
+                    <div style="grid-column:1/-1;">
+                        {{ form_label(form.description, 'Description *', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.description, {'attr': {'class': 'admin-input', 'rows': '4'}}) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.categorie, 'Catégorie *', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.categorie, {'attr': {'class': 'admin-input'}}) }}
+                        {{ form_errors(form.categorie) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.type, 'Type', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.type, {'attr': {'class': 'admin-input'}}) }}
+                        {{ form_errors(form.type) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.ville, 'Ville *', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.ville, {'attr': {'class': 'admin-input'}}) }}
+                        {{ form_errors(form.ville) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.lieu, 'Lieu *', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.lieu, {'attr': {'class': 'admin-input'}}) }}
+                        {{ form_errors(form.lieu) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.prix, 'Prix (TND) *', {'label_attr': {'class': 'form-label', 'style': 'color:#10b981;'}}) }}
+                        {{ form_widget(form.prix, {'attr': {'class': 'admin-input'}}) }}
+                        {{ form_errors(form.prix) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.duree, 'Durée (minutes) *', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.duree, {'attr': {'class': 'admin-input'}}) }}
+                        {{ form_errors(form.duree) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.nombrePlaces, 'Nombre de places *', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.nombrePlaces, {'attr': {'class': 'admin-input'}}) }}
+                        {{ form_errors(form.nombrePlaces) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.dateActivite, 'Date de l\'activité *', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.dateActivite, {'attr': {'class': 'admin-input'}}) }}
+                        {{ form_errors(form.dateActivite) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.heureDebut, 'Heure de début *', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.heureDebut, {'attr': {'class': 'admin-input'}}) }}
+                        {{ form_errors(form.heureDebut) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.heureFin, 'Heure de fin *', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.heureFin, {'attr': {'class': 'admin-input'}}) }}
+                        {{ form_errors(form.heureFin) }}
+                    </div>
+
+                    <div style="grid-column:1/-1;">
+                        {{ form_label(form.imageFile, '📷 Changer la photo (optionnel)', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.imageFile, {'attr': {'class': 'admin-input'}}) }}
+                        {{ form_errors(form.imageFile) }}
+                    </div>
+
+                    <div style="grid-column:1/-1;">
+                        {{ form_label(form.voyages, 'Voyages associés', {'label_attr': {'class': 'form-label'}}) }}
+                        <p style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">Maintenez Ctrl pour sélectionner plusieurs voyages.</p>
+                        {{ form_widget(form.voyages, {'attr': {'class': 'admin-input', 'style': 'height:120px;'}}) }}
+                        {{ form_errors(form.voyages) }}
+                    </div>
+
+                </div>
+
+                <div style="margin-top:40px; padding-top:30px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:15px;">
+                    <a href="{{ path('admin_activite_index') }}" class="at-btn at-btn--gray">Annuler</a>
+                    <button type="submit" class="at-btn at-btn--orange">
+                        <i class="fas fa-save"></i> Enregistrer les modifications
+                    </button>
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block javascripts %}
+    {{ include('partials/admin_scripts.html.twig') }}
+{% endblock %}

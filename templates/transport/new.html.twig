@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un transport{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="app-container">
+    {% include 'admin/sidebar.html.twig' with {'activePage': 'transport'} %}
+
+    <main class="content form-page">
+        <div class="form-panel">
+            <div>
+                <span class="badge-header">Nouveau</span>
+                <h1>Ajouter un transport</h1>
+                <p>Remplissez les informations du trajet.</p>
+            </div>
+        </div>
+
+        <div class="form-wrapper">
+            {{ include('transport/_form.html.twig', {'button_label': 'CrÃ©er'}) }}
+            <div class="form-actions">
+                <a href="{{ path('app_transport') }}" class="btn btn-secondary">â† Retour Ã  la liste</a>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+

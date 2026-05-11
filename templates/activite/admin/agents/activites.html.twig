@@ -1,0 +1,224 @@
+{% extends 'base.html.twig' %}
+{% block title %}Activités de {{ agent.nom }} {{ agent.prenom }} | Explora Admin{% endblock %}
+
+{% block body %}
+<div style="display:flex;min-height:100vh;background:#f5f7fa;">
+
+  {# ═══ SIDEBAR ═══ #}
+  <aside style="width:240px;min-width:240px;background:#1e3a5f;display:flex;flex-direction:column;padding:20px 0;">
+
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 30px 30px;">
+      <span style="font-size:32px;color:#ff8c42;">🎯</span>
+      <span style="color:white;font-size:18px;font-weight:bold;">Explora Admin</span>
+    </div>
+
+    <nav style="padding:0 15px;display:flex;flex-direction:column;gap:5px;">
+      <span style="color:rgba(255,255,255,.5);font-size:11px;font-weight:bold;padding:10px 10px 5px;">
+        MAIN
+      </span>
+      <a href="{{ path('admin_dashboard') }}"
+         style="color:rgba(255,255,255,.8);text-decoration:none;padding:12px 15px;
+                border-radius:8px;font-size:14px;">
+        📊 Dashboard
+      </a>
+
+      <span style="color:rgba(255,255,255,.5);font-size:11px;font-weight:bold;padding:20px 10px 5px;">
+        GESTION
+      </span>
+      <a href="{{ path('admin_agents_list') }}"
+         style="color:rgba(255,255,255,.8);text-decoration:none;padding:12px 15px;
+                border-radius:8px;font-size:14px;">
+        👥 Agents
+      </a>
+      <a href="{{ path('admin_activites_list') }}"
+         style="color:rgba(255,255,255,.8);text-decoration:none;padding:12px 15px;
+                border-radius:8px;font-size:14px;">
+        🎯 Activités
+      </a>
+      <a href="{{ path('admin_avis_list') }}"
+         style="color:rgba(255,255,255,.8);text-decoration:none;padding:12px 15px;
+                border-radius:8px;font-size:14px;">
+        💬 Avis
+      </a>
+    </nav>
+  </aside>
+
+  {# ═══ CONTENU ═══ #}
+  <div style="flex:1;overflow-y:auto;">
+
+    {# ── Header agent ── #}
+    <div style="background:white;padding:24px 40px;border-bottom:1px solid #e0e6ed;
+                display:flex;align-items:center;gap:20px;">
+      <a href="{{ path('admin_agents_list') }}"
+         style="background:#f0f3f8;color:#1e3a5f;padding:10px 16px;border-radius:8px;
+                text-decoration:none;font-size:13px;font-weight:bold;">
+        ← Retour
+      </a>
+      <div style="width:52px;height:52px;border-radius:50%;background:#667eea;
+                  display:flex;align-items:center;justify-content:center;
+                  color:white;font-size:22px;font-weight:bold;">
+        {{ agent.nom[0]|upper }}
+      </div>
+      <div>
+        <div style="font-size:20px;font-weight:bold;color:#1e3a5f;">
+          👤 {{ agent.nom }} {{ agent.prenom }}
+        </div>
+        <div style="font-size:13px;color:#8492a6;">📧 {{ agent.email }}</div>
+      </div>
+    </div>
+
+    <div style="padding:30px 40px;">
+
+      {# ── Stats ── #}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:28px;">
+
+        <div style="background:white;border-radius:12px;padding:24px;
+                    box-shadow:0 2px 12px rgba(0,0,0,.07);display:flex;align-items:center;gap:16px;">
+          <div style="background:#fff3e0;border-radius:50%;width:56px;height:56px;
+                      display:flex;align-items:center;justify-content:center;font-size:26px;">🎯</div>
+          <div>
+            <div style="font-size:32px;font-weight:bold;color:#1e3a5f;">{{ stats.total }}</div>
+            <div style="font-size:13px;color:#8492a6;">Total activités</div>
+          </div>
+        </div>
+
+        <div style="background:white;border-radius:12px;padding:24px;
+                    box-shadow:0 2px 12px rgba(0,0,0,.07);display:flex;align-items:center;gap:16px;">
+          <div style="background:#e3f2fd;border-radius:50%;width:56px;height:56px;
+                      display:flex;align-items:center;justify-content:center;font-size:26px;">✅</div>
+          <div>
+            <div style="font-size:32px;font-weight:bold;color:#1e3a5f;">{{ stats.disponible }}</div>
+            <div style="font-size:13px;color:#8492a6;">Disponibles</div>
+          </div>
+        </div>
+
+        <div style="background:white;border-radius:12px;padding:24px;
+                    box-shadow:0 2px 12px rgba(0,0,0,.07);display:flex;align-items:center;gap:16px;">
+          <div style="background:#fce4ec;border-radius:50%;width:56px;height:56px;
+                      display:flex;align-items:center;justify-content:center;font-size:26px;">❌</div>
+          <div>
+            <div style="font-size:32px;font-weight:bold;color:#1e3a5f;">{{ stats.completes }}</div>
+            <div style="font-size:13px;color:#8492a6;">Complètes</div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Filtres ── #}
+      <form method="get"
+            action="{{ path('admin_agents_activites', {id: agent.id}) }}"
+            style="background:white;border-radius:12px;padding:18px 24px;
+                   box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:24px;
+                   display:flex;flex-wrap:wrap;gap:14px;align-items:center;">
+
+        <span style="font-size:15px;color:#667eea;">🔍</span>
+        <input type="text" name="q" value="{{ search }}"
+               placeholder="Rechercher par nom, ville, lieu…"
+               style="flex:1;min-width:220px;padding:9px 14px;border:1px solid #e0e6ed;
+                      border-radius:8px;font-size:13px;color:#2c3e50;">
+
+        <select name="categorie"
+                style="padding:9px 14px;border:1px solid #e0e6ed;border-radius:8px;
+                       font-size:13px;color:#2c3e50;background:white;">
+          <option value="">Toutes catégories</option>
+          {% for cat in categories %}
+            <option value="{{ cat }}" {{ categorie == cat ? 'selected' : '' }}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+
+        <select name="disponibilite"
+                style="padding:9px 14px;border:1px solid #e0e6ed;border-radius:8px;
+                       font-size:13px;color:#2c3e50;background:white;">
+          <option value="toutes"      {{ disponibilite == 'toutes'      ? 'selected' : '' }}>Toutes</option>
+          <option value="disponibles" {{ disponibilite == 'disponibles' ? 'selected' : '' }}>Disponibles</option>
+          <option value="completes"   {{ disponibilite == 'completes'   ? 'selected' : '' }}>Complètes</option>
+        </select>
+
+        <button type="submit"
+                style="background:#667eea;color:white;border:none;border-radius:8px;
+                       padding:9px 20px;cursor:pointer;font-weight:bold;font-size:13px;">
+          Filtrer
+        </button>
+        <a href="{{ path('admin_agents_activites', {id: agent.id}) }}"
+           style="background:#f0f2f5;color:#1e3a5f;border-radius:8px;padding:9px 16px;
+                  text-decoration:none;font-size:13px;font-weight:bold;">
+          ↺ Reset
+        </a>
+      </form>
+
+      {# ── Grille d'activités ── #}
+      {% if activites is empty %}
+        <div style="text-align:center;padding:80px;background:white;border-radius:20px;">
+          <div style="font-size:64px;margin-bottom:16px;">🔍</div>
+          <div style="font-size:18px;font-weight:bold;color:#7f8c8d;">Aucune activité trouvée</div>
+        </div>
+
+      {% else %}
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:22px;">
+          {% for activite in activites %}
+            <div style="background:white;border-radius:18px;overflow:hidden;
+                        box-shadow:0 4px 12px rgba(0,0,0,.11);
+                        transition:transform .2s,box-shadow .2s;"
+                 onmouseenter="this.style.transform='scale(1.02)';
+                               this.style.boxShadow='0 6px 18px rgba(102,126,234,.38)'"
+                 onmouseleave="this.style.transform='';
+                               this.style.boxShadow='0 4px 12px rgba(0,0,0,.11)'">
+
+              {# Image #}
+              {% if activite.image %}
+                {% set imagePath = activite.image starts with('/uploads/') or activite.image starts with('uploads/') ? activite.image : 'uploads/images/' ~ activite.image %}
+                <img src="{{ asset(imagePath) }}"
+                     alt="{{ activite.nom }}"
+                     style="width:100%;height:190px;object-fit:cover;">
+              {% else %}
+                <div style="width:100%;height:190px;
+                            background:linear-gradient(135deg,#ecf0f1,#bdc3c7);
+                            display:flex;align-items:center;justify-content:center;
+                            font-size:72px;">🎯</div>
+              {% endif %}
+
+              {# Badge disponibilité #}
+              <div style="padding:0 12px;margin-top:-14px;position:relative;z-index:1;">
+                <span style="background:{{ activite.disponible ? '#27ae60' : '#e74c3c' }};
+                             color:white;padding:4px 12px;border-radius:20px;
+                             font-size:11px;font-weight:bold;">
+                  {{ activite.disponible ? '✅ Disponible' : '❌ Complet' }}
+                </span>
+              </div>
+
+              {# Infos #}
+              <div style="padding:10px 16px 8px;">
+                <div style="font-weight:bold;font-size:16px;color:#2c3e50;margin-bottom:6px;">
+                  {{ activite.nom }}
+                </div>
+                <div style="color:#667eea;font-size:12px;margin-bottom:10px;">
+                  🏷️ {{ activite.categorie }}  •  📍 {{ activite.ville }} – {{ activite.lieu }}
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <span style="color:#27ae60;font-weight:bold;font-size:18px;">
+                    {{ activite.prix|number_format(2, '.') }} TND
+                  </span>
+                  <span style="color:#3498db;font-size:12px;font-weight:bold;">
+                    👥 {{ activite.nombrePlaces }} places
+                  </span>
+                </div>
+              </div>
+
+              {# Bouton détails #}
+              <a href="{{ path('admin_activite_detail', {id: activite.idActivite}) }}"
+                 style="display:block;text-align:center;padding:12px;
+                        background:#667eea;color:white;font-weight:bold;
+                        text-decoration:none;font-size:13px;
+                        border-radius:0 0 18px 18px;"
+                 onmouseenter="this.style.background='#5a6fd6'"
+                 onmouseleave="this.style.background='#667eea'">
+                👁️ Voir Détails &amp; Avis
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    </div>{# /padding #}
+  </div>{# /contenu #}
+</div>
+{% endblock %}

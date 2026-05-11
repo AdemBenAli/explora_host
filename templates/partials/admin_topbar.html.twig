@@ -1,0 +1,26 @@
+<header class="topbar">
+    <div class="search-bar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Rechercher utilisateurs, réservations, agences...">
+    </div>
+    <div class="topbar-right">
+        {% if show_ai_report|default(false) %}
+        <form id="pdf-form" method="post" action="{{ path('admin_dashboard_rapport') }}" style="margin:0;">
+            <button type="submit" class="btn-ia" id="btn-ia" onclick="startLoading()">
+                <i class="fa-solid fa-file-pdf"></i> Générer Rapport IA
+            </button>
+        </form>
+        {% endif %}
+        <button class="icon-btn" title="Statistiques"><i class="fa-solid fa-chart-simple"></i></button>
+        <button class="icon-btn" title="Messages"><i class="fa-regular fa-envelope"></i></button>
+        <button class="icon-btn" title="Notifications"><i class="fa-regular fa-bell"></i></button>
+        <div class="user-profile">
+            <img src="https://ui-avatars.com/api/?name=Admin+User&background=1e3a5f&color=fff" alt="Admin Avatar" class="user-avatar">
+            <div>
+                <div class="user-name">Administrator</div>
+                <div class="user-role">Super Admin</div>
+            </div>
+            <i class="fa-solid fa-chevron-down user-dropdown-icon"></i>
+        </div>
+    </div>
+</header>

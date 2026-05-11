@@ -1,0 +1,541 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hébergements | Explora{% endblock %}
+{% block stylesheets %}
+    <style>
+        .admin-pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0 28px;
+            padding: 0 22px 24px;
+        }
+
+        .admin-pagination-wrapper nav {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .admin-pagination-wrapper ul.pagination {
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 10px !important;
+            flex-wrap: wrap !important;
+        }
+
+        .admin-pagination-wrapper ul.pagination li.page-item {
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .admin-pagination-wrapper ul.pagination li.page-item .page-link {
+            min-width: 46px !important;
+            height: 46px !important;
+            padding: 0 16px !important;
+            border-radius: 14px !important;
+            border: 1px solid #d7dde5 !important;
+            background: #ffffff !important;
+            color: #1a3a5c !important;
+            font-size: 15px !important;
+            font-weight: 800 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-decoration: none !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
+            transition: 0.2s ease !important;
+        }
+
+        .admin-pagination-wrapper ul.pagination li.page-item .page-link:hover {
+            background: rgba(247, 148, 29, 0.10) !important;
+            border-color: #f7941d !important;
+            color: #f7941d !important;
+        }
+
+        .admin-pagination-wrapper ul.pagination li.page-item.active .page-link {
+            background: #f7941d !important;
+            border-color: #f7941d !important;
+            color: #ffffff !important;
+            box-shadow: 0 8px 18px rgba(247, 148, 29, 0.24) !important;
+        }
+
+        .admin-pagination-wrapper ul.pagination li.page-item.disabled .page-link {
+            opacity: 0.45 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+            background: #f4f6f9 !important;
+            color: #98a3af !important;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+<div class="at-layout" id="adminDashboardShell">
+
+    {% include 'partials/sidebar.html.twig' with { active: 'hotels' } %}
+
+    <section class="admin-content" id="mainContent">
+
+        <div class="admin-topbar">
+            <div class="admin-search">
+                
+
+                <form method="get" class="admin-search-form">
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ search }}"
+                        placeholder="Search accommodation..."
+                    >
+                </form>
+            </div>
+
+           
+        </div>
+
+        <div class="admin-main-card">
+            <div class="admin-page-header">
+                <div class="admin-title-wrap">
+                    <h2>Accomodation Management</h2>
+                    <div class="admin-title-underline"></div>
+                </div>
+
+                <div class="admin-header-actions">
+                    <button type="button" class="btn-admin-outline">Export Data</button>
+
+                    <button
+                        type="button"
+                        class="btn-admin-primary btn-add-fixed"
+                        onclick="openAccommodationModal()"
+                    >
+                        Add Accommodation
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-table-shell">
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for h in hebergements %}
+                            <tr>
+                                <td>{{ h.id }}</td>
+                                <td>{{ h.nom }}</td>
+                                <td>{{ h.type }}</td>
+                                <td>{{ h.description|length > 50 ? h.description|slice(0, 50) ~ '...' : h.description }}</td>
+                                <td>{{ h.prixParNuit }}</td>
+                                <td>
+                                    <div class="admin-actions-cell">
+                                        <button
+                                            type="button"
+                                            class="btn-action edit"
+                                            title="Modifier"
+                                            onclick="openEditAccommodationModal({{ h.id }})"
+                                        >
+                                            ✏️
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="btn-action delete"
+                                            title="Supprimer"
+                                            onclick="openDeleteAccommodationModal({{ h.id }})"
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="empty">Aucun hébergement trouvé.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="admin-pagination-wrapper">
+                    {{ knp_pagination_render(pagination) }}
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+</div>
+
+<div
+    id="accommodationModal"
+    class="admin-modal-overlay{% if openCreateModal|default(false) %} active{% endif %}"
+    onclick="closeAccommodationModalOnOverlay(event)"
+>
+    <div class="admin-modal-card" onclick="event.stopPropagation();">
+        <div class="admin-modal-header">
+            <h2>Accommodation Form</h2>
+            <button type="button" class="admin-modal-close" onclick="closeAccommodationModal()">×</button>
+        </div>
+
+        <div class="admin-modal-body">
+            {{ include('hebergement/_form.html.twig', {
+                form: form,
+                button_label: 'Save',
+                close_function: 'closeAccommodationModal()'
+            }) }}
+        </div>
+    </div>
+</div>
+
+{% for h in hebergements %}
+    <div
+        id="editAccommodationModal-{{ h.id }}"
+        class="admin-modal-overlay{% if selectedEditId == h.id %} active{% endif %}"
+        onclick="closeEditAccommodationModalOnOverlay(event, {{ h.id }})"
+    >
+        <div class="admin-modal-card" onclick="event.stopPropagation();">
+            <div class="admin-modal-header">
+                <h2>Modifier l'hébergement</h2>
+                <button type="button" class="admin-modal-close" onclick="closeEditAccommodationModal({{ h.id }})">×</button>
+            </div>
+
+            <div class="admin-modal-body">
+                {{ include('hebergement/_form.html.twig', {
+                    form: editForms[h.id],
+                    button_label: 'Mettre à jour',
+                    close_function: 'closeEditAccommodationModal(' ~ h.id ~ ')'
+                }) }}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for h in hebergements %}
+    <div
+        id="deleteAccommodationModal-{{ h.id }}"
+        class="admin-modal-overlay admin-delete-modal-overlay"
+        onclick="closeDeleteAccommodationModalOnOverlay(event, {{ h.id }})"
+    >
+        <div class="admin-delete-modal-card" onclick="event.stopPropagation();">
+            <div class="admin-delete-modal-header">
+                <div class="admin-delete-icon-box">🗑</div>
+                <div class="admin-delete-header-text">
+                    <h2>Delete accommodation</h2>
+                    <p>This action cannot be undone.</p>
+                </div>
+            </div>
+
+            <div class="admin-delete-message-box">
+                Are you sure you want to delete the accommodation
+                <strong>{{ h.nom }}</strong>
+                {% if h.type %}
+                    ({{ h.type }})
+                {% endif %}
+                ?
+            </div>
+
+            <div class="admin-delete-modal-actions">
+                <button
+                    type="button"
+                    class="admin-delete-cancel-btn"
+                    onclick="closeDeleteAccommodationModal({{ h.id }})"
+                >
+                    Cancel
+                </button>
+
+                <form
+                    method="post"
+                    action="{{ path('app_hebergement_delete', {'id': h.id}) }}"
+                    class="admin-delete-form"
+                >
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ h.id) }}">
+                    <button type="submit" class="admin-delete-confirm-btn">
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% set successMessages = app.flashes('success') %}
+{% set errorMessages = app.flashes('error') %}
+
+{% if successMessages is not empty or errorMessages is not empty %}
+    <div
+        id="flashMessageModal"
+        class="admin-modal-overlay admin-delete-modal-overlay active"
+        onclick="closeFlashMessageModalOnOverlay(event)"
+    >
+        <div class="admin-delete-modal-card" onclick="event.stopPropagation();">
+            <div class="admin-delete-modal-header">
+                <div class="admin-delete-icon-box">
+                    {% if errorMessages is not empty %}
+                        ❌
+                    {% else %}
+                        ✅
+                    {% endif %}
+                </div>
+                <div class="admin-delete-header-text">
+                    <h2>
+                        {% if errorMessages is not empty %}
+                            Action impossible
+                        {% else %}
+                            Success
+                        {% endif %}
+                    </h2>
+                    <p>
+                        {% if errorMessages is not empty %}
+                            {{ errorMessages|first }}
+                        {% else %}
+                            {{ successMessages|first }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="admin-delete-modal-actions">
+                <button
+                    type="button"
+                    class="admin-delete-cancel-btn"
+                    onclick="closeFlashMessageModal()"
+                >
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<script>
+    function getAdminDashboardShell() {
+        return document.getElementById('adminDashboardShell');
+    }
+
+    function getAllAdminModals() {
+        return document.querySelectorAll('.admin-modal-overlay');
+    }
+
+    function updateDashboardBlurState() {
+        const shell = getAdminDashboardShell();
+        const hasActiveModal = document.querySelector('.admin-modal-overlay.active') !== null;
+
+        if (shell) {
+            shell.classList.toggle('admin-dashboard-blurred', hasActiveModal);
+        }
+
+        document.body.classList.toggle('modal-open', hasActiveModal);
+    }
+
+    function openAccommodationModal() {
+        const modal = document.getElementById('accommodationModal');
+        if (!modal) return;
+
+        modal.classList.add('active');
+        updateDashboardBlurState();
+        refreshActiveMapPicker();
+    }
+
+    function closeAccommodationModal() {
+        const modal = document.getElementById('accommodationModal');
+        if (!modal) return;
+
+        modal.classList.remove('active');
+        updateDashboardBlurState();
+    }
+
+    function closeAccommodationModalOnOverlay(event) {
+        if (event.target.id === 'accommodationModal') {
+            closeAccommodationModal();
+        }
+    }
+
+    function openEditAccommodationModal(id) {
+        const modal = document.getElementById('editAccommodationModal-' + id);
+        if (!modal) return;
+
+        modal.classList.add('active');
+        updateDashboardBlurState();
+        refreshActiveMapPicker();
+    }
+
+    function closeEditAccommodationModal(id) {
+        const modal = document.getElementById('editAccommodationModal-' + id);
+        if (!modal) return;
+
+        modal.classList.remove('active');
+        updateDashboardBlurState();
+    }
+
+    function closeEditAccommodationModalOnOverlay(event, id) {
+        if (event.target.id === 'editAccommodationModal-' + id) {
+            closeEditAccommodationModal(id);
+        }
+    }
+
+    function openDeleteAccommodationModal(id) {
+        const modal = document.getElementById('deleteAccommodationModal-' + id);
+        if (!modal) return;
+
+        modal.classList.add('active');
+        updateDashboardBlurState();
+    }
+
+    function closeDeleteAccommodationModal(id) {
+        const modal = document.getElementById('deleteAccommodationModal-' + id);
+        if (!modal) return;
+
+        modal.classList.remove('active');
+        updateDashboardBlurState();
+    }
+
+    function closeDeleteAccommodationModalOnOverlay(event, id) {
+        if (event.target.id === 'deleteAccommodationModal-' + id) {
+            closeDeleteAccommodationModal(id);
+        }
+    }
+
+    function closeFlashMessageModal() {
+        const modal = document.getElementById('flashMessageModal');
+        if (!modal) return;
+
+        modal.classList.remove('active');
+        modal.remove();
+        updateDashboardBlurState();
+    }
+
+    function closeFlashMessageModalOnOverlay(event) {
+        if (event.target.id === 'flashMessageModal') {
+            closeFlashMessageModal();
+        }
+    }
+
+    function getActiveModalCard() {
+        return document.querySelector('.admin-modal-overlay.active .admin-modal-card');
+    }
+
+    function refreshActiveMapPicker() {
+        const activeCard = getActiveModalCard();
+        if (!activeCard) return;
+
+        const frame = activeCard.querySelector('.js-map-picker-frame');
+        const latInput = activeCard.querySelector('.js-latitude-input');
+        const lngInput = activeCard.querySelector('.js-longitude-input');
+
+        if (!frame || !latInput || !lngInput) return;
+
+        const baseSrc = "{{ asset('map/leaflet_picker.html') }}";
+        const lat = String(latInput.value || '').trim();
+        const lng = String(lngInput.value || '').trim();
+
+        if (lat !== '' && lng !== '') {
+            frame.src = baseSrc + '?lat=' + encodeURIComponent(lat) + '&lng=' + encodeURIComponent(lng);
+        } else {
+            frame.src = baseSrc;
+        }
+    }
+
+    window.addEventListener('message', function (event) {
+        const data = event.data || {};
+        if (data.type !== 'explora-map-picked') return;
+
+        const activeCard = getActiveModalCard();
+        if (!activeCard) return;
+
+        const latInput = activeCard.querySelector('.js-latitude-input');
+        const lngInput = activeCard.querySelector('.js-longitude-input');
+        const localisationInput = activeCard.querySelector('.js-localisation-input');
+        const hint = activeCard.querySelector('.js-map-hint');
+
+        if (latInput) {
+            latInput.value = Number(data.lat).toFixed(6);
+            latInput.dispatchEvent(new Event('input', { bubbles: true }));
+            latInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        if (lngInput) {
+            lngInput.value = Number(data.lng).toFixed(6);
+            lngInput.dispatchEvent(new Event('input', { bubbles: true }));
+            lngInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        if (localisationInput && data.locationLabel) {
+            localisationInput.value = data.locationLabel;
+            localisationInput.dispatchEvent(new Event('input', { bubbles: true }));
+            localisationInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        if (hint) {
+            if (data.locationLabel) {
+                hint.textContent = 'Coordonnées sélectionnées : ' + Number(data.lat).toFixed(6) + ', ' + Number(data.lng).toFixed(6) + ' • ' + data.locationLabel;
+            } else {
+                hint.textContent = 'Coordonnées sélectionnées : ' + Number(data.lat).toFixed(6) + ', ' + Number(data.lng).toFixed(6);
+            }
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            getAllAdminModals().forEach(function (modal) {
+                modal.classList.remove('active');
+            });
+
+            const flashModal = document.getElementById('flashMessageModal');
+            if (flashModal) {
+                flashModal.remove();
+            }
+
+            updateDashboardBlurState();
+        }
+    });
+
+    document.addEventListener('click', function (event) {
+        const browseButton = event.target.closest('.btn-browse');
+        if (!browseButton) return;
+
+        const wrapper = browseButton.closest('.custom-file-row');
+        if (!wrapper) return;
+
+        const fileInput = wrapper.querySelector('.custom-file-input');
+        if (fileInput) {
+            fileInput.click();
+        }
+    });
+
+    document.addEventListener('change', function (event) {
+        if (!event.target.classList.contains('custom-file-input')) return;
+
+        const wrapper = event.target.closest('.custom-file-row');
+        if (!wrapper) return;
+
+        const fileName = wrapper.querySelector('.custom-file-name');
+        if (!fileName) return;
+
+        if (event.target.files && event.target.files.length > 0) {
+            fileName.textContent = event.target.files[0].name;
+        } else {
+            fileName.textContent = 'Aucun fichier choisi';
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        updateDashboardBlurState();
+        refreshActiveMapPicker();
+    });
+</script>
+{% endblock %}

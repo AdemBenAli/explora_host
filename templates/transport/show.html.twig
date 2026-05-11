@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}DÃ©tails du transport{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="app-container">
+    {% include 'admin/sidebar.html.twig' with {'activePage': 'transport'} %}
+
+    <main class="content detail-page">
+        <div class="form-panel">
+            <div>
+                <span class="badge-header">DÃ©tails</span>
+                <h1>Transport #{{ transport.id }}</h1>
+                <p>Informations dÃ©taillÃ©es sur le trajet.</p>
+            </div>
+        </div>
+
+        <section class="detail-card">
+            <div class="detail-grid">
+                <div>
+                    <h2>Trajet</h2>
+                    <p><strong>Compagnie :</strong> {{ transport.compagnie ?: 'Explora' }}</p>
+                    <p><strong>Type :</strong> {{ transport.type }}</p>
+                    <p><strong>CatÃ©gorie :</strong> {{ transport.categorie ?: 'Standard' }}</p>
+                    <p><strong>NumÃ©ro :</strong> {{ transport.numeroVol ?: 'N/A' }}</p>
+                    <p><strong>Ã‰tat du trafic :</strong> {{ transport.etatTrafic }}</p>
+                </div>
+                <div>
+                    <h2>Horaires</h2>
+                    <p><strong>DÃ©part :</strong> {{ transport.origine }} â€” {{ transport.dateDepart|date('d/m/Y') }} Ã  {{ transport.heureDepart|date('H:i') }}</p>
+                    <p><strong>ArrivÃ©e :</strong> {{ transport.destination }} â€” {{ transport.dateArrivee ? transport.dateArrivee|date('d/m/Y') : 'N/A' }} Ã  {{ transport.heureArrivee ? transport.heureArrivee|date('H:i') : 'N/A' }}</p>
+                    <p><strong>Places disponibles :</strong> {{ transport.placesDisponibles }}</p>
+                    <p><strong>Prix :</strong> {{ transport.prix|number_format(2, ".", " ") }}</p>
+                </div>
+            </div>
+
+            <div class="details-extra">
+                <div>
+                    <h3>Description</h3>
+                    <p>{{ transport.description ?: 'Pas de description fournie.' }}</p>
+                </div>
+                <div>
+                    <h3>Statistiques</h3>
+                    <p><strong>Distance :</strong> {{ transport.distanceKm ?: 'N/A' }} km</p>
+                    <p><strong>COâ‚‚ :</strong> {{ transport.emissionsKgCo2 ?: 'N/A' }} kg</p>
+                    <p><strong>CatÃ©gorie Ã©cologique :</strong> {{ transport.categorieEcologique ?: 'N/A' }}</p>
+                    <p><strong>DerniÃ¨re mise Ã  jour :</strong> {{ transport.createdAt ? transport.createdAt|date('d/m/Y H:i') : 'N/A' }}</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="form-actions">
+            <a href="{{ path('app_transport_edit', {'id': transport.id}) }}" class="btn btn-primary">Modifier</a>
+            <a href="{{ path('app_transport') }}" class="btn btn-secondary">â† Retour Ã  la liste</a>
+            {{ include('transport/_delete_form.html.twig') }}
+        </div>
+    </main>
+</div>
+{% endblock %}
+

@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier hébergement | Explora{% endblock %}
+
+{% block body %}
+<script>
+    window.location.href = "{{ path('app_hebergement_index', {'edit': hebergement.id}) }}";
+</script>
+{% endblock %}

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Leaflet Picker</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+        #map { height: 100%; width: 100%; background: #eee; }
+    </style>
+</head>
+
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    try { L.Browser.any3d = false; } catch(e) {}
+
+    const map = L.map('map', {
+        zoomControl: true,
+        zoomAnimation: false,
+        fadeAnimation: false,
+        markerZoomAnimation: false
+    }).setView([36.8065, 10.1815], 6);
+
+    const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors',
+        updateWhenIdle: true,
+        keepBuffer: 6
+    }).addTo(map);
+
+    let marker = null;
+
+    function setMarker(lat, lng, popupText) {
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([lat, lng]).addTo(map);
+        if (popupText) marker.bindPopup(popupText).openPopup();
+    }
+
+    function buildLocationLabel(result) {
+        if (!result) return '';
+
+        const address = result.address || {};
+
+        return (
+            address.city ||
+            address.town ||
+            address.village ||
+            address.municipality ||
+            address.county ||
+            address.state ||
+            result.display_name ||
+            ''
+        );
+    }
+
+    async function reverseGeocode(lat, lng) {
+        const url =
+            'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' +
+            encodeURIComponent(lat) +
+            '&lon=' +
+            encodeURIComponent(lng) +
+            '&addressdetails=1';
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                return '';
+            }
+
+            const data = await response.json();
+            return buildLocationLabel(data);
+        } catch (e) {
+            return '';
+        }
+    }
+
+    async function sendToParent(lat, lng) {
+        const locationLabel = await reverseGeocode(lat, lng);
+
+        try {
+            window.parent.postMessage({
+                type: 'explora-map-picked',
+                lat: lat,
+                lng: lng,
+                locationLabel: locationLabel
+            }, '*');
+        } catch (e) {}
+    }
+
+    map.on('click', function(e) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+
+        setMarker(lat, lng, "Emplacement choisi");
+        sendToParent(lat, lng);
+    });
+
+    window.hardRefresh = function() {
+        try {
+            map.invalidateSize(true);
+            map._onResize();
+            map.panBy([1, 0]);
+            map.panBy([-1, 0]);
+        } catch(e) {}
+    };
+
+    window.forceResize = function() {
+        setTimeout(() => window.hardRefresh(), 50);
+        setTimeout(() => window.hardRefresh(), 200);
+        setTimeout(() => window.hardRefresh(), 600);
+    };
+
+    function initFromQuery() {
+        const params = new URLSearchParams(window.location.search);
+        const lat = parseFloat(params.get('lat'));
+        const lng = parseFloat(params.get('lng'));
+
+        if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+            setMarker(lat, lng, "Emplacement choisi");
+            map.setView([lat, lng], 14);
+        }
+
+        window.forceResize();
+    }
+
+    tiles.on('load', () => window.forceResize());
+    window.addEventListener('load', initFromQuery);
+</script>
+</body>
+</html>

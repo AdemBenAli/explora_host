@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+{% block title %}Agents | Explora Admin{% endblock %}
+
+{% block stylesheets %}
+    {% include 'partials/admin_styles.html.twig' %}
+    <style>
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .page-header h1 { font-size: 24px; font-weight: 700; color: var(--text-heading); }
+        .filter-bar { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); display: flex; gap: 15px; margin-bottom: 24px; align-items: center; }
+        .filter-input { background: var(--bg-body); border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 8px; color: var(--text-heading); outline: none; flex: 1; }
+        .agent-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: white; display: grid; place-items: center; font-weight: 700; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {% set active_route = app.request.attributes.get('_route') %}
+    {% include 'partials/sidebar.html.twig' with { active: 'agents' } %}
+
+    <main class="main-content">
+        {% include 'partials/admin_topbar.html.twig' %}
+
+        <div class="content-area">
+            <div class="breadcrumb">Admin &gt; <span>Agents</span></div>
+
+            <div class="page-header">
+                <h1>👥 Gestion des Agents</h1>
+            </div>
+
+            <form method="get" action="{{ path('admin_agent_index') }}" class="filter-bar">
+                <i class="fa-solid fa-magnifying-glass" style="color:var(--text-body)"></i>
+                <input type="text" name="q" value="{{ search }}" placeholder="Rechercher par nom, email..." class="filter-input">
+                <button type="submit" class="btn-ia">Filtrer</button>
+                <a href="{{ path('admin_agent_index') }}" class="icon-btn" title="Réinitialiser"><i class="fa-solid fa-rotate-left"></i></a>
+            </form>
+
+            <div class="table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Avatar</th>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agent in agents %}
+                        <tr>
+                            <td>
+                                <div class="agent-avatar">{{ agent.nom|first|upper }}</div>
+                            </td>
+                            <td>
+                                <div style="font-weight:600; color:var(--text-heading)">{{ agent.prenom }} {{ agent.nom }}</div>
+                                <div style="font-size:12px; color:var(--text-body)">#{{ agent.id }}</div>
+                            </td>
+                            <td>{{ agent.email }}</td>
+                            <td>{{ agent.telephone ?? '—' }}</td>
+                            <td>
+                                {% if agent.statut is defined and agent.statut == 'ACTIF' %}
+                                    <span class="badge badge-green">Actif</span>
+                                {% else %}
+                                    <span class="badge badge-red">Inactif</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display:flex; gap:8px">
+                                    <a href="{{ path('admin_agent_activites', {id: agent.id}) }}" class="btn-ia" style="padding:5px 12px; font-size:12px">
+                                        <i class="fa-solid fa-suitcase"></i> Activités
+                                    </a>
+                                    <span class="icon-btn" title="Détails" style="cursor:default"><i class="fa-solid fa-id-card"></i></span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" style="text-align:center; padding:40px; color:var(--text-body)">
+                                Aucun agent trouvé.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    {% block javascripts %}
+        {% include 'partials/admin_scripts.html.twig' %}
+    {% endblock %}
+{% endblock %}

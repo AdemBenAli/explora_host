@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Billet index{% endblock %}
+
+{% block body %}
+    <h1>Billet index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>UserId</th>
+                <th>VoyageId</th>
+                <th>NombrePlaces</th>
+                <th>PrixTotal</th>
+                <th>DateReservation</th>
+                <th>Statut</th>
+                <th>QrCode</th>
+                <th>CreatedAt</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for billet in billets %}
+            <tr>
+                <td>{{ billet.id }}</td>
+                <td>{{ billet.userId }}</td>
+                <td>{{ billet.voyageId }}</td>
+                <td>{{ billet.nombrePlaces }}</td>
+                <td>{{ billet.prixTotal|number_format(2, '.', ' ') }} DT</td>
+                <td>{{ billet.dateReservation ? billet.dateReservation|date('Y-m-d') : '' }}</td>
+                <td>{{ billet.statut.value }}</td>
+                <td>{{ billet.qrCode }}</td>
+                <td>{{ billet.createdAt ? billet.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <div class="at-actions">
+                        <a href="{{ path('app_billet_show', {'id': billet.id}) }}" class="at-btn at-btn--gray at-btn--sm">DÃ©tails</a>
+                        <a href="{{ path('user_billet_ticket_pdf', {'id': billet.id}) }}" class="at-btn at-btn--orange at-btn--sm" target="_blank">
+                            <i class="fas fa-file-pdf"></i> Ticket PDF
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="10">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_billet_new') }}">Create new</a>
+{% endblock %}
+

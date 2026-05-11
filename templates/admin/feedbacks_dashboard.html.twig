@@ -1,0 +1,226 @@
+﻿{% extends 'base.html.twig' %}
+{% block title %}Explora - Customer Feedback{% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #2c3e50; transition: background-color .25s ease, color .25s ease; }
+        .layout { display: grid; grid-template-columns: 245px 1fr; min-height: 100vh; }
+        .sidebar { background: linear-gradient(to bottom, #1a3a5c, #0f2438); color: #c8d1dc; padding: 30px 0; }
+        .logo { color: #fff; font-size: 28px; font-weight: 800; letter-spacing: 1px; padding: 0 26px 34px; }
+        .section { color: #8492a6; font-size: 11px; padding: 18px 26px 8px; text-transform: uppercase; font-weight: 700; }
+        .nav a { display: block; color: inherit; text-decoration: none; padding: 13px 26px; }
+        .nav a.active { background: #f7941d; color: white; }
+        .main { display: flex; flex-direction: column; }
+        .topbar { background: white; padding: 18px 36px; box-shadow: 0 2px 10px rgba(0,0,0,.05); display: flex; align-items: center; gap: 20px; }
+        .topbar input { width: 420px; max-width: 100%; border: none; border-radius: 10px; background: #f7f8fa; padding: 12px 14px; }
+        .topbar .right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+        .badge { width: 40px; height: 40px; border-radius: 50%; background: #f0f2f5; display: grid; place-items: center; color: #f7941d; font-weight: 700; position: relative; }
+        .badge::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #e74c3c; right: -1px; top: -1px; }
+        .profile { display: flex; align-items: center; gap: 10px; background: #f0f2f5; border-radius: 20px; padding: 7px 12px; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #f7941d; }
+        .btn-theme { width: 40px; height: 40px; border-radius: 10px; border: none; background: #f0f2f5; cursor: pointer; font-size: 16px; }
+        .content { padding: 30px 36px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .header h1 { margin: 0; font-size: 48px; }
+        .cards { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 18px; margin-bottom: 20px; max-width: 760px; }
+        .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 8px 20px rgba(0,0,0,.06); }
+        .card .num { font-size: 40px; font-weight: 700; }
+        .card .sub { color: #8492a6; margin-top: 2px; }
+        .tableWrap { background: white; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.06); padding: 20px; }
+        .tableHead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { border: 1px solid #ecf0f3; padding: 10px; text-align: left; }
+        th { background: #f8fafc; }
+        .msg { max-width: 560px; white-space: pre-wrap; word-break: break-word; }
+        .uid { font-weight: 700; color: #f7941d; }
+        .sentiment { display: inline-block; padding: 5px 10px; border-radius: 14px; font-size: 12px; font-weight: 700; }
+        .sentiment.positive { background: #d4edda; color: #155724; }
+        .sentiment.neutral { background: #e2e8f0; color: #334155; }
+        .sentiment.negative { background: #f8d7da; color: #721c24; }
+        .sentiment.unknown { background: #fff3cd; color: #856404; }
+        .row-actions { display: flex; align-items: center; }
+        .row-btn { border: none; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .row-btn.mail { background: #e8f1ff; color: #1d4f91; }
+        .mail-form { margin: 0; }
+
+        body.dark-theme { background: #0f172a; color: #e2e8f0; }
+        body.dark-theme .topbar,
+        body.dark-theme .card,
+        body.dark-theme .tableWrap,
+        body.dark-theme .profile { background: #111827; box-shadow: 0 8px 20px rgba(0,0,0,.35); }
+        body.dark-theme .header h1,
+        body.dark-theme .tableHead h2,
+        body.dark-theme .card .num,
+        body.dark-theme .nav a,
+        body.dark-theme th,
+        body.dark-theme td,
+        body.dark-theme .topbar input,
+        body.dark-theme .profile,
+        body.dark-theme #rowMeta { color: #e5e7eb !important; }
+        body.dark-theme .topbar input,
+        body.dark-theme .btn-theme,
+        body.dark-theme .badge { background: #1f2937; color: #e5e7eb; border-color: #374151; }
+        body.dark-theme .card .sub,
+        body.dark-theme .section,
+        body.dark-theme small,
+        body.dark-theme .tableHead small { color: #94a3b8 !important; }
+        body.dark-theme th { background: #1f2937; }
+        body.dark-theme th,
+        body.dark-theme td { border-color: #273244; }
+
+        @media (max-width: 1200px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .cards { grid-template-columns: 1fr; }
+        }
+    </style>
+<style>
+/* == SIDEBAR == */
+.at-sidebar{width:250px;height:100vh;overflow-y:auto;background:#1e3a5f;color:white;display:flex;flex-direction:column;flex-shrink:0;}
+.at-sidebar-logo{display:flex;align-items:center;gap:12px;padding:24px 20px 28px;border-bottom:1px solid rgba(255,255,255,.08);}
+.at-sidebar-section{font-size:11px;font-weight:700;letter-spacing:.8px;color:rgba(255,255,255,.45);padding:18px 20px 6px;text-transform:uppercase;}
+.at-sidebar-item{display:flex;align-items:center;gap:12px;padding:0 20px;height:45px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:14px;color:rgba(255,255,255,.75);text-decoration:none;cursor:pointer;transition:.22s ease;background:transparent;border:none;width:100%;text-align:left;border-radius:8px;margin:0 0 2px;}
+.at-sidebar-item:hover{background:rgba(247,148,29,.18);color:#fff;}
+.at-sidebar-item--active{background:rgba(247,148,29,.15);color:#f7941d;font-weight:700;border-left:3px solid #f7941d;}
+.at-sidebar-item--logout{color:#e74c3c;background:rgba(231,76,60,.08);}
+.at-sidebar-item--logout:hover{background:rgba(231,76,60,.18);color:#e74c3c;}
+.at-sidebar-spacer{flex:1;}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="layout" style="display:flex; min-height:100vh;">
+    {% include 'partials/sidebar.html.twig' with { active: 'feedbacks' } %}
+
+    <main class="main" style="flex:1; display:flex; flex-direction:column;">
+        <div class="topbar">
+            <input id="globalSearch" placeholder="Search feedback by user, email, or message...">
+            <div class="right">
+                <button type="button" class="btn-theme" id="themeToggleBtn" onclick="toggleTheme()">ðŸŒ™</button>
+                <div class="badge">3</div>
+                <div class="badge">5</div>
+                <div class="profile"><div class="avatar"></div><div><div>John Doe</div><small style="color:#8492a6;">Administrator</small></div></div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="header">
+                <h1>Feedback Management</h1>
+            </div>
+
+            <section class="cards">
+                <article class="card"><div class="num">{{ stats.total }}</div><div class="sub">Total Feedback Entries</div></article>
+                <article class="card"><div class="num">{{ stats.today }}</div><div class="sub">Submitted Today</div></article>
+            </section>
+
+            <section class="tableWrap">
+                <div class="tableHead">
+                    <h2 style="margin:0;font-size:30px;">User Feedback</h2>
+                    <small id="rowMeta" style="color:#8492a6;"></small>
+                </div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Message</th>
+                        <th>Sentiment</th>
+                        <th>Submitted At</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="feedbackTableBody">
+                    {% for feedback in feedbacks %}
+                        <tr>
+                            <td>#{{ feedback.id }}</td>
+                            <td><span class="uid">{{ feedback.userName }}</span><br><small>ID: {{ feedback.userId }}</small></td>
+                            <td>{{ feedback.email }}</td>
+                            <td class="msg">{{ feedback.message }}</td>
+                            <td>
+                                <span class="sentiment {{ feedback.sentimentKey }}">{{ feedback.sentimentLabel }}</span>
+                                {% if feedback.sentimentScore is not null %}
+                                    <br><small>Score: {{ feedback.sentimentScore|number_format(2, '.', '') }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ feedback.createdAt ?? 'N/A' }}</td>
+                            <td>
+                                {% if feedback.email != 'N/A' %}
+                                    <div class="row-actions">
+                                        <form class="mail-form" method="post" action="{{ path('admin_feedbacks_send_mail', {'id': feedback.id}) }}" onsubmit="return confirm('Send auto-generated email to this user?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('send_feedback_mail_' ~ feedback.id) }}">
+                                            <button type="submit" class="row-btn mail">Send Mail</button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <small>No email</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align:center;color:#8492a6;">No feedback has been submitted yet.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+</div>
+
+{{ importmap('app') }}
+<script>
+function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+    localStorage.setItem('explora-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+        btn.textContent = document.body.classList.contains('dark-theme') ? 'â˜€ï¸' : 'ðŸŒ™';
+    }
+}
+
+function applySavedTheme() {
+    const savedTheme = localStorage.getItem('explora-theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+        btn.textContent = document.body.classList.contains('dark-theme') ? 'â˜€ï¸' : 'ðŸŒ™';
+    }
+}
+
+function applySearch() {
+    const term = (document.getElementById('globalSearch').value || '').toLowerCase().trim();
+    const rows = Array.from(document.querySelectorAll('#feedbackTableBody tr'));
+    let shown = 0;
+
+    rows.forEach((row) => {
+        if (row.children.length === 1) {
+            row.style.display = '';
+            return;
+        }
+
+        const text = row.innerText.toLowerCase();
+        const visible = term === '' || text.includes(term);
+        row.style.display = visible ? '' : 'none';
+        if (visible) {
+            shown++;
+        }
+    });
+
+    const meta = document.getElementById('rowMeta');
+    if (meta) {
+        meta.textContent = `Showing ${shown} of ${rows.filter((row) => row.children.length > 1).length}`;
+    }
+}
+
+applySavedTheme();
+applySearch();
+document.getElementById('globalSearch').addEventListener('input', applySearch);
+</script>
+{% endblock %}
+

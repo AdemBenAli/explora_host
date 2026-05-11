@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin | Voyages{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .btn-action {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px;
+            transition: transform 0.2s;
+        }
+        .btn-action:hover {
+            transform: scale(1.1);
+        }
+        .admin-actions-cell {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="at-layout" id="adminDashboardShell">
+
+    {% include 'partials/sidebar.html.twig' with { active: 'voyages' } %}
+
+    <section class="admin-content" id="mainContent">
+
+        <div class="admin-topbar">
+            <div class="admin-search">
+                <form method="get" class="admin-search-form">
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ search }}"
+                        placeholder="Search voyages..."
+                    >
+                </form>
+            </div>
+        </div>
+
+        <div class="admin-main-card">
+            <div class="admin-page-header">
+                <div class="admin-title-wrap">
+                    <h2>Voyages Management</h2>
+                    <div class="admin-title-underline"></div>
+                </div>
+
+                <div class="admin-header-actions">
+                    <a href="{{ path('app_voyage_pdf') }}" class="btn-admin-outline" style="text-decoration:none;">Export Data</a>
+                    <a href="{{ path('app_voyage_new') }}" class="btn-admin-primary btn-add-fixed" style="text-decoration:none;">Add Voyage</a>
+                </div>
+            </div>
+
+            <div class="admin-table-shell">
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Titre</th>
+                            <th>Destination</th>
+                            <th>Début</th>
+                            <th>Fin</th>
+                            <th>Budget</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for v in voyages %}
+                            <tr>
+                                <td>#{{ v.id }}</td>
+                                <td>{{ v.nom }}</td>
+                                <td>{{ v.destination }}</td>
+                                <td>{{ v.dateDepart ? v.dateDepart|date('Y-m-d') : '' }}</td>
+                                <td>{{ v.dateRetour ? v.dateRetour|date('Y-m-d') : '' }}</td>
+                                <td>{{ v.budgetTotal }} TND</td>
+                                <td>
+                                    <div class="admin-actions-cell">
+                                        <a href="{{ path('app_voyage_edit', {'id': v.id}) }}" class="btn-action edit" style="text-decoration:none;" title="Modifier">✏️</a>
+                                        <form method="post" action="{{ path('app_voyage_delete', {'id': v.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce voyage ?');" style="display:inline-block; margin:0;">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_voyage_' ~ v.id) }}">
+                                            <button type="submit" class="btn-action delete" title="Supprimer">🗑️</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="empty">Aucun voyage trouvé.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</div>
+{% endblock %}

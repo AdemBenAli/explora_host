@@ -1,0 +1,356 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Billet #{{ billet.id }} – Explora Admin{% endblock %}
+
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1e3a5f;--orange:#f7941d;--orange-dk:#e07800;--orange-lt:#fff3e0;
+  --white:#ffffff;--bg:#f5f7fa;--bg-card:#ffffff;
+  --gray-lt:#f8f9fa;--gray-md:#e9ecef;--gray:#8492a6;
+  --text:#212529;--text-m:#6c757d;
+  --green:#28a745;--green-lt:#d4edda;
+  --red:#e74c3c;--red-lt:#fde8ea;
+  --blue:#17a2b8;--blue-lt:#d1ecf1;
+  --yellow:#ffc107;--yellow-lt:#fff3cd;
+  --r-sm:8px;--r:12px;--r-lg:16px;
+  --sh-sm:0 2px 8px rgba(0,0,0,.08);--sh:0 4px 20px rgba(0,0,0,.10);
+  --tr:.22s ease;--fd:'Plus Jakarta Sans',sans-serif;--fb:'DM Sans',sans-serif;--sidebar-w:250px;
+}
+body.dark-mode{--white:#1e2d40;--bg:#0f1923;--bg-card:#162032;--gray-lt:#1e2d40;--gray-md:#2a3d52;--gray:#7a8fa3;--text:#e8edf3;--text-m:#8ca0b5;}
+body.dark-mode .at-sidebar{background:#0f1419!important;}
+body.dark-mode .at-show-card{background:#162032;}
+body.dark-mode .at-show-row{border-color:#2a3d52;}
+body.dark-mode .at-modal-box{background:#162032;}
+body.dark-mode .at-confirm-box{background:#162032;}
+body.dark-mode .at-mf-select{background:#1e2d40;border-color:#2a3d52;color:#e8edf3;}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100vh;transition:background var(--tr),color var(--tr);}
+.at-layout{display:flex;min-height:100vh;}
+
+/* SIDEBAR (idem) */
+.at-sidebar{width:var(--sidebar-w);background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.at-sidebar-logo{display:flex;align-items:center;gap:12px;padding:24px 20px 28px;border-bottom:1px solid rgba(255,255,255,.08);}
+.at-sidebar-logo-icon{font-size:32px;color:var(--orange);}
+.at-sidebar-logo-text{font-family:var(--fd);font-weight:800;font-size:16px;color:#fff;}
+.at-sidebar-section{font-size:11px;font-weight:700;letter-spacing:.8px;color:rgba(255,255,255,.45);padding:18px 20px 6px;text-transform:uppercase;}
+.at-sidebar-item{display:flex;align-items:center;gap:12px;padding:0 20px;height:45px;font-family:var(--fd);font-weight:600;font-size:14px;color:rgba(255,255,255,.75);text-decoration:none;cursor:pointer;transition:var(--tr);background:transparent;border:none;width:100%;text-align:left;border-radius:var(--r-sm);margin:0 0 2px;}
+.at-sidebar-item:hover{background:rgba(247,148,29,.18);color:#fff;}
+.at-sidebar-item--active{background:rgba(247,148,29,.15);color:var(--orange);font-weight:700;border-left:3px solid var(--orange);}
+.at-sidebar-item--logout{color:#e74c3c;background:rgba(231,76,60,.08);}
+.at-sidebar-item--logout:hover{background:rgba(231,76,60,.18);color:#e74c3c;}
+.at-sidebar-spacer{flex:1;}
+
+/* CONTENT */
+.at-content{flex:1;display:flex;flex-direction:column;overflow:auto;}
+.at-inner{padding:30px 40px;}
+
+/* HEADER */
+.at-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.at-header-left h1{font-family:var(--fd);font-size:28px;font-weight:800;color:var(--navy);}
+.at-header-left p{font-size:14px;color:var(--gray);margin-top:4px;}
+.at-back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--gray);text-decoration:none;margin-bottom:8px;transition:color var(--tr);}
+.at-back-link:hover{color:var(--orange);}
+.at-header-right{display:flex;align-items:center;gap:10px;}
+
+.at-btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--fd);font-weight:700;font-size:13px;padding:11px 22px;border-radius:var(--r-sm);border:none;cursor:pointer;text-decoration:none;transition:var(--tr);white-space:nowrap;}
+.at-btn--orange{background:var(--orange);color:#fff;box-shadow:0 3px 10px rgba(247,148,29,.3);}
+.at-btn--orange:hover{background:var(--orange-dk);transform:translateY(-1px);}
+.at-btn--gray{background:var(--white);color:var(--navy);border:2px solid var(--gray-md);}
+.at-btn--gray:hover{background:var(--gray-lt);}
+.at-btn--red{background:var(--red);color:#fff;}
+.at-btn--red:hover{background:#c0392b;}
+.at-theme-btn{background:var(--gray-lt);border:none;border-radius:50%;width:42px;height:42px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--navy);transition:var(--tr);}
+.at-theme-btn:hover{background:var(--gray-md);transform:rotate(15deg);}
+
+/* STATUT BADGE header */
+.at-statut-hero{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:25px;font-family:var(--fd);font-size:14px;font-weight:700;}
+.at-statut-hero--EN_ATTENTE{background:var(--yellow-lt);color:#856404;}
+.at-statut-hero--CONFIRME{background:var(--blue-lt);color:#0c5460;}
+.at-statut-hero--ANNULE{background:var(--red-lt);color:#721c24;}
+
+/* SHOW GRID */
+.at-show-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:24px;}
+@media(max-width:800px){.at-show-grid{grid-template-columns:1fr;}}
+
+.at-show-card{background:var(--bg-card);border-radius:var(--r-lg);box-shadow:var(--sh-sm);overflow:hidden;}
+.at-show-card-header{
+  background:#2c3e50;padding:16px 22px;
+  display:flex;align-items:center;gap:10px;
+}
+.at-show-card-title{font-family:var(--fd);font-size:14px;font-weight:700;color:#fff;}
+.at-show-card-body{padding:4px 0;}
+.at-show-row{display:flex;align-items:center;padding:13px 22px;border-bottom:1px solid var(--gray-md);gap:16px;}
+.at-show-row:last-child{border-bottom:none;}
+.at-show-label{color:var(--gray);font-size:13px;font-weight:600;min-width:150px;flex-shrink:0;}
+.at-show-val{color:var(--text);font-size:13px;flex:1;}
+
+.at-prix-big{font-family:var(--fd);font-size:22px;font-weight:800;color:var(--orange);}
+.at-user-chip{display:inline-flex;align-items:center;gap:5px;background:#e8f0fe;color:#1a3a5c;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.at-places-pill{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;border-radius:12px;padding:0 8px;background:var(--green-lt);color:#155724;font-weight:700;font-size:12px;}
+.at-pill{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.at-pill--attente{background:var(--yellow-lt);color:#856404;}
+.at-pill--confirme{background:var(--blue-lt);color:#0c5460;}
+.at-pill--annule{background:var(--red-lt);color:#721c24;}
+.at-trajet-arrow{color:var(--orange);font-weight:700;margin:0 6px;}
+
+/* ACTIONS BAR */
+.at-show-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;}
+
+/* MODAL */
+.at-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:none;align-items:center;justify-content:center;}
+.at-modal-overlay.open{display:flex;}
+.at-modal-box{background:var(--bg-card);border-radius:var(--r-lg);padding:36px 40px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:slideUp .25s ease;}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.at-modal-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--gray-md);}
+.at-modal-icon{font-size:26px;color:var(--orange);}
+.at-modal-title{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--navy);}
+.at-mf-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.at-mf-label{font-size:13px;font-weight:700;color:var(--navy);min-width:130px;flex-shrink:0;}
+.at-mf-val{font-size:14px;color:var(--gray);}
+.at-mf-select{flex:1;padding:9px 13px;border-radius:var(--r-sm);border:1.5px solid var(--gray-md);background:var(--gray-lt);font-family:var(--fb);font-size:14px;color:var(--text);outline:none;cursor:pointer;transition:border var(--tr);}
+.at-mf-select:focus{border-color:var(--orange);}
+.at-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:16px;border-top:1px solid var(--gray-md);}
+.at-confirm-box{background:var(--bg-card);border-radius:var(--r-lg);padding:40px;max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;animation:slideUp .25s ease;}
+.at-confirm-icon{font-size:52px;margin-bottom:16px;color:var(--red);}
+.at-confirm-title{font-family:var(--fd);font-size:20px;font-weight:800;color:var(--red);margin-bottom:10px;}
+.at-confirm-text{font-size:14px;color:var(--text-m);margin-bottom:26px;line-height:1.7;}
+.at-confirm-actions{display:flex;gap:12px;justify-content:center;}
+
+.at-flash{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:var(--r-sm);margin-bottom:20px;font-weight:600;font-size:13px;}
+.at-flash--success{background:var(--green-lt);color:#155724;border:1px solid #c3e6cb;}
+.at-flash--error{background:var(--red-lt);color:#721c24;border:1px solid #f5c6cb;}
+.at-flash-close{margin-left:auto;background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:.6;}
+.at-flash-close:hover{opacity:1;}
+
+@media(max-width:768px){.at-sidebar{display:none;}.at-inner{padding:16px;}}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="at-layout">
+
+{% include 'partials/sidebar.html.twig' with { active: 'billets' } %}
+
+<div class="at-content">
+<div class="at-inner">
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+        <div class="at-flash at-flash--{{ label == 'success' ? 'success' : 'error' }}">
+            <i class="fas fa-{{ label == 'success' ? 'check-circle' : 'exclamation-circle' }}"></i>
+            {{ message }}
+            <button class="at-flash-close" onclick="this.parentElement.remove()">&times;</button>
+        </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="at-header">
+        <div class="at-header-left">
+            <a href="{{ path('admin_billet_index') }}" class="at-back-link">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+            <h1>Billet #{{ billet.id }}</h1>
+            <p>Détails complets de la réservation</p>
+        </div>
+        <div class="at-header-right">
+            <button class="at-theme-btn" id="btnTheme"><i class="fas fa-moon" id="themeIcon"></i></button>
+            {% set sv = billet.statut.value %}
+            {% set heroStatus = sv in ['EN_ATTENTE', 'ANNULE'] ? sv : 'CONFIRME' %}
+            <span class="at-statut-hero at-statut-hero--{{ heroStatus }}">
+                {% if sv == 'EN_ATTENTE' %}<i class="fas fa-hourglass-half"></i>
+                {% elseif sv == 'ANNULE' %}<i class="fas fa-ban"></i>
+                {% else %}<i class="fas fa-check"></i>{% endif %}
+                {{ sv == 'ANNULE' ? 'Annulé' : (sv == 'EN_ATTENTE' ? 'En attente' : 'Confirmé') }}
+            </span>
+        </div>
+    </div>
+
+    <div class="at-show-grid">
+
+        {# Infos Billet #}
+        <div class="at-show-card">
+            <div class="at-show-card-header">
+                <i class="fas fa-ticket-alt" style="color:var(--orange)"></i>
+                <span class="at-show-card-title">Informations du Billet</span>
+            </div>
+            <div class="at-show-card-body">
+                <div class="at-show-row">
+                    <span class="at-show-label">ID</span>
+                    <span class="at-show-val" style="font-weight:700;color:var(--gray)">#{{ billet.id }}</span>
+                </div>
+                <div class="at-show-row">
+                    <span class="at-show-label">Client</span>
+                    <span class="at-show-val">
+                        <span class="at-user-chip"><i class="fas fa-user" style="font-size:10px"></i> #{{ billet.userId }}</span>
+                    </span>
+                </div>
+                <div class="at-show-row">
+                    <span class="at-show-label">Nombre de places</span>
+                    <span class="at-show-val"><span class="at-places-pill">{{ billet.nombrePlaces }}</span></span>
+                </div>
+                <div class="at-show-row">
+                    <span class="at-show-label">Prix total</span>
+                    <span class="at-show-val"><span class="at-prix-big">{{ billet.prixTotal|number_format(2, ".", " ") }}</span></span>
+                </div>
+                <div class="at-show-row">
+                    <span class="at-show-label">Date de réservation</span>
+                    <span class="at-show-val">{{ billet.dateReservation ? billet.dateReservation|date('d/m/Y') : '—' }}</span>
+                </div>
+                <div class="at-show-row">
+                    <span class="at-show-label">Statut</span>
+                    <span class="at-show-val">
+                        {% set sv = billet.statut.value %}
+                        <span class="at-pill at-pill--{{ sv == 'EN_ATTENTE' ? 'attente' : (sv == 'ANNULE' ? 'annule' : 'confirme') }}">
+                            {{ sv == 'ANNULE' ? 'Annulé' : (sv == 'EN_ATTENTE' ? 'En attente' : 'Confirmé') }}
+                        </span>
+                    </span>
+                </div>
+                {% if billet.voyageId %}
+                <div class="at-show-row">
+                    <span class="at-show-label">Voyage lié</span>
+                    <span class="at-show-val">#{{ billet.voyageId }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Infos Transport #}
+        <div class="at-show-card">
+            <div class="at-show-card-header">
+                {% if billet.transport %}
+                    {% set typeVal = billet.transport.type.value ?? '' %}
+                    {% if typeVal == 'AVION' %}<i class="fas fa-plane" style="color:var(--orange)"></i>
+                    {% elseif typeVal == 'TRAIN' %}<i class="fas fa-train" style="color:var(--orange)"></i>
+                    {% elseif typeVal == 'BUS' %}<i class="fas fa-bus" style="color:var(--orange)"></i>
+                    {% elseif typeVal == 'BATEAU' %}<i class="fas fa-ship" style="color:var(--orange)"></i>
+                    {% elseif typeVal == 'TAXI' %}<i class="fas fa-taxi" style="color:var(--orange)"></i>
+                    {% else %}<i class="fas fa-car" style="color:var(--orange)"></i>{% endif %}
+                {% else %}
+                    <i class="fas fa-route" style="color:var(--orange)"></i>
+                {% endif %}
+                <span class="at-show-card-title">Transport Associé</span>
+            </div>
+            <div class="at-show-card-body">
+                {% if billet.transport %}
+                <div class="at-show-row">
+                    <span class="at-show-label">Type</span>
+                    <span class="at-show-val">{{ billet.transport.type.label ?? '—' }}</span>
+                </div>
+                <div class="at-show-row">
+                    <span class="at-show-label">Compagnie</span>
+                    <span class="at-show-val" style="font-weight:700">{{ billet.transport.compagnie ?? '—' }}</span>
+                </div>
+                <div class="at-show-row">
+                    <span class="at-show-label">Trajet</span>
+                    <span class="at-show-val">
+                        <strong>{{ billet.transport.origine }}</strong>
+                        <span class="at-trajet-arrow">→</span>
+                        <strong>{{ billet.transport.destination }}</strong>
+                    </span>
+                </div>
+                <div class="at-show-row">
+                    <span class="at-show-label">Départ</span>
+                    <span class="at-show-val">
+                        {{ billet.transport.dateDepart ? billet.transport.dateDepart|date('d/m/Y') : '—' }}
+                        {% if billet.transport.heureDepart %} à {{ billet.transport.heureDepart|date('H:i') }}{% endif %}
+                    </span>
+                </div>
+                {% if billet.transport.dateArrivee %}
+                <div class="at-show-row">
+                    <span class="at-show-label">Arrivée</span>
+                    <span class="at-show-val">
+                        {{ billet.transport.dateArrivee|date('d/m/Y') }}
+                        {% if billet.transport.heureArrivee %} à {{ billet.transport.heureArrivee|date('H:i') }}{% endif %}
+                    </span>
+                </div>
+                {% endif %}
+                <div class="at-show-row">
+                    <span class="at-show-label">Prix unitaire</span>
+                    <span class="at-show-val"><span class="at-prix-big" style="font-size:16px">{{ billet.transport.prix|number_format(2, ".", " ") }}</span></span>
+                </div>
+                {% if billet.transport.numeroVol %}
+                <div class="at-show-row">
+                    <span class="at-show-label">N° Vol / Réf.</span>
+                    <span class="at-show-val" style="font-weight:700">{{ billet.transport.numeroVol }}</span>
+                </div>
+                {% endif %}
+                {% else %}
+                    <div style="padding:30px;text-align:center;color:var(--gray)">Transport non disponible</div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>{# /show-grid #}
+
+    <div class="at-show-actions">
+        <button type="button"
+                class="at-btn at-btn--orange btn-changer-statut"
+                data-id="{{ billet.id }}"
+                data-statut="{{ billet.statut.value }}"
+                data-label="{{ billet.statut.label }}">
+            <i class="fas fa-exchange-alt"></i> Changer le statut
+        </button>
+        <a href="{{ path('admin_billet_index') }}" class="at-btn at-btn--gray">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+    </div>
+
+</div>
+</div>
+</div>
+
+{# MODAL STATUT #}
+<div class="at-modal-overlay" id="modalStatut">
+    <div class="at-modal-box">
+        <div class="at-modal-header">
+            <i class="fas fa-exchange-alt at-modal-icon"></i>
+            <h3 class="at-modal-title">Changer le Statut – Billet #{{ billet.id }}</h3>
+        </div>
+        <form method="post" id="statutForm" action="{{ path('admin_billet_changer_statut', {id: billet.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('changer_statut_' ~ billet.id) }}">
+            <div class="at-mf-row">
+                <span class="at-mf-label">Statut actuel</span>
+                <span class="at-mf-val">{{ billet.statut.label }}</span>
+            </div>
+            <div class="at-mf-row">
+                <label class="at-mf-label" for="selectStatut">Nouveau statut</label>
+                <select name="statut" id="selectStatut" class="at-mf-select">
+                    <option value="EN_ATTENTE" {{ billet.statut.value == 'EN_ATTENTE' ? 'selected' : '' }}>En attente</option>
+                    <option value="CONFIRME"   {{ billet.statut.value == 'CONFIRME'   ? 'selected' : '' }}>Confirmé</option>
+                    <option value="ANNULE"     {{ billet.statut.value == 'ANNULE'     ? 'selected' : '' }}>Annulé</option>
+                </select>
+            </div>
+            <div class="at-modal-actions">
+                <button type="button" class="at-btn at-btn--gray" id="modalStatutCancel"><i class="fas fa-times"></i> Annuler</button>
+                <button type="submit" class="at-btn at-btn--orange"><i class="fas fa-check"></i> Confirmer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block javascripts %}
+<script>
+(function(){
+    const btn=document.getElementById('btnTheme'),icon=document.getElementById('themeIcon');
+    let dark=localStorage.getItem('at-dark')==='1';
+    function apply(){document.body.classList.toggle('dark-mode',dark);icon.className=dark?'fas fa-sun':'fas fa-moon';}
+    apply();
+    if(btn)btn.addEventListener('click',()=>{dark=!dark;localStorage.setItem('at-dark',dark?'1':'0');apply();});
+})();
+
+/* Modal statut */
+document.querySelector('.btn-changer-statut')?.addEventListener('click',()=>{ document.getElementById('modalStatut').classList.add('open'); });
+document.getElementById('modalStatutCancel')?.addEventListener('click',()=>{ document.getElementById('modalStatut').classList.remove('open'); });
+document.getElementById('modalStatut')?.addEventListener('click',e=>{ if(e.target===e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ document.getElementById('modalStatut')?.classList.remove('open'); } });
+</script>
+{% endblock %}
+{% endblock %}
+
+

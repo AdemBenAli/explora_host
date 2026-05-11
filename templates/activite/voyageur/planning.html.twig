@@ -1,0 +1,471 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mon Planning | Explora{% endblock %}
+
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root{
+        --navy:#1a3a5c; --navy-dark:#0f2540;
+        --orange:#f7941d; --orange-dk:#e07800; --orange-lt:#fff3e0;
+        --white:#fff; --bg:#f4f7f6; --bg-card:#fff;
+        --gray-lt:#f8f9fa; --gray-md:#e9ecef; --gray:#8492a6;
+        --text:#212529; --text-m:#6c757d;
+        --text-heading:#1e293b; --text-body:#64748b;
+        --green:#28a745; --green-lt:#d4edda;
+        --red:#dc3545;
+        --r-sm:8px; --r-lg:16px;
+        --sh-sm:0 2px 8px rgba(0,0,0,.08);
+        --sh:0 4px 20px rgba(0,0,0,.10);
+        --tr:.22s ease;
+        --fd:'Plus Jakarta Sans',sans-serif;
+        --fb:'DM Sans',sans-serif;
+        --border-color:#e2e8f0; --border:#e2e8f0;
+        --bg-body: #f4f7f6;
+    }
+
+    [data-theme="dark"], body.dark-mode {
+        --bg:#0F172A; --bg-card:#1E293B; --bg-body: #0F172A;
+        --text:#F1F5F9; --text-m:#94A3B8; --text-heading:#F1F5F9; --text-body:#94A3B8;
+        --border-color:#334155; --border:#334155;
+        --gray-lt:#1e2d40; --gray-md:#2a3d52;
+        --white:#1E293B;
+    }
+
+    body{
+        font-family:var(--fb);
+        background:var(--bg-body);
+        color:var(--text);
+        display:flex;
+        flex-direction:column;
+        min-height:100vh;
+        transition: background var(--tr), color var(--tr);
+    }
+
+    /* ══════════════ NAVBAR ══════════════ */
+    .ut-navbar{
+        background:var(--bg-card);
+        box-shadow:var(--sh-sm);
+        position:sticky;
+        top:0;
+        z-index:200;
+        transition:background var(--tr);
+    }
+    .ut-navbar__inner{
+        max-width:1440px;
+        margin:0 auto;
+        padding:0 25px;
+        height:64px;
+        display:flex;
+        align-items:center;
+        gap:12px;
+    }
+    .ut-navbar__logo{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        text-decoration:none;
+        font-family:var(--fd);
+        font-weight:800;
+        font-size:20px;
+        color:var(--text-heading);
+        flex-shrink:0;
+    }
+    .logo-globe{
+        width:38px; height:38px;
+        border-radius:50%;
+        background:var(--navy);
+        display:flex; align-items:center; justify-content:center;
+        flex-shrink:0;
+    }
+    .logo-globe i{ color:#fff; font-size:16px; }
+    .logo-name em{ color:var(--orange); font-style:normal; }
+
+    /* Nav links */
+    .ut-navbar__links{
+        display:flex;
+        gap:4px;
+        margin-left:auto;
+    }
+    .ut-nav-link{
+        font-family:var(--fd);
+        font-weight:600;
+        font-size:13px;
+        color:var(--text-heading);
+        text-decoration:none;
+        padding:8px 14px;
+        border-radius:var(--r-sm);
+        transition:var(--tr);
+        white-space:nowrap;
+        position:relative;
+        padding-bottom:10px;
+    }
+    .ut-nav-link:hover{ color:var(--orange); }
+
+    .ut-nav-link--active{
+        color:var(--orange);
+    }
+    .ut-nav-link--active::after{
+        content:'';
+        position:absolute;
+        bottom:0;
+        left:14px;
+        right:14px;
+        height:3px;
+        background:var(--orange);
+        border-radius:3px 3px 0 0;
+    }
+
+    .ut-navbar__actions{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        margin-left:10px;
+    }
+    .ut-theme-btn{
+        background:var(--gray-lt);
+        border:none;
+        border-radius:50%;
+        width:40px; height:40px;
+        font-size:15px;
+        cursor:pointer;
+        display:flex; align-items:center; justify-content:center;
+        color:var(--text-heading);
+        transition:var(--tr);
+        flex-shrink:0;
+    }
+    .ut-theme-btn:hover{ background:var(--gray-md); transform:rotate(15deg); }
+
+    .ut-btn{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        font-family:var(--fd);
+        font-weight:700;
+        font-size:12px;
+        padding:9px 16px;
+        border-radius:25px;
+        border:none;
+        cursor:pointer;
+        text-decoration:none;
+        transition:var(--tr);
+        white-space:nowrap;
+    }
+    .ut-btn--primary{ background:var(--orange); color:#fff; box-shadow:0 4px 14px rgba(247,148,29,.35); }
+    .ut-btn--primary:hover{ background:var(--orange-dk); transform:translateY(-1px); }
+    .ut-btn--secondary{ background:transparent; color:var(--text-heading); border:1.5px solid var(--text-heading); }
+    .ut-btn--secondary:hover{ background:var(--text-heading); color:var(--bg-card); }
+    .ut-btn--sm{ padding:8px 14px; font-size:12px; }
+
+    /* ══════════════ USER DROPDOWN ══════════════ */
+    .user-profile-wrap{
+        position:relative;
+    }
+    .user-profile{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        cursor:pointer;
+        padding-left:14px;
+        border-left:1px solid var(--border-color);
+        padding:8px 10px 8px 14px;
+        border-radius:var(--r-sm);
+        transition:var(--tr);
+    }
+    .user-profile:hover{ background:var(--gray-lt); }
+    .user-avatar{
+        width:36px; height:36px;
+        border-radius:50%;
+        object-fit:cover;
+    }
+    .user-name{ font-weight:600; color:var(--text); font-size:13px; font-family:var(--fd); }
+    .user-role{ font-size:11px; color:#94a3b8; }
+    .user-dropdown-icon{ color:#94a3b8; font-size:11px; transition:transform .2s; }
+    .user-profile-wrap.open .user-dropdown-icon{ transform:rotate(180deg); }
+
+    .user-dropdown{
+        display:none;
+        position:absolute;
+        top:calc(100% + 8px);
+        right:0;
+        background:var(--bg-card);
+        border:1px solid var(--border-color);
+        border-radius:var(--r-lg);
+        box-shadow:var(--sh);
+        min-width:200px;
+        z-index:300;
+        overflow:hidden;
+        animation:dropIn .18s ease;
+    }
+    @keyframes dropIn{ from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+    .user-profile-wrap.open .user-dropdown{ display:block; }
+
+    .main-content{
+        flex:1;
+        display:flex;
+        flex-direction:column;
+        overflow:hidden;
+        background:var(--bg-body);
+    }
+    .content-area{
+        flex:1;
+        padding:28px 30px;
+        overflow-y:auto;
+        display:flex;
+        flex-direction:column;
+        max-width: 1440px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* ── PLANNING SPECIFICS ── */
+    .stats-bar { display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 24px; display: flex; align-items: center; gap: 14px; flex: 1; min-width: 160px; box-shadow: var(--sh-sm); }
+    .stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: var(--gray-lt); }
+    .stat-value { font-family: var(--fd); font-size: 24px; font-weight: 800; color: var(--text-heading); line-height: 1; }
+    .stat-label { font-size: 12px; color: var(--text-m); margin-top: 3px; }
+
+    #calendar-view { display: flex; flex-wrap: wrap; gap: 18px; }
+    .date-tile {
+        background: var(--bg-card); border: 1.5px solid var(--border);
+        border-radius: 20px; padding: 22px 16px 18px;
+        width: 180px; cursor: pointer; text-align: center;
+        transition: all 0.2s;
+        text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 6px;
+        box-shadow: var(--sh-sm);
+    }
+    .date-tile:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--sh);
+        border-color: var(--orange);
+    }
+    .date-tile__num { font-family: var(--fd); font-size: 44px; font-weight: 800; color: var(--navy); line-height: 1; }
+    .date-tile__mois { font-size: 11px; font-weight: 700; color: var(--text-m); letter-spacing: 1px; text-transform: uppercase; }
+    .date-tile__jour { font-size: 14px; font-weight: 600; color: var(--text-heading); }
+    .date-tile__count { font-size: 11px; font-weight: 700; background: var(--navy); color: white; border-radius: 20px; padding: 3px 12px; margin-top: 6px; }
+
+    /* Detail View */
+    #detail-view { display: none; }
+    .detail-header { display: flex; align-items: center; gap: 18px; margin-bottom: 28px; }
+    .detail-date-label { font-family: var(--fd); font-size: 22px; font-weight: 800; color: var(--text-heading); }
+
+    .itineraire-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 22px 24px; margin-bottom: 24px; box-shadow: var(--sh-sm); }
+    .itin-title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .itin-title { font-family: var(--fd); font-size: 16px; font-weight: 700; color: var(--text-heading); }
+
+    .etapes-scroll { overflow-x: auto; padding-bottom: 10px; }
+    .etapes-row { display: flex; align-items: center; gap: 0; min-width: max-content; padding: 4px 2px 10px; }
+    .etape-bulle {
+        background: var(--gray-lt); border-radius: 14px; padding: 14px 12px;
+        width: 150px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 5px;
+        border: 2px solid var(--border); flex-shrink: 0;
+    }
+    .etape-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: white; background: var(--navy); }
+    .etape-nom { font-weight: 700; font-size: 11px; color: var(--text-heading); line-height: 1.3; }
+
+    .planning-card { background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border); width: 220px; overflow: hidden; transition: all 0.2s; box-shadow: var(--sh-sm); }
+    .planning-card:hover { transform: translateY(-3px); box-shadow: var(--sh); }
+    .planning-card__img { width: 100%; height: 120px; object-fit: cover; }
+    .planning-card__body { padding: 12px; }
+    .planning-card__nom { font-weight: 700; font-size: 13px; color: var(--text-heading); margin-bottom: 4px; }
+    .planning-card__prix { font-size: 14px; font-weight: 700; color: #16a34a; }
+    .planning-card__delete { width: 100%; background: #fee2e2; color: #dc2626; border: none; padding: 10px; font-weight: 700; cursor: pointer; font-size: 11px; transition: var(--tr); }
+    .planning-card__delete:hover { background: #fecaca; }
+
+    .flash { padding: 12px 20px; border-radius: 10px; font-size: 14px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .flash--success { background: #dcfce7; color: #15803d; border-left: 4px solid #16a34a; }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- ══════════════ NAVBAR ══════════════ -->
+<nav class="ut-navbar">
+    <div class="ut-navbar__inner">
+        <a href="{{ path('app_home') }}" class="ut-navbar__logo">
+            {{ include('partials/explora_brand.html.twig', {admin: false, logoHeight: 52}) }}
+        </a>
+        <div class="ut-navbar__links">
+            <a href="{{ path('app_home') }}" class="ut-nav-link">{{ 'nav.home'|trans|default('Accueil') }}</a>
+            <a href="#" class="ut-nav-link">Voyages</a>
+            <a href="#" class="ut-nav-link">Transport</a>
+            <a href="#" class="ut-nav-link">Hôtels</a>
+            <a href="{{ path('voyageur_index') }}" class="ut-nav-link ut-nav-link--active">Activités</a>
+        </div>
+        <div class="ut-navbar__actions">
+            <button class="ut-theme-btn" id="btnThemeGlobal" title="Mode nuit / jour">
+                <i class="fas fa-moon" id="themeIconGlobal"></i>
+            </button>
+            <button type="button" class="ut-btn ut-btn--secondary ut-btn--sm" style="color:#059669;border-color:#059669;background:rgba(5,150,105,.07)">
+                🌿 <span>{{ ecoScore.pointsActuels ?? 0 }}</span> PTS
+            </button>
+            <a href="#" class="ut-btn ut-btn--primary">
+                <i class="fas fa-ticket-alt"></i> Mes Réservations
+            </a>
+            <div class="user-profile-wrap" id="userWrap">
+                <div class="user-profile" id="userToggle">
+                    <img src="https://ui-avatars.com/api/?name={{ voyageur.prenom|default('Louay') }}+{{ voyageur.nom|default('Ouali') }}&background=1e293b&color=fff" alt="Avatar" class="user-avatar">
+                    <div>
+                        <div class="user-name">{{ voyageur.prenom|default('Louay') }} {{ voyageur.nom|default('Ouali') }}</div>
+                        <div class="user-role">Voyageur</div>
+                    </div>
+                    <i class="fas fa-chevron-down user-dropdown-icon"></i>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#" class="dropdown-item"><i class="fas fa-user"></i> Mon profil</a>
+                    <a href="#" class="dropdown-item"><i class="fas fa-cog"></i> Paramètres</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ path('app_logout') }}" class="dropdown-item dropdown-item--danger"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="page-body">
+    <main class="main-content">
+        <div class="content-area">
+            <div class="explora-breadcrumb">
+                Activités &gt; <span>Mon Planning</span>
+            </div>
+
+            <div class="content-topbar">
+                <a href="{{ path('voyageur_index') }}" class="ut-btn ut-btn--secondary">
+                    <i class="fa-solid fa-arrow-left"></i> Retour aux activités
+                </a>
+                <h1 style="font-size:20px; font-weight:800; color:var(--text-heading);">📅 Mon Planning Personnel</h1>
+            </div>
+
+            {% for msg in app.flashes('success') %}
+                <div class="flash flash--success"><i class="fa-solid fa-circle-check"></i> {{ msg }}</div>
+            {% endfor %}
+
+            {% if plannings is empty %}
+                <div style="text-align:center; padding:80px; background:var(--bg-card); border-radius:20px; border:1px solid var(--border);">
+                    <i class="far fa-calendar-times" style="font-size:64px; color:var(--text-m); margin-bottom:20px; display:block;"></i>
+                    <h2 style="color:var(--text-heading); margin-bottom:10px;">Votre planning est vide</h2>
+                    <p style="color:var(--text-m); margin-bottom:30px;">Commencez par explorer nos activités pour les ajouter à votre itinéraire.</p>
+                    <a href="{{ path('voyageur_index') }}" class="ut-btn ut-btn--primary" style="padding:15px 30px;">Parcourir les activités</a>
+                </div>
+            {% else %}
+                <div class="stats-bar">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#e0f2fe; color:#0369a1;">📆</div>
+                        <div><div class="stat-value">{{ planningsParDate|length }}</div><div class="stat-label">jours planifiés</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#fef3c7; color:#b45309;">🎯</div>
+                        <div><div class="stat-value">{{ plannings|length }}</div><div class="stat-label">activités</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#dcfce7; color:#15803d;">💰</div>
+                        <div><div class="stat-value">{{ total|number_format(2,'.') }} TND</div><div class="stat-label">budget total</div></div>
+                    </div>
+                </div>
+
+                <div id="calendar-view">
+                    {% for dateKey, group in planningsParDate %}
+                        <div class="date-tile" onclick="showDetail('{{ dateKey }}')">
+                            <div class="date-tile__num">{{ dateKey|date('d') }}</div>
+                            <div class="date-tile__mois">{{ dateKey|date('M Y') }}</div>
+                            <div class="date-tile__jour">{{ dateKey|date('l') }}</div>
+                            <span class="date-tile__count">{{ group|length }} activités</span>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div id="detail-view">
+                    <div class="detail-header">
+                        <button class="ut-btn ut-btn--secondary" onclick="showCalendar()">‹ Toutes les dates</button>
+                        <div class="detail-date-label" id="detail-date-label"></div>
+                    </div>
+
+                    {% for dateKey, group in planningsParDate %}
+                        <div class="detail-panel" id="panel-{{ dateKey }}" style="display:none;">
+                            {% set ordered = group|sort((a,b) => a.heureDebut <=> b.heureDebut) %}
+                            <div class="itineraire-box">
+                                <div class="itin-title-row">
+                                    <span style="font-size:22px;">🗺️</span>
+                                    <div class="itin-title">Itinéraire de la journée</div>
+                                    <a href="{{ path('voyageur_planning_carte', {'date': dateKey}) }}" class="ut-btn ut-btn--primary ut-btn--sm" target="_blank" style="margin-left:auto;">
+                                        <i class="fas fa-map-marked-alt"></i> Voir la Carte
+                                    </a>
+                                </div>
+                                <div class="etapes-scroll">
+                                    <div class="etapes-row">
+                                        {% for i, p in ordered %}
+                                            <div class="etape-bulle">
+                                                <div class="etape-num">{{ i + 1 }}</div>
+                                                <div class="etape-nom">{{ p.activite.nom }}</div>
+                                                <div style="font-size:10px; color:var(--text-m); margin-top:5px;">
+                                                    ⏰ {{ p.heureDebut ? p.heureDebut|date('H:i') : '--:--' }}
+                                                </div>
+                                            </div>
+                                            {% if not loop.last %}
+                                                <div style="padding:0 10px; color:var(--border);">→</div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display:flex; flex-wrap:wrap; gap:20px;">
+                                {% for p in group %}
+                                    <div class="planning-card">
+                                        {% if p.activite.image %}
+                                            {% set imagePath = p.activite.image starts with('/uploads/') or p.activite.image starts with('uploads/') ? p.activite.image : 'uploads/images/' ~ p.activite.image %}
+                                            <img src="{{ asset(imagePath) }}" class="planning-card__img">
+                                        {% else %}
+                                            <div style="height:120px; background:var(--gray-lt); display:flex; align-items:center; justify-content:center;">🖼️</div>
+                                        {% endif %}
+                                        <div class="planning-card__body">
+                                            <div class="planning-card__nom">{{ p.activite.nom }}</div>
+                                            <div class="planning-card__prix">{{ p.activite.prix }} TND</div>
+                                        </div>
+                                        <form method="post" action="{{ path('voyageur_planning_supprimer', {key: p.idVoyageur ~ '_' ~ p.activite.idActivite ~ '_' ~ dateKey}) }}" onsubmit="return confirm('Retirer cette activité ?')">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('planning_delete') }}">
+                                            <button type="submit" class="planning-card__delete">Retirer</button>
+                                        </form>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+
+<script>
+const DATES_DATA = { {% for dateKey, group in planningsParDate %}'{{ dateKey }}': '{{ dateKey|date('l d F Y') }}',{% endfor %} };
+function showDetail(dateKey) {
+    document.getElementById('calendar-view').style.display = 'none';
+    document.getElementById('detail-view').style.display = 'block';
+    document.querySelectorAll('.detail-panel').forEach(p => p.style.display = 'none');
+    document.getElementById('panel-' + dateKey).style.display = 'block';
+    document.getElementById('detail-date-label').textContent = '📅 ' + DATES_DATA[dateKey];
+}
+function showCalendar() {
+    document.getElementById('calendar-view').style.display = 'flex';
+    document.getElementById('detail-view').style.display = 'none';
+}
+// Theme & Dropdown same as before
+const btnTheme = document.getElementById('btnThemeGlobal');
+const iconTheme = document.getElementById('themeIconGlobal');
+let darkTheme = localStorage.getItem('explora-dark') === '1';
+function applyTheme() {
+    document.documentElement.setAttribute('data-theme', darkTheme ? 'dark' : 'light');
+    if (darkTheme) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
+    if (iconTheme) iconTheme.className = darkTheme ? 'fas fa-sun' : 'fas fa-moon';
+}
+applyTheme();
+if (btnTheme) btnTheme.addEventListener('click', () => { darkTheme = !darkTheme; localStorage.setItem('explora-dark', darkTheme ? '1' : '0'); applyTheme(); });
+const userWrap = document.getElementById('userWrap');
+const userToggle = document.getElementById('userToggle');
+if (userToggle) { userToggle.addEventListener('click', (e) => { e.stopPropagation(); userWrap.classList.toggle('open'); }); document.addEventListener('click', () => userWrap.classList.remove('open')); }
+</script>
+{% endblock %}

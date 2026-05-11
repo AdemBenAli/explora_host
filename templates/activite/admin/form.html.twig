@@ -1,0 +1,328 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ activite is defined and activite.idActivite is defined ? 'Modifier' : 'Nouvelle' }} Activité | Explora Admin{% endblock %}
+
+{% block stylesheets %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0f1117;
+    --surface:  #181c27;
+    --surface2: #1e2438;
+    --border:   rgba(255,255,255,0.07);
+    --accent:   #ff8c42;
+    --accent2:  #667eea;
+    --text:     #e8edf5;
+    --muted:    #6b7a90;
+    --green:    #10b981;
+    --red:      #ef4444;
+    --font-head:'Syne', sans-serif;
+    --font-body:'DM Sans', sans-serif;
+  }
+
+  body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; }
+  .shell   { display: flex; min-height: 100vh; }
+  .sidebar { width: 240px; min-height: 100vh; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+  .main    { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+
+  .sb-logo { padding: 28px 24px 22px; border-bottom: 1px solid var(--border); }
+  .sb-logo-inner { display: flex; align-items: center; gap: 10px; }
+  .sb-logo-icon  { width: 36px; height: 36px; background: var(--accent); border-radius: 10px; display: grid; place-items: center; font-size: 18px; }
+  .sb-logo-text  { font-family: var(--font-head); font-size: 18px; font-weight: 800; color: #fff; }
+  .sb-logo-sub   { font-size: 10px; color: var(--muted); }
+  .sb-section    { padding: 22px 16px 6px; font-size: 10px; font-weight: 700; letter-spacing:.12em; color: var(--muted); text-transform: uppercase; }
+  .sb-item       { display:flex; align-items:center; gap:11px; padding:10px 16px; margin:2px 8px; border-radius:10px; color:rgba(255,255,255,.55); font-size:13px; font-weight:500; text-decoration:none; transition:all .18s; }
+  .sb-item:hover { background:rgba(255,255,255,.06); color:#fff; }
+  .sb-item.active{ background:rgba(102,126,234,.18); color:#fff; font-weight:600; border-left:3px solid var(--accent2); padding-left:13px; }
+  .sb-icon { font-size:15px; width:20px; text-align:center; }
+  .sb-spacer { flex:1; }
+  .sb-bottom { border-top:1px solid var(--border); padding:12px 8px; }
+
+  .topbar { height:64px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 32px; gap:16px; sticky-top:0; position:sticky; top:0; z-index:50; }
+  .topbar-title h1 { font-family:var(--font-head); font-size:20px; font-weight:700; color:#fff; }
+  .topbar-title p  { font-size:12px; color:var(--muted); }
+  .topbar-spacer { flex:1; }
+  .btn { display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:all .18s; text-decoration:none; font-family:var(--font-body); }
+  .btn-primary   { background:var(--accent); color:#fff; }
+  .btn-primary:hover { background:#ff7a28; transform:translateY(-1px); box-shadow:0 6px 20px rgba(255,140,66,.35); }
+  .btn-secondary { background:rgba(255,255,255,.07); color:var(--text); border:1px solid var(--border); }
+  .btn-secondary:hover { background:rgba(255,255,255,.11); }
+  .btn-success { background:var(--green); color:#fff; }
+  .btn-success:hover { background:#0ca678; transform:translateY(-1px); box-shadow:0 6px 20px rgba(16,185,129,.35); }
+
+  .content { padding:28px 32px; }
+
+  /* ── Form Card ── */
+  .form-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+  .form-header { padding:22px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:14px; }
+  .form-header-icon { width:44px; height:44px; border-radius:12px; background:rgba(255,140,66,.15); display:grid; place-items:center; font-size:20px; }
+  .form-header h2 { font-family:var(--font-head); font-size:18px; font-weight:700; color:#fff; }
+  .form-header p  { font-size:12px; color:var(--muted); margin-top:2px; }
+  .form-body { padding:28px; }
+
+  /* Grid layout */
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .form-grid .full { grid-column:1/-1; }
+
+  /* Field */
+  .field { display:flex; flex-direction:column; gap:6px; }
+  .field label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+  .field input,
+  .field select,
+  .field textarea {
+    background:var(--surface2); border:1px solid var(--border); border-radius:9px;
+    color:var(--text); font-family:var(--font-body); font-size:13px; padding:11px 14px;
+    outline:none; transition:border-color .18s;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus { border-color:var(--accent2); box-shadow:0 0 0 3px rgba(102,126,234,.12); }
+  .field textarea { resize:vertical; min-height:100px; }
+  .field select option { background:#1a1f2e; }
+  .field .hint { font-size:11px; color:var(--muted); }
+  .field .error { font-size:11px; color:var(--red); }
+
+  /* Toggle */
+  .toggle-row { display:flex; align-items:center; gap:14px; background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:12px 14px; }
+  .toggle-label { font-size:13px; font-weight:500; }
+  .toggle-sub   { font-size:11px; color:var(--muted); }
+  .toggle-switch { position:relative; width:44px; height:24px; margin-left:auto; }
+  .toggle-switch input { opacity:0; width:0; height:0; }
+  .toggle-slider { position:absolute; inset:0; background:#374151; border-radius:24px; cursor:pointer; transition:background .2s; }
+  .toggle-slider::before { content:''; position:absolute; width:18px; height:18px; border-radius:50%; background:#fff; left:3px; bottom:3px; transition:transform .2s; }
+  .toggle-switch input:checked + .toggle-slider { background:var(--green); }
+  .toggle-switch input:checked + .toggle-slider::before { transform:translateX(20px); }
+
+  /* Image preview */
+  .image-preview { width:100%; height:160px; border-radius:9px; background:var(--surface2); border:1px dashed var(--border); display:flex; align-items:center; justify-content:center; overflow:hidden; margin-bottom:8px; }
+  .image-preview img { width:100%; height:100%; object-fit:cover; display:none; }
+  .image-preview .placeholder { text-align:center; }
+  .image-preview .placeholder span { font-size:36px; display:block; }
+  .image-preview .placeholder p   { font-size:11px; color:var(--muted); margin-top:6px; }
+
+  /* Section divider */
+  .section-divider { display:flex; align-items:center; gap:12px; margin:4px 0; grid-column:1/-1; }
+  .section-divider span { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); white-space:nowrap; }
+  .section-divider::before, .section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* Footer */
+  .form-footer { padding:20px 28px; border-top:1px solid var(--border); display:flex; gap:12px; justify-content:flex-end; }
+
+  /* Flash */
+  .flash { padding:12px 18px; border-radius:9px; margin-bottom:20px; font-size:13px; font-weight:500; }
+  .flash-error { background:rgba(239,68,68,.10); color:#f87171; border:1px solid rgba(239,68,68,.2); }
+
+  @media (max-width:768px) { .sidebar{display:none;} .main{margin-left:0;} .form-grid{grid-template-columns:1fr;} }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-inner">
+        <div class="sb-logo-icon">✈</div>
+        <div>
+          <div class="sb-logo-text">Explora</div>
+          <div class="sb-logo-sub">Administration</div>
+        </div>
+      </div>
+    </div>
+    <div class="sb-section">Principal</div>
+    <a href="{{ path('admin_dashboard') }}" class="sb-item"><span class="sb-icon">📊</span> Dashboard</a>
+    <div class="sb-section">Gestion</div>
+    <a href="#" class="sb-item"><span class="sb-icon">👥</span> Agents</a>
+    <a href="{{ path('admin_activite_index') }}" class="sb-item active"><span class="sb-icon">🎯</span> Activités</a>
+    <a href="#" class="sb-item"><span class="sb-icon">✈️</span> Voyages</a>
+    <div class="sb-section">Rapports</div>
+    <a href="{{ path('admin_avis_index') }}" class="sb-item"><span class="sb-icon">💬</span> Avis</a>
+    <div class="sb-spacer"></div>
+    <div class="sb-bottom">
+      <a href="#" class="sb-item" style="color:rgba(220,80,80,.85);"><span class="sb-icon">🚪</span> Déconnexion</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        <h1>{{ activite is defined and activite.idActivite is defined ? 'Modifier l\'activité' : 'Nouvelle activité' }}</h1>
+        <p>{{ activite is defined and activite.idActivite is defined ? activite.nom : 'Remplir le formulaire ci-dessous' }}</p>
+      </div>
+      <div class="topbar-spacer"></div>
+      <a href="{{ path('admin_activite_index') }}" class="btn btn-secondary">← Retour</a>
+    </div>
+
+    <div class="content">
+
+      {% for msg in app.flashes('error') %}
+        <div class="flash flash-error">⚠ {{ msg }}</div>
+      {% endfor %}
+
+      <div class="form-card">
+        <div class="form-header">
+          <div class="form-header-icon">🎯</div>
+          <div>
+            <h2>{{ activite is defined and activite.idActivite is defined ? 'Modifier l\'activité' : 'Créer une activité' }}</h2>
+            <p>Champs marqués * sont obligatoires</p>
+          </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data"
+              action="{{ activite is defined and activite.idActivite is defined
+                         ? path('admin_activite_edit', {'id': activite.idActivite})
+                         : path('admin_activite_new') }}">
+          <input type="hidden" name="_token" value="{{ csrf_token('activite_form') }}">
+
+          <div class="form-body">
+            <div class="form-grid">
+
+              <!-- Section : Informations générales -->
+              <div class="section-divider"><span>Informations générales</span></div>
+
+              <div class="field full">
+                <label>Nom de l'activité *</label>
+                <input type="text" name="nom" value="{{ activite is defined ? activite.nom : '' }}" required placeholder="Ex: Randonnée Sahara Douz">
+              </div>
+
+              <div class="field">
+                <label>Catégorie *</label>
+                <select name="categorie" required>
+                  <option value="">— Choisir —</option>
+                  {% for cat in categories %}
+                    <option value="{{ cat }}" {{ activite is defined and activite.categorie == cat ? 'selected' : '' }}>{{ cat }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Type</label>
+                <input type="text" name="type" value="{{ activite is defined ? activite.type : '' }}" placeholder="Ex: Aventure, Culturel…">
+              </div>
+
+              <div class="field">
+                <label>Ville *</label>
+                <input type="text" name="ville" value="{{ activite is defined ? activite.ville : '' }}" required placeholder="Ex: Tunis">
+              </div>
+
+              <div class="field">
+                <label>Lieu précis *</label>
+                <input type="text" name="lieu" value="{{ activite is defined ? activite.lieu : '' }}" required placeholder="Ex: Belvédère, centre-ville">
+              </div>
+
+              <div class="field full">
+                <label>Description</label>
+                <textarea name="description" placeholder="Décrivez l'activité en détail…">{{ activite is defined ? activite.description : '' }}</textarea>
+              </div>
+
+              <!-- Section : Tarif & Disponibilité -->
+              <div class="section-divider"><span>Tarif & Disponibilité</span></div>
+
+              <div class="field">
+                <label>Prix (TND) *</label>
+                <input type="number" name="prix" step="0.01" min="0" value="{{ activite is defined ? activite.prix : '' }}" required placeholder="0.00">
+              </div>
+
+              <div class="field">
+                <label>Durée (heures) *</label>
+                <input type="number" name="duree" min="1" value="{{ activite is defined ? activite.duree : '' }}" required placeholder="Ex: 3">
+              </div>
+
+              <div class="field">
+                <label>Nombre de places *</label>
+                <input type="number" name="nombrePlaces" min="0" value="{{ activite is defined ? activite.nombrePlaces : '' }}" required placeholder="Ex: 20">
+              </div>
+
+              <div class="field">
+                <label>&nbsp;</label>
+                <div class="toggle-row">
+                  <div>
+                    <div class="toggle-label">Disponible</div>
+                    <div class="toggle-sub">Visible par les voyageurs</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" name="disponible" value="1" {{ activite is defined and activite.disponible ? 'checked' : '' }}>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Section : Planning -->
+              <div class="section-divider"><span>Planning</span></div>
+
+              <div class="field">
+                <label>Date de l'activité</label>
+                <input type="date" name="dateActivite" value="{{ activite is defined and activite.dateActivite ? activite.dateActivite|date('Y-m-d') : '' }}">
+              </div>
+
+              <div class="field" style="visibility:hidden;"></div>
+
+              <div class="field">
+                <label>Heure de début</label>
+                <input type="time" name="heureDebut" value="{{ activite is defined and activite.heureDebut ? activite.heureDebut|date('H:i') : '' }}">
+              </div>
+
+              <div class="field">
+                <label>Heure de fin</label>
+                <input type="time" name="heureFin" value="{{ activite is defined and activite.heureFin ? activite.heureFin|date('H:i') : '' }}">
+              </div>
+
+              <!-- Section : Image -->
+              <div class="section-divider"><span>Image</span></div>
+
+              <div class="field full">
+                <label>Photo de l'activité</label>
+                <div class="image-preview" id="previewBox">
+                  {% if activite is defined and activite.image %}
+                    {% set imagePath = activite.image starts with('/uploads/') or activite.image starts with('uploads/') ? activite.image : 'uploads/images/' ~ activite.image %}
+                    <img id="previewImg" src="{{ asset(imagePath) }}" style="display:block;">
+                  {% else %}
+                    <div class="placeholder">
+                      <span>🖼️</span>
+                      <p>Aucune image sélectionnée</p>
+                    </div>
+                  {% endif %}
+                </div>
+                <input type="file" name="image" accept="image/*" onchange="previewImage(this)">
+                {% if activite is defined and activite.image %}
+                  <span class="hint">Fichier actuel : {{ activite.image }}</span>
+                {% endif %}
+              </div>
+
+            </div>
+          </div>
+
+          <div class="form-footer">
+            <a href="{{ path('admin_activite_index') }}" class="btn btn-secondary">Annuler</a>
+            <button type="submit" class="btn btn-success">
+              {{ activite is defined and activite.idActivite is defined ? '💾 Enregistrer' : '✨ Créer l\'activité' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function previewImage(input) {
+  const box = document.getElementById('previewBox');
+  let img = document.getElementById('previewImg');
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      if (!img) {
+        box.innerHTML = '<img id="previewImg" style="width:100%;height:100%;object-fit:cover;">';
+        img = document.getElementById('previewImg');
+      }
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

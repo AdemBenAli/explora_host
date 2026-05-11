@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Billet Explora - #{{ billet.id }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        @page { margin: 0; }
+        body { 
+            font-family: 'Plus Jakarta Sans', 'Helvetica', 'Arial', sans-serif; 
+            color: #1e3a5f; 
+            margin: 0; 
+            padding: 40px; 
+            background-color: #f5f7fa;
+        }
+        .printable-area {
+            background-color: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            width: 100%;
+            display: table;
+            border-collapse: collapse;
+        }
+        .main-ticket {
+            display: table-cell;
+            padding: 0;
+            width: 70%;
+            border-right: 2px dashed #e0e6ed;
+            position: relative;
+        }
+        .stub-ticket {
+            display: table-cell;
+            padding: 0;
+            width: 30%;
+            background-color: #fcfcfd;
+            vertical-align: top;
+        }
+        .header {
+            background-color: #1e3a5f;
+            color: #fff;
+            padding: 22px 35px;
+            position: relative;
+        }
+        
+        /* CSS RECONSTRUCTION OF THE LOGO (NO GD NEEDED) */
+        .header-logo-container {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .logo-text {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+        }
+        .logo-text span {
+            color: #f7941d;
+        }
+        .logo-icon {
+            display: inline-block;
+            background: #f7941d;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .header .ticket-type {
+            position: absolute;
+            right: 35px;
+            top: 28px;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        .content { padding: 35px; }
+        .route-display {
+            margin-bottom: 30px;
+            display: table;
+            width: 100%;
+        }
+        .city-box { display: table-cell; }
+        .city-code { font-size: 42px; font-weight: 800; color: #1e3a5f; margin: 0; line-height: 1; }
+        .city-name { font-size: 14px; color: #8492a6; margin-top: 5px; text-transform: uppercase; font-weight: 700; }
+        .route-arrow { 
+            display: table-cell; 
+            vertical-align: middle; 
+            text-align: center; 
+            padding: 0 20px;
+            color: #f7941d;
+            font-size: 28px;
+        }
+
+        .info-tab { width: 100%; border-collapse: collapse; }
+        .info-tab td { padding: 15px 0; width: 33%; }
+        .label { color: #8492a6; font-size: 10px; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+        .value { color: #1e3a5f; font-size: 15px; font-weight: 700; }
+
+        .footer-info {
+            background-color: #1e3a5f;
+            color: rgba(255,255,255,0.7);
+            padding: 15px 35px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        /* Stub Styles */
+        .stub-header {
+            background-color: #f7941d;
+            color: #fff;
+            padding: 24px 20px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 13px;
+        }
+        .stub-content { padding: 20px; }
+        .qr-wrapper {
+            background: #fff;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid #e0e6ed;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .qr-wrapper img { display: block; margin: 0 auto; }
+        .price-tag {
+            background: #1e3a5f;
+            color: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .price-val { font-size: 18px; font-weight: 800; color: #f7941d; }
+
+        /* Circles for ticket effect */
+        .cut-out-top, .cut-out-bottom {
+            position: absolute;
+            right: -11px;
+            width: 22px;
+            height: 22px;
+            background-color: #f5f7fa;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        .cut-out-top { top: -11px; }
+        .cut-out-bottom { bottom: -11px; }
+    </style>
+</head>
+<body>
+
+    <div class="printable-area">
+        <div class="main-ticket">
+            <div class="cut-out-top"></div>
+            <div class="cut-out-bottom"></div>
+
+            <div class="header">
+                <div class="header-logo-container">
+                    <div class="logo-icon"></div><div class="logo-text" style="display:inline-block; vertical-align:middle;">EXPLORA<span>TRAVEL</span></div>
+                </div>
+                <div class="ticket-type">CARTE D'EMBARQUEMENT</div>
+            </div>
+
+            <div class="content">
+                <div class="route-display">
+                    <div class="city-box">
+                        <div class="city-code">{{ billet.transport.origine|slice(0,3)|upper }}</div>
+                        <div class="city-name">{{ billet.transport.origine }}</div>
+                    </div>
+                    <div class="route-arrow">✈</div>
+                    <div class="city-box" style="text-align: right;">
+                        <div class="city-code">{{ billet.transport.destination|slice(0,3)|upper }}</div>
+                        <div class="city-name">{{ billet.transport.destination }}</div>
+                    </div>
+                </div>
+
+                <table class="info-tab">
+                    <tr>
+                        <td width="33%">
+                            <div class="label">NOM DU PASSAGER</div>
+                            <div class="value">Utilisateur #{{ billet.userId }}</div>
+                        </td>
+                        <td width="33%">
+                            <div class="label">DATE DU VOL</div>
+                            <div class="value">{{ billet.transport.dateDepart|date('d M Y')|upper }}</div>
+                        </td>
+                        <td width="33%">
+                            <div class="label">HEURE DE DÉPART</div>
+                            <div class="value">{{ billet.transport.heureDepart|date('H:i') }}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="label">NUMÉRO DE VOL</div>
+                            <div class="value">{{ billet.transport.numeroVol }}</div>
+                        </td>
+                        <td>
+                            <div class="label">COMPAGNIE</div>
+                            <div class="value">{{ billet.transport.compagnie|upper }}</div>
+                        </td>
+                        <td>
+                            <div class="label">NOMBRE DE PLACES</div>
+                            <div class="value">{{ billet.nombrePlaces }} PASSAGER(S)</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="footer-info">
+                CONFIRMATION EXPLORA : {{ billet.id }} — GÉNÉRÉ LE {{ billet.dateReservation|date('d/m/Y H:i') }} — BON VOYAGE AVEC EXPLORA !
+            </div>
+        </div>
+
+        <div class="stub-ticket">
+            <div class="stub-header">
+                COUPON PASSAGER
+            </div>
+            <div class="stub-content">
+                <div class="label" style="text-align: center; margin-bottom: 8px;">VALIDATION QR</div>
+                <div class="qr-wrapper">
+                    <img src="{{ qrCode }}" width="105" height="105" alt="QR Code">
+                </div>
+                
+                <div class="price-tag">
+                    <div class="label" style="color: rgba(255,255,255,0.6); margin-bottom: 2px;">TOTAL PAYÉ</div>
+                    <div class="price-val">{{ billet.prixTotal|number_format(2, '.', ' ') }} DT</div>
+                </div>
+
+                <div style="margin-top: 20px; text-align: center; font-size: 9px; color: #8492a6; font-weight: 700;">
+                    PRÉSENTEZ CE COUPON<br>LORS DE L'EMBARQUEMENT
+                </div>
+                
+                <div style="margin-top: 15px; text-align: center; font-size: 11px; font-weight: 800; color: #1e3a5f;">
+                    VOL #{{ billet.transport.numeroVol }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

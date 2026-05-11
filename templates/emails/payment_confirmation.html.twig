@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f6f7fb; color: #1f2d3d; }
+        .card { max-width: 640px; margin: 24px auto; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e9edf5; }
+        .head { background: linear-gradient(135deg, #11998e, #38a3a5); color: #fff; padding: 20px 24px; }
+        .body { padding: 24px; }
+        .ref { font-weight: 700; color: #11998e; }
+        .amount { font-size: 24px; font-weight: 700; color: #1f2d3d; margin: 10px 0; }
+        .muted { color: #6a7688; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="head">
+        <h2 style="margin:0;">Payment Confirmed</h2>
+    </div>
+    <div class="body">
+        <p>Your payment has been completed successfully.</p>
+        <p class="ref">Reference: {{ reference }}</p>
+        <p class="amount">${{ (paiement.montantPaye ?? 0)|number_format(2, '.', ',') }}</p>
+        <p>Method: {{ paiement.methodePaiement ?? 'CARTE' }}</p>
+        <p>Status: {{ paiement.statut ?? 'VALIDE' }}</p>
+        <p class="muted">The invoice PDF is attached to this email.</p>
+    </div>
+</div>
+</body>
+</html>

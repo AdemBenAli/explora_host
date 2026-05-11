@@ -1,0 +1,58 @@
+{% set activePage = activePage|default(active|default('')) %}
+<div class="sidebar" style="width: 250px; background: linear-gradient(180deg, #1e3a5f 0%, #264556 100%); padding: 20px 0; color: white; flex-shrink: 0; height: 100vh; overflow-y: auto;">
+    <!-- Logo -->
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 20px; margin-bottom: 30px;">
+        {{ include('partials/explora_brand.html.twig', {admin: true, logoHeight: 30}) }}
+    </div>
+
+    <!-- Navigation -->
+    <nav style="padding: 0 15px;">
+        <!-- PRINCIPAL -->
+        <p style="font-size: 11px; color: rgba(255,255,255,0.5); font-weight: bold; padding: 10px 10px 5px; margin: 0;">PRINCIPAL</p>
+        <a href="#" style="display: block; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; margin: 5px 0; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(247, 148, 29, 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+            🏠 Accueil
+        </a>
+        <a href="#" style="display: block; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; margin: 5px 0; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(247, 148, 29, 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+            👥 Utilisateurs
+        </a>
+        <a href="{{ path('admin_billet_index') }}" style="display: block; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; margin: 5px 0; border-radius: 8px; {% if activePage == 'billets' %}background: rgba(247, 148, 29, 0.2); color: white; font-weight: bold;{% endif %} transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(247, 148, 29, 0.1)'" onmouseout="{% if activePage != 'billets' %}this.style.backgroundColor='transparent'{% endif %}">
+            🎫 Billets
+        </a>
+        <a href="{{ path('admin_carts_dashboard') }}" style="display: block; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; margin: 5px 0; border-radius: 8px; {% if activePage == 'paniers' %}background: rgba(247, 148, 29, 0.2); color: white; font-weight: bold;{% endif %} transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(247, 148, 29, 0.1)'" onmouseout="{% if activePage != 'paniers' %}this.style.backgroundColor='transparent'{% endif %}">
+            🛒 Paniers
+        </a>
+        <a href="{{ path('admin_payments_dashboard') }}" style="display: block; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; margin: 5px 0; border-radius: 8px; {% if activePage == 'paiements' %}background: rgba(247, 148, 29, 0.2); color: white; font-weight: bold;{% endif %} transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(247, 148, 29, 0.1)'" onmouseout="{% if activePage != 'paiements' %}this.style.backgroundColor='transparent'{% endif %}">
+            💳 Paiements
+        </a>
+
+        <!-- INVENTAIRE -->
+        <p style="font-size: 11px; color: rgba(255,255,255,0.5); font-weight: bold; padding: 20px 10px 5px; margin: 0;">INVENTAIRE</p>
+        <a href="{{ path('admin_transport_index') }}" style="display: block; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; margin: 5px 0; border-radius: 8px; {% if activePage == 'transport' %}background: rgba(247, 148, 29, 0.2); color: white; font-weight: bold;{% endif %} transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(247, 148, 29, 0.1)'" onmouseout="{% if activePage != 'transport' %}this.style.backgroundColor='transparent'{% endif %}">
+            🚆 Transport
+        </a>
+        <a href="{{ path('app_hebergement_index') }}" style="display: block; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; margin: 5px 0; border-radius: 8px; {% if activePage == 'hebergement' %}background: rgba(247, 148, 29, 0.2); color: white; font-weight: bold;{% endif %} transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(247, 148, 29, 0.1)'" onmouseout="{% if activePage != 'hebergement' %}this.style.backgroundColor='transparent'{% endif %}">
+            🏨 Hôtels
+        </a>
+
+        <!-- RAPPORTS -->
+        <p style="font-size: 11px; color: rgba(255,255,255,0.5); font-weight: bold; padding: 20px 10px 5px; margin: 0;">RAPPORTS</p>
+        <a href="#" style="display: block; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; margin: 5px 0; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(247, 148, 29, 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+            📈 Analytique
+        </a>
+        <a href="#" style="display: block; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; margin: 5px 0; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(247, 148, 29, 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+            📢 Réclamations
+        </a>
+        <a href="{{ path('admin_feedbacks_dashboard') }}" style="display: block; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; margin: 5px 0; border-radius: 8px; {% if activePage == 'feedbacks' %}background: rgba(247, 148, 29, 0.2); color: white; font-weight: bold;{% endif %} transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(247, 148, 29, 0.1)'" onmouseout="{% if activePage != 'feedbacks' %}this.style.backgroundColor='transparent'{% endif %}">
+            💬 Feedbacks
+        </a>
+
+        <!-- SYSTÈME -->
+        <p style="font-size: 11px; color: rgba(255,255,255,0.5); font-weight: bold; padding: 20px 10px 5px; margin: 0;">SYSTÈME</p>
+        <a href="#" style="display: block; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; margin: 5px 0; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(247, 148, 29, 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+            ⚙️ Paramètres
+        </a>
+        <a href="#" style="display: block; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; margin: 5px 0; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(255, 68, 68, 0.1)'; this.style.color='#ff4444'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='rgba(255,255,255,0.8)'">
+            🚪 Déconnexion
+        </a>
+    </nav>
+</div>

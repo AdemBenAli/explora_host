@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explora - Payment</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #1a3a5c;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color .25s ease, color .25s ease;
+        }
+
+        body.dark-theme {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,.1);
+            height: 80px;
+            display: flex;
+            align-items: center;
+            padding: 0 50px;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar-brand { font-size: 24px; font-weight: bold; color: #1a3a5c; text-decoration: none; }
+        .navbar-spacer { flex: 1; }
+        .nav-links { display: flex; gap: 10px; align-items: center; }
+        .nav-links a {
+            background: transparent; border: none; color: #1a3a5c; cursor: pointer;
+            font-size: 14px; padding: 8px 14px; text-decoration: none;
+            border-radius: 6px; transition: background .2s;
+        }
+        .nav-links a:hover { background: #f0f2f5; }
+        .navbar-right { display: flex; gap: 15px; align-items: center; }
+        .btn-theme {
+            background: #e9ecef;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn-profile {
+            background: #e9ecef; color: #1a3a5c; border: none; border-radius: 6px;
+            padding: 8px 20px; cursor: pointer; font-size: 14px; text-decoration: none;
+        }
+
+        body.dark-theme .navbar,
+        body.dark-theme .form-card,
+        body.dark-theme .sidebar-card,
+        body.dark-theme .scratch-modal,
+        body.dark-theme .map-picker-modal {
+            background: #111827;
+            box-shadow: 0 2px 12px rgba(0,0,0,.35);
+        }
+
+        body.dark-theme .navbar-brand,
+        body.dark-theme .nav-links a,
+        body.dark-theme .btn-profile,
+        body.dark-theme .form-card h2,
+        body.dark-theme .billing-card-title,
+        body.dark-theme .form-group label,
+        body.dark-theme .expiry-group label,
+        body.dark-theme .cvv-group label,
+        body.dark-theme .sidebar-card h3,
+        body.dark-theme .order-item-name,
+        body.dark-theme .summary-row .value,
+        body.dark-theme .summary-row .label,
+        body.dark-theme .summary-row.total .label,
+        body.dark-theme .secure-checkout-label,
+        body.dark-theme .cancellation-title,
+        body.dark-theme .badge,
+        body.dark-theme .scratch-note {
+            color: #e5e7eb;
+        }
+
+        body.dark-theme .nav-links a:hover {
+            background: #1f2937;
+        }
+
+        body.dark-theme .btn-theme,
+        body.dark-theme .btn-profile,
+        body.dark-theme .btn-back,
+        body.dark-theme .badge,
+        body.dark-theme .form-control,
+        body.dark-theme .expiry-selects select,
+        body.dark-theme .cvv-input {
+            background: #1f2937;
+            color: #e5e7eb;
+            border-color: #374151;
+        }
+
+        body.dark-theme .form-control:focus {
+            background: #111827;
+            border-color: #11998e;
+        }
+
+        body.dark-theme .method-option {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        body.dark-theme .method-option .method-sub,
+        body.dark-theme .order-item-qty,
+        body.dark-theme .cancellation-text,
+        body.dark-theme .scratch-note {
+            color: #94a3b8;
+        }
+
+        body.dark-theme .suggestions-list,
+        body.dark-theme .suggestion-item {
+            background: #111827;
+            color: #e5e7eb;
+            border-color: #1f2937;
+        }
+
+        body.dark-theme .suggestion-item:hover {
+            background: #1f2937;
+        }
+
+        body.dark-theme .sidebar-sep,
+        body.dark-theme .form-sep {
+            border-top-color: #1f2937;
+        }
+
+        /* ── Secure Payment Banner ── */
+        .secure-banner {
+            background: #11998e;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .secure-banner .title { color: white; font-weight: bold; font-size: 14px; }
+        .secure-banner .subtitle { color: rgba(255,255,255,.9); font-size: 12px; }
+
+        /* ── Main layout ── */
+        .payment-layout {
+            display: flex;
+            gap: 30px;
+            padding: 30px 50px 40px;
+            align-items: flex-start;
+            flex: 1;
+        }
+
+        /* ── Left form col ── */
+        .payment-form-col { flex: 1; max-width: 700px; display: flex; flex-direction: column; gap: 25px; }
+
+        .form-card {
+            background: white; border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.08);
+            padding: 25px;
+        }
+        .form-card h2 { font-size: 20px; font-weight: bold; color: #1a3a5c; margin-bottom: 16px; }
+        .form-sep { border: none; border-top: 1px solid #f0f0f0; margin: 12px 0 20px; }
+
+        /* ── Payment Method Toggle ── */
+        .payment-method-row { display: flex; gap: 15px; justify-content: center; margin-bottom: 16px; }
+        .method-option {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 200px; height: 80px;
+            border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer;
+            background: white; transition: border-color .2s;
+        }
+        .method-option.active { border-color: #635bff; }
+        .method-option .method-name { font-weight: bold; font-size: 14px; }
+        .method-option.stripe .method-name { color: #635bff; }
+        .method-option.paypal .method-name { color: #003087; }
+        .method-option .method-sub { font-size: 11px; color: #6c757d; margin-top: 2px; }
+        .secure-stripe-note { color: #635bff; font-size: 12px; font-weight: bold; margin-top: 4px; }
+
+        /* ── Credit Card Preview ── */
+        .card-preview-wrapper { display: flex; justify-content: center; }
+        .credit-card {
+            width: 420px; height: 250px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.3);
+            padding: 25px 30px;
+            position: relative;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .card-corner-dots {
+            position: absolute; display: flex; gap: 4px; opacity: .35; font-size: 10px;
+        }
+        .card-corner-dots.tl { top: 16px; left: 20px; }
+        .card-corner-dots.tr { top: 16px; right: 20px; }
+
+        .card-header { display: flex; align-items: center; justify-content: space-between; }
+        .card-chip {
+            width: 44px; height: 34px; background: linear-gradient(135deg, #d4a843, #b8922a);
+            border-radius: 5px;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,.35), inset 0 -1px 2px rgba(0,0,0,.25);
+        }
+
+        .card-brand {
+            min-width: 110px;
+            height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        .card-brand img {
+            display: block;
+            max-width: 106px;
+            max-height: 44px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+        .card-brand img.logo-mastercard {
+            max-width: 72px;
+            max-height: 38px;
+        }
+        .card-brand img.logo-visa {
+            max-width: 106px;
+            max-height: 34px;
+        }
+        .card-brand img.logo-discover,
+        .card-brand img.logo-amex {
+            max-width: 94px;
+            max-height: 42px;
+            border-radius: 6px;
+        }
+        .card-brand.brand-default {
+            background: rgba(255,255,255,.18);
+            border: 1px solid rgba(255,255,255,.28);
+            color: rgba(255,255,255,.9);
+            font-size: 14px;
+            letter-spacing: 1px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+        .card-type-label {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            clip-path: inset(50%);
+        }
+
+        .card-number { font-size: 20px; letter-spacing: 4px; text-align: center; margin: 10px 0; }
+        .card-number span { margin: 0 4px; }
+
+        .card-footer { display: flex; justify-content: space-between; align-items: flex-end; }
+        .card-field label { font-size: 10px; opacity: .7; text-transform: uppercase; letter-spacing: 1px; }
+        .card-field p { font-weight: bold; font-size: 14px; margin-top: 2px; }
+
+        /* ── Card Details Form ── */
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: bold; color: #1a3a5c; margin-bottom: 6px; font-size: 14px; }
+        .form-control {
+            width: 100%; border: 1px solid #dee2e6; border-radius: 6px;
+            padding: 0 14px; height: 45px; font-size: 14px; background: #f7f8fa;
+            transition: border-color .2s;
+        }
+        .form-control:focus { outline: none; border-color: #11998e; background: white; }
+        .form-control[disabled] { opacity: .5; cursor: not-allowed; }
+        .form-control.is-invalid, .cvv-input.is-invalid, .expiry-selects select.is-invalid {
+            border-color: #e74c3c;
+            background: #fff6f6;
+        }
+        .field-error {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 6px;
+            min-height: 16px;
+            font-weight: 600;
+        }
+        .address-suggestions {
+            position: relative;
+        }
+        .suggestions-list {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            z-index: 50;
+            border: 1px solid #d9dee4;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0,0,0,.08);
+            max-height: 220px;
+            overflow-y: auto;
+            display: none;
+        }
+        .suggestion-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            border-bottom: 1px solid #f1f3f5;
+        }
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        .suggestion-item:hover {
+            background: #f8fafc;
+        }
+
+        .map-picker-row {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .btn-map-picker {
+            background: #e8f3ff;
+            color: #1a3a5c;
+            border: 1px solid #bfdcff;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+        .btn-map-picker:hover {
+            background: #d6ebff;
+            border-color: #97c9fb;
+        }
+
+        /* Card number row */
+        .card-number-row { display: flex; gap: 10px; }
+        .card-number-row .form-control { flex: 1; }
+        .btn-validate {
+            background: #11998e; color: white; border: none; border-radius: 6px;
+            padding: 0 24px; font-size: 14px; font-weight: bold; cursor: pointer;
+            height: 45px; white-space: nowrap;
+        }
+        .card-validation-status {
+            min-height: 22px;
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .card-validation-status.warning { color: #f39c12; }
+        .card-validation-status.success { color: #27ae60; }
+        .card-validation-status.error { color: #e74c3c; }
+
+        /* Expiry + CVV row */
+        .expiry-cvv-row { display: flex; gap: 20px; align-items: flex-end; }
+        .expiry-group { display: flex; flex-direction: column; }
+        .expiry-group label { font-weight: bold; color: #1a3a5c; margin-bottom: 6px; font-size: 14px; }
+        .expiry-selects { display: flex; gap: 10px; }
+        .expiry-selects select {
+            border: 1px solid #dee2e6; border-radius: 6px; padding: 0 10px;
+            height: 45px; font-size: 14px; background: #f7f8fa; cursor: pointer; width: 100px;
+        }
+        .cvv-group { display: flex; flex-direction: column; }
+        .cvv-group label { font-weight: bold; color: #1a3a5c; margin-bottom: 6px; font-size: 14px; }
+        .cvv-input {
+            border: 1px solid #dee2e6; border-radius: 6px; padding: 0 14px;
+            height: 45px; font-size: 14px; background: #f7f8fa; width: 100px;
+            letter-spacing: 3px;
+        }
+
+        .save-card-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+        .save-card-row input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: #11998e; }
+        .save-card-row label { font-size: 14px; cursor: pointer; }
+
+        /* ── Billing Address Form ── */
+        .billing-card-title { font-size: 18px; font-weight: bold; color: #1a3a5c; margin-bottom: 14px; }
+
+        /* ── Terms ── */
+        .terms-section { display: flex; flex-direction: column; gap: 12px; }
+        .terms-row { display: flex; align-items: center; gap: 8px; }
+        .terms-row input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: #11998e; }
+        .terms-row label { font-size: 14px; cursor: pointer; }
+        .terms-row label.bold { font-weight: bold; }
+
+        /* ── Nav buttons ── */
+        .nav-buttons { display: flex; gap: 15px; justify-content: flex-end; }
+        .btn-back {
+            background: #e9ecef; color: #1a3a5c; border: none; border-radius: 5px;
+            padding: 12px 25px; font-size: 14px; cursor: pointer; text-decoration: none;
+            display: inline-flex; align-items: center;
+        }
+        .btn-complete {
+            background: #f7941d; color: white; border: none; border-radius: 5px;
+            padding: 12px 25px; font-size: 14px; font-weight: bold; cursor: pointer;
+            min-width: 200px;
+        }
+        .btn-complete:disabled { opacity: .6; cursor: not-allowed; }
+
+        /* ── Sidebar ── */
+        .sidebar { width: 380px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
+
+        .sidebar-card {
+            background: white; border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.08);
+            padding: 20px 25px;
+        }
+        .sidebar-card h3 { font-size: 18px; font-weight: bold; color: #1a3a5c; margin-bottom: 14px; }
+        .sidebar-sep { border: none; border-top: 1px solid #f0f0f0; margin: 12px 0; }
+
+        .order-item-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+        .order-item-name { font-weight: bold; font-size: 14px; color: #1a3a5c; }
+        .order-item-qty { font-size: 12px; color: #6c757d; }
+        .order-item-price { font-weight: bold; font-size: 14px; color: #f7941d; }
+
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; }
+        .summary-row .label { color: #333; }
+        .summary-row .value { font-weight: bold; color: #1a3a5c; }
+        .summary-row.discount-row .label,
+        .summary-row.discount-row .value { color: #11998e; }
+        .summary-row.total .label { font-size: 20px; font-weight: bold; color: #1a3a5c; }
+        .summary-row.total .value { font-size: 20px; font-weight: bold; color: #f7941d; }
+
+        /* Security badges */
+        .secure-checkout-label { font-weight: bold; font-size: 14px; text-align: center; margin-bottom: 12px; }
+        .badges-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .badge {
+            background: #e9ecef; border-radius: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: bold; color: #1a3a5c;
+        }
+
+        /* Cancellation */
+        .cancellation-title { font-weight: bold; font-size: 14px; margin-bottom: 8px; }
+        .cancellation-text { color: #6c757d; font-size: 12px; line-height: 1.5; }
+
+        /* ── Footer ── */
+        footer { background: #0f2540; padding: 40px 100px 20px; text-align: center; margin-top: auto; }
+        footer p { color: rgba(255,255,255,.5); font-size: 12px; }
+
+        .scratch-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 37, 64, .72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        .scratch-modal {
+            width: min(440px, 100%);
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(0,0,0,.28);
+        }
+        .scratch-head {
+            background: linear-gradient(120deg, #11998e, #38ef7d);
+            color: #fff;
+            text-align: center;
+            padding: 18px 20px;
+        }
+        .scratch-head h3 { font-size: 22px; margin-bottom: 4px; }
+        .scratch-content { padding: 18px 20px 20px; text-align: center; }
+        .scratch-note { color: #6c757d; font-size: 13px; margin-bottom: 10px; }
+        .scratch-canvas-wrap {
+            width: 320px;
+            height: 170px;
+            margin: 0 auto 12px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .scratch-reward {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background: linear-gradient(135deg, #f7941d, #ff6b6b);
+            padding: 12px;
+        }
+        .scratch-reward.no-win {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        .scratch-discount { font-size: 34px; font-weight: 800; line-height: 1; }
+        .scratch-code { margin-top: 8px; font-size: 14px; font-weight: 700; }
+        #scratchCanvas {
+            position: absolute;
+            inset: 0;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        .scratch-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .scratch-btn {
+            border: none;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .scratch-btn.primary { background: #1a3a5c; color: #fff; }
+        .scratch-btn.light { background: #edf2f7; color: #1a3a5c; }
+
+        .feedback-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .68);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+        .feedback-modal {
+            width: min(560px, 100%);
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 20px 50px rgba(0,0,0,.3);
+            overflow: hidden;
+        }
+        .feedback-head {
+            background: linear-gradient(120deg, #1a3a5c, #2d5a8a);
+            color: #fff;
+            padding: 16px 20px;
+        }
+        .feedback-head h3 { margin: 0; font-size: 22px; }
+        .feedback-content { padding: 18px 20px 20px; }
+        .feedback-content p { margin-bottom: 12px; color: #3b4252; }
+        .feedback-textarea {
+            width: 100%;
+            min-height: 130px;
+            border: 1px solid #d9dee4;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            resize: vertical;
+            outline: none;
+        }
+        .feedback-textarea:focus {
+            border-color: #1a3a5c;
+        }
+        .feedback-error {
+            color: #b91c1c;
+            font-size: 13px;
+            margin-top: 8px;
+            min-height: 18px;
+        }
+        .feedback-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .feedback-btn {
+            border: none;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .feedback-btn.secondary { background: #edf2f7; color: #1a3a5c; }
+        .feedback-btn.primary { background: #1a3a5c; color: #fff; }
+
+        .map-picker-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .74);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10020;
+            padding: 20px;
+        }
+        .map-picker-modal {
+            width: min(900px, 100%);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 24px 60px rgba(0,0,0,.3);
+            overflow: hidden;
+        }
+        .map-picker-head {
+            background: linear-gradient(120deg, #1a3a5c, #2d5a8a);
+            color: #fff;
+            padding: 16px 20px;
+        }
+        .map-picker-head h3 {
+            margin: 0;
+            font-size: 22px;
+        }
+        .map-picker-content {
+            padding: 16px 20px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+        }
+        .map-picker-search {
+            width: 100%;
+            border: 1px solid #d9dee4;
+            border-radius: 8px;
+            padding: 0 12px;
+            height: 44px;
+            font-size: 14px;
+            outline: none;
+        }
+        .map-picker-search:focus {
+            border-color: #1a3a5c;
+        }
+        .map-picker-results {
+            border: 1px solid #d9dee4;
+            border-radius: 8px;
+            max-height: 160px;
+            overflow-y: auto;
+            display: none;
+            background: #fff;
+        }
+        .map-picker-result-item {
+            padding: 9px 10px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 1px solid #eef2f6;
+            color: #334155;
+        }
+        .map-picker-result-item:last-child {
+            border-bottom: none;
+        }
+        .map-picker-result-item:hover {
+            background: #f8fafc;
+        }
+        .map-picker-note {
+            margin: 0;
+            font-size: 13px;
+            color: #52627a;
+        }
+        #mapPickerCanvas {
+            width: 100%;
+            height: 420px;
+            border-radius: 10px;
+            border: 1px solid #d9dee4;
+            background: #f3f6fb;
+        }
+        .map-picker-error {
+            margin: 0;
+            min-height: 18px;
+            color: #b91c1c;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .map-picker-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .map-picker-btn {
+            border: none;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .map-picker-btn.secondary { background: #edf2f7; color: #1a3a5c; }
+        .map-picker-btn.primary { background: #1a3a5c; color: #fff; }
+        .map-picker-btn.primary:disabled { opacity: .6; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            #mapPickerCanvas {
+                height: 320px;
+            }
+        }
+
+        body.dark-theme .btn-map-picker,
+        body.dark-theme .map-picker-search,
+        body.dark-theme .map-picker-results,
+        body.dark-theme .map-picker-result-item,
+        body.dark-theme #mapPickerCanvas,
+        body.dark-theme .map-picker-btn.secondary {
+            background: #1f2937;
+            color: #e5e7eb;
+            border-color: #374151;
+        }
+
+        body.dark-theme .map-picker-note {
+            color: #94a3b8;
+        }
+
+    </style>
+</head>
+<body>
+{% set scratchRewards = app.flashes('scratch_reward') %}
+{% set scratchReward = scratchRewards|first %}
+
+{# ── TOP NAVIGATION BAR ── #}
+<nav class="navbar">
+    <a href="{{ path('app_home') }}" class="navbar-brand">EXPLORA</a>
+    <div class="navbar-spacer"></div>
+    <div class="nav-links">
+        
+    </div>
+    <div class="navbar-spacer"></div>
+    <div class="navbar-right">
+        <button class="btn-theme" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
+        {% if app.user %}
+            
+        {% else %}
+            
+        {% endif %}
+    </div>
+</nav>
+
+{# ── SECURE PAYMENT BANNER ── #}
+<div class="secure-banner">
+    <span class="title">🔒 Secure Payment</span>
+    <span class="subtitle">Your payment is protected with 256-bit SSL encryption</span>
+</div>
+
+{# ── MAIN PAYMENT CONTENT ── #}
+<form action="{{ path('payment_process') }}" method="post" id="paymentForm" novalidate>
+<input type="hidden" name="_token" value="{{ csrf_token('payment') }}">
+
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div style="margin: 20px 50px 0; padding: 15px; border-radius: 8px; background: {% if label == 'success' %}#ecfdf5{% else %}#fff1f2{% endif %}; border: 1px solid {% if label == 'success' %}#bbf7d0{% else %}#fecdd3{% endif %}; color: {% if label == 'success' %}#166534{% else %}#9f1239{% endif %}; font-weight: bold;">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endfor %}
+
+<div class="payment-layout">
+
+    {# ── LEFT: Payment Form ── #}
+    <div class="payment-form-col">
+
+        {# Payment Method Selection #}
+        <div class="form-card">
+            <h2>Payment Method</h2>
+            <hr class="form-sep">
+
+            <div class="payment-method-row">
+                <div class="method-option stripe active" id="creditCardOption" onclick="selectMethod('credit')">
+                    <span class="method-name">💳 CREDIT CARD</span>
+                    <span class="method-sub">Powered by Stripe</span>
+                </div>
+                <div class="method-option paypal" id="paypalOption" onclick="selectMethod('paypal')">
+                    <span class="method-name">🅿 PAYPAL</span>
+                    <span class="method-sub">Pay with PayPal</span>
+                </div>
+            </div>
+            <input type="hidden" name="payment_method" id="paymentMethodInput" value="credit">
+            <p class="secure-stripe-note" id="paymentMethodInfo">✓ Secure payment processing powered by Stripe</p>
+        </div>
+
+        {# Card Preview #}
+        <div class="form-card card-preview-wrapper" id="cardPreviewSection">
+            <div class="credit-card">
+                <div class="card-corner-dots tl"><span>●</span><span>●</span><span>●</span></div>
+                <div class="card-corner-dots tr"><span>●</span><span>●</span><span>●</span></div>
+
+                <div class="card-header">
+                    <div class="card-chip"></div>
+                    <span class="card-type-label" id="cardTypeLabel">CARD</span>
+                    <div id="cardBrand" class="card-brand brand-default">CARD</div>
+                </div>
+
+                <div class="card-number">
+                    <span id="cn1">●●●●</span>
+                    <span id="cn2">●●●●</span>
+                    <span id="cn3">●●●●</span>
+                    <span id="cn4">●●●●</span>
+                </div>
+
+                <div class="card-footer">
+                    <div class="card-field">
+                        <label>Card Holder</label>
+                        <p id="previewName">YOUR NAME</p>
+                    </div>
+                    <div class="card-field">
+                        <label>Expires</label>
+                        <p id="previewExpiry">MM/YY</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Card Details #}
+        <div class="form-card" id="cardDetailsSection">
+            <h2>Card Details</h2>
+            <hr class="form-sep">
+
+            <div class="form-group">
+                <label for="cardholderName">Cardholder Name</label>
+                <input type="text" id="cardholderName" name="cardholder_name"
+                      class="form-control" placeholder="Name as it appears on card"
+                      minlength="2" maxlength="80" pattern="[A-Za-zÀ-ÿ'\-\s]{2,80}"
+                       oninput="updatePreviewName(this.value)">
+            </div>
+
+            <div class="form-group">
+                <label for="cardNumber">Card Number</label>
+                <div class="card-number-row">
+                    <input type="text" id="cardNumber" name="card_number"
+                           class="form-control" placeholder="1234 5678 9012 3456"
+                              maxlength="19" inputmode="numeric" autocomplete="cc-number"
+                              oninput="formatCardNumber(this)">
+                    <button type="button" class="btn-validate" onclick="validateCard()">Validate</button>
+                </div>
+                <p id="cardValidationStatus" class="card-validation-status"></p>
+            </div>
+
+            <div class="expiry-cvv-row">
+                <div class="expiry-group">
+                    <label>Expiry Date</label>
+                    <div class="expiry-selects">
+                        <select name="expiry_month" id="expiryMonth" onchange="updatePreviewExpiry()">
+                            <option value="">MM</option>
+                            {% for m in 1..12 %}
+                                <option value="{{ '%02d'|format(m) }}">{{ '%02d'|format(m) }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="expiry_year" id="expiryYear" onchange="updatePreviewExpiry()">
+                            <option value="">YYYY</option>
+                            {% for y in 'now'|date('Y')..'now'|date('Y') + 10 %}
+                                <option value="{{ y }}">{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="cvv-group">
+                    <label for="cvv">CVV</label>
+                    <input type="password" id="cvv" name="cvv" class="cvv-input" placeholder="***" maxlength="4" inputmode="numeric" pattern="\d{3,4}" autocomplete="cc-csc">
+                </div>
+            </div>
+
+            <div class="save-card-row">
+                <input type="checkbox" id="saveCard" name="save_card">
+                <label for="saveCard">Save this card for future payments</label>
+            </div>
+        </div>
+
+        {# Billing Address #}
+        <div class="form-card">
+            <p class="billing-card-title">Billing Address</p>
+            <hr class="form-sep">
+
+            <div class="map-picker-row">
+                <button type="button" id="mapPickerOpenBtn" class="btn-map-picker">Select on map</button>
+            </div>
+
+            <div class="form-group">
+                <label for="countrySelect">Country</label>
+                <select id="countrySelect" name="country" class="form-control" onchange="loadCities(this.value)" required>
+                    <option value="">Select Country</option>
+                    {% for country in countries %}
+                        <option value="{{ country.code }}" {{ billingCountry == country.code ? 'selected' }}>{{ country.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="citySelect">City</label>
+                <select id="citySelect" name="city" class="form-control" {{ billingCountry ? '' : 'disabled' }} required>
+                    <option value="">Select City (Choose country first)</option>
+                    {% for city in cities %}
+                        <option value="{{ city.name }}" {{ billingCity == city.name ? 'selected' }}>{{ city.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="streetField">Street Address</label>
+                <div class="address-suggestions">
+                    <input type="text" id="streetField" name="street"
+                           class="form-control" placeholder="123 Main Street"
+                          minlength="5" maxlength="120" required autocomplete="off"
+                           value="{{ billingStreet ?? '' }}">
+                    <div id="streetSuggestions" class="suggestions-list"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="postalCodeField">Postal Code</label>
+                <input type="text" id="postalCodeField" name="postal_code"
+                       class="form-control" placeholder="10001"
+                      pattern="[A-Za-z0-9\-\s]{3,12}" required
+                       value="{{ billingPostal ?? '' }}">
+            </div>
+        </div>
+
+        {# Terms & Conditions #}
+        <div class="form-card terms-section">
+            <div class="terms-row">
+                <input type="checkbox" id="termsCheckbox" name="terms" required>
+                <label for="termsCheckbox" class="bold">I agree to the Terms and Conditions and Privacy Policy</label>
+            </div>
+            <div class="terms-row">
+                <input type="checkbox" id="promoEmailsCheckbox" name="promo_emails">
+                <label for="promoEmailsCheckbox">I agree to receive promotional emails about exclusive offers</label>
+            </div>
+        </div>
+
+        {# Navigation Buttons #}
+        <div class="nav-buttons">
+            <a href="{{ path('cart') }}" class="btn-back">← Back to Cart</a>
+            <button type="submit" class="btn-complete" id="completePaymentBtn">
+                Complete Payment — ${{ total|number_format(0, '.', ',') }}
+            </button>
+        </div>
+    </div>
+
+    {# ── RIGHT: Sidebar ── #}
+    <div class="sidebar">
+
+        {# Order Summary #}
+        <div class="sidebar-card">
+            <h3>Order Summary</h3>
+            <hr class="sidebar-sep">
+
+            <div id="orderItemsContainer">
+                {% for item in cartItems %}
+                <div class="order-item-row">
+                    <div>
+                        <div class="order-item-name">{{ item.name }}</div>
+                        <div class="order-item-qty">Qty: {{ item.quantity }} × ${{ item.pricePerPerson }}</div>
+                    </div>
+                    <span class="order-item-price">${{ (item.pricePerPerson * item.quantity)|number_format(0, '.', ',') }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr class="sidebar-sep">
+
+            <div class="summary-row">
+                <span class="label">Subtotal</span>
+                <span class="value" id="subtotalLabel">${{ subtotal|number_format(0, '.', ',') }}</span>
+            </div>
+            <div class="summary-row">
+                <span class="label">Taxes (10%)</span>
+                <span class="value" id="taxLabel">${{ taxes|number_format(0, '.', ',') }}</span>
+            </div>
+            {% if discount > 0 %}
+            <div class="summary-row discount-row" id="discountRow">
+                <span class="label" id="discountTextLabel">🎟 {{ promoCode }} ({{ discountPercent }}%)</span>
+                <span class="value" id="discountLabel">-${{ discount|number_format(0, '.', ',') }}</span>
+            </div>
+            {% endif %}
+
+            <hr class="sidebar-sep">
+
+            <div class="summary-row total">
+                <span class="label">Total</span>
+                <span class="value" id="totalLabel">${{ total|number_format(0, '.', ',') }}</span>
+            </div>
+        </div>
+
+        {# Secure Checkout Badges #}
+        <div class="sidebar-card" style="text-align:center;">
+            <p class="secure-checkout-label">🔒 Secure Checkout</p>
+            <div class="badges-row">
+                <span class="badge">SSL</span>
+                <span class="badge">PCI DSS</span>
+                <span class="badge">VERIFIED</span>
+            </div>
+        </div>
+
+        {# Cancellation Policy #}
+        <div class="sidebar-card">
+            <p class="cancellation-title">📋 Cancellation Policy</p>
+            <p class="cancellation-text">Free cancellation up to 7 days before departure. After that, 50% of the booking amount will be charged.</p>
+        </div>
+    </div>
+</div>
+</form>
+
+{% if scratchReward %}
+<div id="scratchOverlay" class="scratch-overlay" role="dialog" aria-modal="true" aria-label="Scratch reward">
+    <div class="scratch-modal">
+        <div class="scratch-head">
+            <h3>Payment Successful</h3>
+            <p>You earned a scratch card reward</p>
+        </div>
+        <div class="scratch-content">
+            <p class="scratch-note">Scratch the silver layer to reveal your reward.</p>
+            <div class="scratch-canvas-wrap">
+                <div id="scratchReward" class="scratch-reward {{ scratchReward.discount > 0 ? '' : 'no-win' }}">
+                    {% if scratchReward.discount > 0 %}
+                        <p class="scratch-discount">{{ scratchReward.discount }}% OFF</p>
+                        <p class="scratch-code">{{ scratchReward.code }}</p>
+                        <p>Use this code in your next cart.</p>
+                    {% else %}
+                        <p class="scratch-discount">0%</p>
+                        <p>Better luck next time.</p>
+                    {% endif %}
+                </div>
+                <canvas id="scratchCanvas" width="320" height="170"></canvas>
+            </div>
+            <div class="scratch-actions">
+                <button type="button" id="scratchRevealBtn" class="scratch-btn light">Reveal All</button>
+                <button type="button" id="scratchCloseBtn" class="scratch-btn primary">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div id="feedbackOverlay" class="feedback-overlay" role="dialog" aria-modal="true" aria-label="Leave feedback">
+    <div class="feedback-modal">
+        <div class="feedback-head">
+            <h3>Leave a feedback for your experience with Explora</h3>
+        </div>
+        <div class="feedback-content">
+            <p>We would love to hear your thoughts after completing your payment.</p>
+            <textarea id="feedbackMessage" class="feedback-textarea" placeholder="Write your feedback here..."></textarea>
+            <p id="feedbackError" class="feedback-error"></p>
+            <div class="feedback-actions">
+                <button type="button" id="feedbackSkipBtn" class="feedback-btn secondary">Skip</button>
+                <button type="button" id="feedbackSubmitBtn" class="feedback-btn primary">Send Feedback</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="mapPickerOverlay" class="map-picker-overlay" role="dialog" aria-modal="true" aria-label="Select billing place on map">
+    <div class="map-picker-modal">
+        <div class="map-picker-head">
+            <h3>Select billing address on map</h3>
+        </div>
+        <div class="map-picker-content">
+            <input type="text" id="mapPickerSearch" class="map-picker-search" placeholder="Search for a place, address, or area">
+            <div id="mapPickerResults" class="map-picker-results"></div>
+            <p class="map-picker-note">Pick a location on the map, then use it to auto-fill your billing form.</p>
+            <div id="mapPickerCanvas"></div>
+            <p id="mapPickerError" class="map-picker-error"></p>
+            <div class="map-picker-actions">
+                <button type="button" id="mapPickerCancelBtn" class="map-picker-btn secondary">Cancel</button>
+                <button type="button" id="mapPickerUseBtn" class="map-picker-btn primary" disabled>Use this place</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── FOOTER ── #}
+<footer>
+    <p>© 2026 Explora. All rights reserved.</p>
+</footer>
+
+<script>
+function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+    localStorage.setItem('explora-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+        btn.textContent = document.body.classList.contains('dark-theme') ? '☀️' : '🌙';
+    }
+}
+
+function applySavedTheme() {
+    const savedTheme = localStorage.getItem('explora-theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+        btn.textContent = document.body.classList.contains('dark-theme') ? '☀️' : '🌙';
+    }
+}
+
+applySavedTheme();
+
+let isCardValidated = false;
+
+const CARD_THEME_MAP = {
+    default: {
+        label: 'CARD',
+        gradient: 'linear-gradient(135deg, #1e3c72, #2a5298)',
+        chipGradient: 'linear-gradient(135deg, #d4a843, #b8922a)',
+    },
+    visa: {
+        label: 'VISA',
+        gradient: 'linear-gradient(135deg, #1f2b8f, #313ea8)',
+        chipGradient: 'linear-gradient(135deg, #d5b560, #a9852f)',
+    },
+    mastercard: {
+        label: 'MASTERCARD',
+        gradient: 'linear-gradient(135deg, #ff0015, #ff9c1a)',
+        chipGradient: 'linear-gradient(135deg, #ce9e44, #9f782d)',
+    },
+    discover: {
+        label: 'DISCOVER',
+        gradient: 'linear-gradient(135deg, #ff7a00, #ff9f00)',
+        chipGradient: 'linear-gradient(135deg, #e3ba71, #b58633)',
+    },
+    amex: {
+        label: 'AMEX',
+        gradient: 'linear-gradient(135deg, #1679c8, #1ba3d8)',
+        chipGradient: 'linear-gradient(135deg, #cba45f, #98742f)',
+    },
+};
+
+const CARD_LOGO_MAP = {
+    visa: {
+        src: '/assets/card-logos/visa-logo.png',
+        cls: 'logo-visa',
+        alt: 'Visa',
+    },
+    mastercard: {
+        src: '/assets/card-logos/mastercard-logo.png',
+        cls: 'logo-mastercard',
+        alt: 'Mastercard',
+    },
+    discover: {
+        src: '/assets/card-logos/discover-logo.png',
+        cls: 'logo-discover',
+        alt: 'Discover',
+    },
+    amex: {
+        src: '/assets/card-logos/amex-logo.png',
+        cls: 'logo-amex',
+        alt: 'American Express',
+    },
+};
+
+const countrySelectEl = document.getElementById('countrySelect');
+const citySelectEl = document.getElementById('citySelect');
+const streetFieldEl = document.getElementById('streetField');
+const streetSuggestionsEl = document.getElementById('streetSuggestions');
+const mapPickerOpenBtn = document.getElementById('mapPickerOpenBtn');
+const mapPickerOverlay = document.getElementById('mapPickerOverlay');
+const mapPickerSearchEl = document.getElementById('mapPickerSearch');
+const mapPickerResultsEl = document.getElementById('mapPickerResults');
+const mapPickerErrorEl = document.getElementById('mapPickerError');
+const mapPickerUseBtn = document.getElementById('mapPickerUseBtn');
+const mapPickerCancelBtn = document.getElementById('mapPickerCancelBtn');
+const postalCodeEl = document.getElementById('postalCodeField');
+const countriesApiUrl = '/api/countries';
+const citiesApiUrl = '/api/cities';
+const addressSuggestionsApiUrl = '/api/address-suggestions';
+const initialCountry = {{ billingCountry is not null ? billingCountry|json_encode|raw : 'null' }};
+const initialCity = {{ billingCity is not null ? billingCity|json_encode|raw : 'null' }};
+const scratchRewardData = {{ scratchReward ? scratchReward|json_encode|raw : 'null' }};
+const feedbackStoreUrl = '{{ path('payment_feedback_store') }}';
+let streetDebounceTimer = null;
+let mapPickerMap = null;
+let mapPickerMarker = null;
+let selectedMapPlace = null;
+let mapSearchDebounceTimer = null;
+
+const feedbackOverlay = document.getElementById('feedbackOverlay');
+const feedbackMessage = document.getElementById('feedbackMessage');
+const feedbackError = document.getElementById('feedbackError');
+const feedbackSubmitBtn = document.getElementById('feedbackSubmitBtn');
+const feedbackSkipBtn = document.getElementById('feedbackSkipBtn');
+
+function openFeedbackModal() {
+    if (!feedbackOverlay) return;
+    feedbackOverlay.style.display = 'flex';
+    if (feedbackMessage) {
+        feedbackMessage.value = '';
+        setTimeout(() => feedbackMessage.focus(), 20);
+    }
+    if (feedbackError) {
+        feedbackError.textContent = '';
+    }
+}
+
+function closeFeedbackModal() {
+    if (feedbackOverlay) {
+        feedbackOverlay.style.display = 'none';
+    }
+}
+
+async function submitFeedback() {
+    if (!feedbackMessage) return;
+    const message = String(feedbackMessage.value || '').trim();
+
+    if (message.length < 3) {
+        if (feedbackError) {
+            feedbackError.textContent = 'Please enter at least 3 characters.';
+        }
+        return;
+    }
+
+    if (feedbackSubmitBtn) {
+        feedbackSubmitBtn.disabled = true;
+        feedbackSubmitBtn.textContent = 'Sending...';
+    }
+    if (feedbackError) {
+        feedbackError.textContent = '';
+    }
+
+    try {
+        const csrfInput = document.querySelector('input[name="_token"]');
+        const csrfToken = csrfInput ? csrfInput.value : '';
+
+        const body = new URLSearchParams();
+        body.set('_token', csrfToken);
+        body.set('message', message);
+
+        const response = await fetch(feedbackStoreUrl, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Accept': 'application/json'
+            },
+            body: body.toString()
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || payload.error) {
+            throw new Error(payload.error || 'Failed to send feedback.');
+        }
+
+        closeFeedbackModal();
+        alert('Thank you for your feedback!');
+    } catch (error) {
+        if (feedbackError) {
+            feedbackError.textContent = error.message || 'Failed to send feedback.';
+        }
+    } finally {
+        if (feedbackSubmitBtn) {
+            feedbackSubmitBtn.disabled = false;
+            feedbackSubmitBtn.textContent = 'Send Feedback';
+        }
+    }
+}
+
+feedbackSubmitBtn?.addEventListener('click', submitFeedback);
+feedbackSkipBtn?.addEventListener('click', closeFeedbackModal);
+feedbackOverlay?.addEventListener('click', (event) => {
+    if (event.target === feedbackOverlay) {
+        closeFeedbackModal();
+    }
+});
+
+function extractAddressParts(place) {
+    const addr = place?.address || {};
+    const countryCode = String(addr.country_code || '').toUpperCase();
+    const city = String(
+        addr.city ||
+        addr.town ||
+        addr.village ||
+        addr.municipality ||
+        addr.county ||
+        addr.state_district ||
+        addr.state ||
+        ''
+    ).trim();
+    const postalCode = String(addr.postcode || '').trim();
+
+    let street = [addr.house_number || '', addr.road || ''].filter(Boolean).join(' ').trim();
+    if (!street) {
+        street = String(addr.neighbourhood || addr.suburb || '').trim();
+    }
+    if (!street) {
+        const display = String(place?.display_name || '').trim();
+        street = display ? (display.split(',')[0] || '').trim() : '';
+    }
+
+    return {
+        street,
+        postalCode,
+        countryCode,
+        city,
+    };
+}
+
+function upsertCityOption(cityName) {
+    if (!cityName) {
+        return;
+    }
+
+    const normalized = cityName.trim().toLowerCase();
+    const existingOption = Array.from(citySelectEl.options).find((option) => option.value.trim().toLowerCase() === normalized);
+
+    if (!existingOption) {
+        const option = document.createElement('option');
+        option.value = cityName;
+        option.textContent = cityName;
+        citySelectEl.appendChild(option);
+    }
+
+    citySelectEl.value = cityName;
+    clearFieldError(citySelectEl);
+}
+
+async function applyMapPlaceToBilling(place) {
+    const { street, postalCode, countryCode, city } = extractAddressParts(place);
+
+    if (!countryCode) {
+        throw new Error('Selected place has no country. Please choose a more precise place.');
+    }
+
+    const countryOption = Array.from(countrySelectEl.options).find((option) => option.value.toUpperCase() === countryCode);
+    if (!countryOption) {
+        throw new Error('Country from selected place is not supported in this checkout form.');
+    }
+
+    countrySelectEl.value = countryCode;
+    clearFieldError(countrySelectEl);
+
+    await loadCities(countryCode, city || null);
+    if (city) {
+        upsertCityOption(city);
+    }
+
+    if (street) {
+        streetFieldEl.value = street;
+        clearFieldError(streetFieldEl);
+    }
+
+    if (postalCode) {
+        postalCodeEl.value = postalCode;
+        clearFieldError(postalCodeEl);
+    }
+}
+
+function openMapPickerModal() {
+    initLeafletMapIfNeeded();
+
+    mapPickerOverlay.style.display = 'flex';
+    mapPickerUseBtn.disabled = !selectedMapPlace;
+    mapPickerResultsEl.style.display = 'none';
+    mapPickerResultsEl.innerHTML = '';
+    if (mapPickerErrorEl) {
+        mapPickerErrorEl.textContent = '';
+    }
+
+    setTimeout(() => {
+        if (mapPickerSearchEl) {
+            mapPickerSearchEl.focus();
+        }
+        if (mapPickerMap) {
+            mapPickerMap.invalidateSize();
+        }
+    }, 30);
+}
+
+function closeMapPickerModal() {
+    if (!mapPickerOverlay) {
+        return;
+    }
+
+    mapPickerOverlay.style.display = 'none';
+    if (mapPickerErrorEl) {
+        mapPickerErrorEl.textContent = '';
+    }
+}
+
+function initLeafletMapIfNeeded() {
+    if (mapPickerMap || !window.L) {
+        return;
+    }
+
+    const mapCanvas = document.getElementById('mapPickerCanvas');
+    if (!mapCanvas) {
+        return;
+    }
+
+    mapPickerMap = L.map(mapCanvas, {
+        center: [36.8065, 10.1815],
+        zoom: 5,
+        zoomControl: true,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(mapPickerMap);
+
+    mapPickerMarker = L.marker([36.8065, 10.1815], {
+        draggable: false,
+    });
+
+    mapPickerMap.on('click', async (event) => {
+        try {
+            const lat = event.latlng.lat;
+            const lon = event.latlng.lng;
+            const response = await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon));
+            const payload = await response.json();
+
+            if (!payload || !payload.address) {
+                throw new Error('No address found for this point.');
+            }
+
+            selectedMapPlace = payload;
+            mapPickerMarker.setLatLng([lat, lon]).addTo(mapPickerMap);
+            mapPickerUseBtn.disabled = false;
+            if (mapPickerErrorEl) {
+                mapPickerErrorEl.textContent = '';
+            }
+        } catch (error) {
+            if (mapPickerErrorEl) {
+                mapPickerErrorEl.textContent = error.message || 'Unable to read address from map point.';
+            }
+        }
+    });
+}
+
+function renderMapSearchResults(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+        mapPickerResultsEl.style.display = 'none';
+        mapPickerResultsEl.innerHTML = '';
+        return;
+    }
+
+    mapPickerResultsEl.innerHTML = items.map((item, index) => {
+        const text = String(item.display_name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return '<div class="map-picker-result-item" data-result-index="' + index + '">' + text + '</div>';
+    }).join('');
+    mapPickerResultsEl.style.display = 'block';
+
+    mapPickerResultsEl.querySelectorAll('.map-picker-result-item').forEach((node) => {
+        node.addEventListener('click', () => {
+            const idx = Number(node.getAttribute('data-result-index'));
+            const selected = items[idx];
+            if (!selected) return;
+
+            selectedMapPlace = selected;
+            const lat = Number(selected.lat);
+            const lon = Number(selected.lon);
+
+            if (Number.isFinite(lat) && Number.isFinite(lon) && mapPickerMap) {
+                mapPickerMap.setView([lat, lon], 15);
+                mapPickerMarker.setLatLng([lat, lon]).addTo(mapPickerMap);
+            }
+
+            mapPickerSearchEl.value = selected.display_name || mapPickerSearchEl.value;
+            mapPickerUseBtn.disabled = false;
+            mapPickerResultsEl.style.display = 'none';
+            mapPickerResultsEl.innerHTML = '';
+            if (mapPickerErrorEl) {
+                mapPickerErrorEl.textContent = '';
+            }
+        });
+    });
+}
+
+async function searchMapPlaces(query) {
+    const q = String(query || '').trim();
+    if (q.length < 3) {
+        renderMapSearchResults([]);
+        return;
+    }
+
+    try {
+        const response = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&q=' + encodeURIComponent(q));
+        const payload = await response.json();
+        renderMapSearchResults(Array.isArray(payload) ? payload : []);
+    } catch {
+        renderMapSearchResults([]);
+    }
+}
+
+mapPickerOpenBtn?.addEventListener('click', openMapPickerModal);
+mapPickerCancelBtn?.addEventListener('click', closeMapPickerModal);
+mapPickerOverlay?.addEventListener('click', (event) => {
+    if (event.target === mapPickerOverlay) {
+        closeMapPickerModal();
+    }
+});
+
+mapPickerSearchEl?.addEventListener('input', () => {
+    clearTimeout(mapSearchDebounceTimer);
+    mapSearchDebounceTimer = setTimeout(() => {
+        searchMapPlaces(mapPickerSearchEl.value);
+    }, 280);
+});
+
+mapPickerSearchEl?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        searchMapPlaces(mapPickerSearchEl.value);
+    }
+});
+
+mapPickerUseBtn?.addEventListener('click', async () => {
+    if (!selectedMapPlace) {
+        if (mapPickerErrorEl) {
+            mapPickerErrorEl.textContent = 'Please select a place from the map first.';
+        }
+        return;
+    }
+
+    mapPickerUseBtn.disabled = true;
+    try {
+        await applyMapPlaceToBilling(selectedMapPlace);
+        closeMapPickerModal();
+    } catch (error) {
+        if (mapPickerErrorEl) {
+            mapPickerErrorEl.textContent = error.message || 'Unable to apply selected place.';
+        }
+    } finally {
+        mapPickerUseBtn.disabled = false;
+    }
+});
+
+/* ── Payment method toggle ── */
+function selectMethod(method) {
+    const creditCard = document.getElementById('creditCardOption');
+    const paypal     = document.getElementById('paypalOption');
+    const cardSection = document.getElementById('cardDetailsSection');
+    const cardPreview = document.getElementById('cardPreviewSection');
+    const infoLabel  = document.getElementById('paymentMethodInfo');
+    const input      = document.getElementById('paymentMethodInput');
+
+    if (method === 'credit') {
+        creditCard.classList.add('active');
+        paypal.classList.remove('active');
+        cardSection.style.display = '';
+        cardPreview.style.display = '';
+        infoLabel.textContent = '✓ Secure payment processing powered by Stripe';
+        infoLabel.style.color = '#635bff';
+    } else {
+        paypal.classList.add('active');
+        creditCard.classList.remove('active');
+        cardSection.style.display = 'none';
+        cardPreview.style.display = 'none';
+        infoLabel.textContent = '✓ You will be redirected to PayPal to complete payment';
+        infoLabel.style.color = '#003087';
+    }
+    input.value = method;
+    updateRequiredFieldsForMethod(method);
+}
+
+function updateRequiredFieldsForMethod(method) {
+    const isCredit = method === 'credit';
+    const cardholder = document.getElementById('cardholderName');
+    const cardNumber = document.getElementById('cardNumber');
+    const expiryMonth = document.getElementById('expiryMonth');
+    const expiryYear = document.getElementById('expiryYear');
+    const cvv = document.getElementById('cvv');
+
+    [cardholder, cardNumber, expiryMonth, expiryYear, cvv].forEach((field) => {
+        if (!field) return;
+        field.required = isCredit;
+    });
+}
+
+/* ── Live card preview ── */
+function updatePreviewName(val) {
+    document.getElementById('previewName').textContent = val.toUpperCase() || 'YOUR NAME';
+}
+
+function updatePreviewExpiry() {
+    const m = document.getElementById('expiryMonth').value;
+    const y = document.getElementById('expiryYear').value;
+    const yy = y ? y.slice(-2) : 'YY';
+    document.getElementById('previewExpiry').textContent = (m || 'MM') + '/' + yy;
+}
+
+function formatCardNumber(input) {
+    let digits = input.value.replace(/\D/g, '');
+    const cardType = detectCardType(digits);
+    const maxLength = cardType === 'amex' ? 15 : 16;
+    digits = digits.substring(0, maxLength);
+
+    input.value = formatDigitsForInput(digits, cardType);
+    updatePreviewDigits(digits);
+    applyCardTheme(cardType);
+
+    if (digits.length === 0) {
+        setCardValidationStatus('', '');
+        isCardValidated = false;
+        return;
+    }
+
+    isCardValidated = false;
+    setCardValidationStatus('warning', '⚠️ Card number changed - please validate again');
+}
+
+function updatePreviewDigits(digits) {
+    const parts = digits.padEnd(16, '●').match(/.{1,4}/g) || [];
+    ['cn1','cn2','cn3','cn4'].forEach((id, i) => {
+        document.getElementById(id).textContent = parts[i] || '●●●●';
+    });
+}
+
+function formatDigitsForInput(digits, type) {
+    if (type === 'amex') {
+        const part1 = digits.substring(0, 4);
+        const part2 = digits.substring(4, 10);
+        const part3 = digits.substring(10, 15);
+        return [part1, part2, part3].filter(Boolean).join(' ');
+    }
+
+    return digits.match(/.{1,4}/g)?.join(' ') || digits;
+}
+
+function detectCardType(digits) {
+    if (/^4/.test(digits)) return 'visa';
+    if (/^(5[1-5]|2[2-7])/.test(digits)) return 'mastercard';
+    if (/^3[47]/.test(digits)) return 'amex';
+    if (/^(6011|65|64[4-9])/.test(digits)) return 'discover';
+    return 'default';
+}
+
+function applyCardTheme(type) {
+    const theme = CARD_THEME_MAP[type] || CARD_THEME_MAP.default;
+    const cardTypeLabel = document.getElementById('cardTypeLabel');
+    const cardPreview = document.querySelector('.credit-card');
+    const cardChip = document.querySelector('.card-chip');
+    const cardBrand = document.getElementById('cardBrand');
+
+    cardTypeLabel.textContent = theme.label;
+    cardPreview.style.background = theme.gradient;
+    cardChip.style.background = theme.chipGradient;
+
+    const logo = CARD_LOGO_MAP[type];
+    if (logo) {
+        cardBrand.className = 'card-brand brand-' + type;
+        cardBrand.innerHTML = '<img src="' + logo.src + '" class="' + logo.cls + '" alt="' + logo.alt + '">';
+    } else {
+        cardBrand.className = 'card-brand brand-default';
+        cardBrand.textContent = 'CARD';
+    }
+}
+
+function expectedLengthsByType(type) {
+    switch (type) {
+        case 'amex':
+            return [15];
+        case 'visa':
+            return [13, 16];
+        case 'mastercard':
+            return [16];
+        case 'discover':
+            return [16];
+        default:
+            return [];
+    }
+}
+
+function setCardValidationStatus(kind, message) {
+    const status = document.getElementById('cardValidationStatus');
+    status.className = 'card-validation-status';
+
+    if (!kind || !message) {
+        status.textContent = '';
+        return;
+    }
+
+    status.classList.add(kind);
+    status.textContent = message;
+}
+
+function luhnCheck(digits) {
+    let sum = 0;
+    let shouldDouble = false;
+
+    for (let i = digits.length - 1; i >= 0; i--) {
+        let digit = Number(digits.charAt(i));
+
+        if (shouldDouble) {
+            digit *= 2;
+            if (digit > 9) digit -= 9;
+        }
+
+        sum += digit;
+        shouldDouble = !shouldDouble;
+    }
+
+    return sum % 10 === 0;
+}
+
+function validateCard() {
+    const digits = document.getElementById('cardNumber').value.replace(/\D/g, '');
+    const cardType = detectCardType(digits);
+    const expectedLengths = expectedLengthsByType(cardType);
+
+    if (digits.length === 0) {
+        isCardValidated = false;
+        setCardValidationStatus('error', 'Please enter a card number.');
+        return;
+    }
+
+    if (expectedLengths.length === 0) {
+        isCardValidated = false;
+        setCardValidationStatus('error', 'Unsupported card type.');
+        return;
+    }
+
+    if (!expectedLengths.includes(digits.length)) {
+        isCardValidated = false;
+        setCardValidationStatus('error', 'Invalid length for ' + CARD_THEME_MAP[cardType].label + '.');
+        return;
+    }
+
+    if (!luhnCheck(digits)) {
+        isCardValidated = false;
+        setCardValidationStatus('error', 'Luhn validation failed. Please check your card number.');
+        return;
+    }
+
+    isCardValidated = true;
+    setCardValidationStatus('success', '✓ Card validated successfully (' + CARD_THEME_MAP[cardType].label + ')');
+}
+
+function errorContainerForField(field) {
+    const wrapper = field.closest('.form-group, .cvv-group, .expiry-group, .terms-row');
+    if (!wrapper) return null;
+
+    let el = wrapper.querySelector(`.field-error[data-error-for="${field.id}"]`);
+    if (!el) {
+        el = document.createElement('p');
+        el.className = 'field-error';
+        el.setAttribute('data-error-for', field.id);
+        wrapper.appendChild(el);
+    }
+
+    return el;
+}
+
+function setFieldError(field, message) {
+    const errorEl = errorContainerForField(field);
+    if (errorEl) {
+        errorEl.textContent = message;
+    }
+    field.classList.add('is-invalid');
+}
+
+function clearFieldError(field) {
+    const wrapper = field.closest('.form-group, .cvv-group, .expiry-group, .terms-row');
+    if (wrapper) {
+        const errorEl = wrapper.querySelector(`.field-error[data-error-for="${field.id}"]`);
+        if (errorEl) {
+            errorEl.textContent = '';
+        }
+    }
+    field.classList.remove('is-invalid');
+}
+
+function validatePaymentForm() {
+    const method = document.getElementById('paymentMethodInput').value;
+    let valid = true;
+
+    const cardholder = document.getElementById('cardholderName');
+    const cardNumber = document.getElementById('cardNumber');
+    const expiryMonth = document.getElementById('expiryMonth');
+    const expiryYear = document.getElementById('expiryYear');
+    const cvv = document.getElementById('cvv');
+    const country = document.getElementById('countrySelect');
+    const city = document.getElementById('citySelect');
+    const street = document.getElementById('streetField');
+    const postal = document.getElementById('postalCodeField');
+    const terms = document.getElementById('termsCheckbox');
+
+    [cardholder, cardNumber, expiryMonth, expiryYear, cvv, country, city, street, postal, terms].forEach(clearFieldError);
+
+    if (!country.value) {
+        setFieldError(country, 'Country is required.');
+        valid = false;
+    }
+
+    if (!city.value) {
+        setFieldError(city, 'City is required.');
+        valid = false;
+    }
+
+    if (!street.value || street.value.trim().length < 5) {
+        setFieldError(street, 'Street address must contain at least 5 characters.');
+        valid = false;
+    }
+
+    if (!/^[A-Za-z0-9\-\s]{3,12}$/.test((postal.value || '').trim())) {
+        setFieldError(postal, 'Postal code format is invalid.');
+        valid = false;
+    }
+
+    if (!terms.checked) {
+        setFieldError(terms, 'You must accept the terms to continue.');
+        valid = false;
+    }
+
+    if (method === 'credit') {
+        if (!/^[A-Za-zÀ-ÿ'\-\s]{2,80}$/.test((cardholder.value || '').trim())) {
+            setFieldError(cardholder, 'Cardholder name is invalid.');
+            valid = false;
+        }
+
+        const digits = cardNumber.value.replace(/\D/g, '');
+        const cardType = detectCardType(digits);
+        const expectedLengths = expectedLengthsByType(cardType);
+
+        if (!digits) {
+            setFieldError(cardNumber, 'Card number is required.');
+            valid = false;
+        } else if (expectedLengths.length === 0) {
+            setFieldError(cardNumber, 'Unsupported card type.');
+            valid = false;
+        } else if (!expectedLengths.includes(digits.length)) {
+            setFieldError(cardNumber, 'Card number length is invalid.');
+            valid = false;
+        } else if (!luhnCheck(digits)) {
+            setFieldError(cardNumber, 'Card number failed Luhn validation.');
+            valid = false;
+        }
+
+        if (!/^\d{3,4}$/.test((cvv.value || '').trim())) {
+            setFieldError(cvv, 'CVV must contain 3 or 4 digits.');
+            valid = false;
+        }
+
+        const month = parseInt(expiryMonth.value || '0', 10);
+        const year = parseInt(expiryYear.value || '0', 10);
+        const now = new Date();
+        const expiry = new Date(year, month, 0, 23, 59, 59);
+
+        if (!month || !year) {
+            setFieldError(expiryMonth, 'Expiry month is required.');
+            setFieldError(expiryYear, 'Expiry year is required.');
+            valid = false;
+        } else if (expiry < now) {
+            setFieldError(expiryMonth, 'Card is expired.');
+            setFieldError(expiryYear, 'Card is expired.');
+            valid = false;
+        }
+    }
+
+    return valid;
+}
+
+document.getElementById('paymentForm').addEventListener('submit', async function(event) {
+    if (!validatePaymentForm()) {
+        event.preventDefault();
+        return;
+    }
+
+    const method = document.getElementById('paymentMethodInput').value;
+    if (method !== 'paypal') {
+        return;
+    }
+
+    event.preventDefault();
+
+    const popup = window.open('', 'paypalCheckoutPopup', 'width=520,height=760,menubar=no,toolbar=no,location=yes,resizable=yes,scrollbars=yes,status=no');
+    if (popup) {
+        popup.document.write('<!DOCTYPE html><html><head><title>PayPal</title></head><body style="font-family:Arial,sans-serif;padding:16px;">Redirecting to PayPal...</body></html>');
+    }
+
+    try {
+        const formData = new FormData(event.target);
+        const response = await fetch(event.target.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.redirectUrl) {
+            throw new Error(payload.error || 'Unable to initialize PayPal checkout.');
+        }
+
+        if (popup) {
+            popup.location.href = payload.redirectUrl;
+        } else {
+            window.location.href = payload.redirectUrl;
+        }
+    } catch (error) {
+        if (popup && !popup.closed) {
+            popup.close();
+        }
+        alert(error.message || 'PayPal initialization failed. Please try again.');
+    }
+});
+
+['cardholderName', 'cardNumber', 'expiryMonth', 'expiryYear', 'cvv', 'countrySelect', 'citySelect', 'streetField', 'postalCodeField', 'termsCheckbox']
+    .forEach((id) => {
+        const field = document.getElementById(id);
+        if (!field) return;
+        const eventName = field.tagName === 'SELECT' || field.type === 'checkbox' ? 'change' : 'input';
+        field.addEventListener(eventName, () => clearFieldError(field));
+    });
+
+applyCardTheme('default');
+updateRequiredFieldsForMethod('credit');
+
+function renderStreetSuggestions(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+        streetSuggestionsEl.style.display = 'none';
+        streetSuggestionsEl.innerHTML = '';
+        return;
+    }
+
+    streetSuggestionsEl.innerHTML = items.map((item) => `<div class="suggestion-item">${item}</div>`).join('');
+    streetSuggestionsEl.style.display = 'block';
+
+    streetSuggestionsEl.querySelectorAll('.suggestion-item').forEach((node) => {
+        node.addEventListener('mousedown', () => {
+            streetFieldEl.value = node.textContent || '';
+            renderStreetSuggestions([]);
+            clearFieldError(streetFieldEl);
+        });
+    });
+}
+
+function loadStreetSuggestions(query) {
+    const q = (query || '').trim();
+    if (q.length < 3) {
+        renderStreetSuggestions([]);
+        return;
+    }
+
+    fetch(addressSuggestionsApiUrl + '?q=' + encodeURIComponent(q))
+        .then((r) => r.json())
+        .then((items) => renderStreetSuggestions(items))
+        .catch(() => renderStreetSuggestions([]));
+}
+
+streetFieldEl.addEventListener('input', () => {
+    clearTimeout(streetDebounceTimer);
+    streetDebounceTimer = setTimeout(() => {
+        loadStreetSuggestions(streetFieldEl.value);
+    }, 250);
+});
+
+streetFieldEl.addEventListener('blur', () => {
+    setTimeout(() => renderStreetSuggestions([]), 120);
+});
+
+document.addEventListener('click', (event) => {
+    if (!streetSuggestionsEl.contains(event.target) && event.target !== streetFieldEl) {
+        renderStreetSuggestions([]);
+    }
+});
+
+function populateCountries(countries) {
+    countrySelectEl.innerHTML = '<option value="">Select Country</option>';
+
+    countries.forEach((country) => {
+        const option = document.createElement('option');
+        option.value = country.code;
+        option.textContent = country.name;
+        if (initialCountry && initialCountry === country.code) {
+            option.selected = true;
+        }
+        countrySelectEl.appendChild(option);
+    });
+}
+
+function loadCountries() {
+    fetch(countriesApiUrl)
+        .then((r) => r.json())
+        .then((countries) => {
+            const list = Array.isArray(countries) ? countries : [];
+            if (list.length > 0) {
+                populateCountries(list);
+            }
+
+            if (countrySelectEl.value) {
+                loadCities(countrySelectEl.value, initialCity);
+            }
+        })
+        .catch(() => {
+            if (countrySelectEl.value) {
+                loadCities(countrySelectEl.value, initialCity);
+            }
+        });
+}
+
+/* ── Load cities by country  ── */
+function loadCities(countryCode, selectedCity = null) {
+    if (!countryCode) {
+        citySelectEl.disabled = true;
+        citySelectEl.innerHTML = '<option value="">Select City (Choose country first)</option>';
+        return Promise.resolve();
+    }
+
+    return fetch(citiesApiUrl + '?country=' + encodeURIComponent(countryCode))
+        .then(r => r.json())
+        .then(cities => {
+            const list = Array.isArray(cities) ? cities : [];
+            citySelectEl.disabled = false;
+            citySelectEl.innerHTML = '<option value="">Select City</option>';
+
+            list.forEach((city) => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                if (selectedCity && selectedCity === city) {
+                    option.selected = true;
+                }
+                citySelectEl.appendChild(option);
+            });
+        })
+        .catch(() => {
+            citySelectEl.disabled = false;
+            citySelectEl.innerHTML = '<option value="">Select City</option>';
+        });
+}
+
+loadCountries();
+
+if (scratchRewardData) {
+    const overlay = document.getElementById('scratchOverlay');
+    const canvas = document.getElementById('scratchCanvas');
+    const revealBtn = document.getElementById('scratchRevealBtn');
+    const closeBtn = document.getElementById('scratchCloseBtn');
+
+    if (overlay && canvas && revealBtn && closeBtn) {
+        overlay.style.display = 'flex';
+
+        const ctx = canvas.getContext('2d');
+        const brush = 26;
+        let isDrawing = false;
+        let revealed = false;
+        const grid = 8;
+        const cols = Math.ceil(canvas.width / grid);
+        const rows = Math.ceil(canvas.height / grid);
+        const scratched = new Set();
+        const totalCells = cols * rows;
+
+        function paintCover() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#b8b8b8';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#a3a3a3';
+            for (let y = 8; y < canvas.height; y += 18) {
+                ctx.fillRect(0, y, canvas.width, 6);
+            }
+            ctx.fillStyle = '#686868';
+            ctx.font = 'bold 20px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText('SCRATCH HERE', canvas.width / 2, canvas.height / 2 - 6);
+            ctx.font = '13px Segoe UI';
+            ctx.fillText('Drag to reveal your reward', canvas.width / 2, canvas.height / 2 + 18);
+        }
+
+        function eraseAt(clientX, clientY) {
+            if (revealed) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+
+            ctx.save();
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(x, y, brush / 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            const gx = Math.floor(x / grid);
+            const gy = Math.floor(y / grid);
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    const nx = gx + dx;
+                    const ny = gy + dy;
+                    if (nx >= 0 && ny >= 0 && nx < cols && ny < rows) {
+                        scratched.add(nx + '-' + ny);
+                    }
+                }
+            }
+
+            if (scratched.size / totalCells >= 0.4) {
+                revealAll();
+            }
+        }
+
+        function revealAll() {
+            if (revealed) return;
+            revealed = true;
+            canvas.style.transition = 'opacity .35s ease';
+            canvas.style.opacity = '0';
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            eraseAt(e.clientX, e.clientY);
+        });
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            eraseAt(e.clientX, e.clientY);
+        });
+        document.addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            isDrawing = true;
+            eraseAt(e.touches[0].clientX, e.touches[0].clientY);
+            e.preventDefault();
+        }, { passive: false });
+        canvas.addEventListener('touchmove', (e) => {
+            if (!isDrawing) return;
+            eraseAt(e.touches[0].clientX, e.touches[0].clientY);
+            e.preventDefault();
+        }, { passive: false });
+        document.addEventListener('touchend', () => {
+            isDrawing = false;
+        });
+
+        revealBtn.addEventListener('click', revealAll);
+        closeBtn.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            openFeedbackModal();
+        });
+
+        paintCover();
+    }
+}
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+</body>
+</html>

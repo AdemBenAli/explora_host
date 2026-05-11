@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Sign Up - Explora</title>
+		<!-- Use FontAwesome for icons -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+		<style>
+			@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@500;600;700&display=swap');
+
+			:root {
+				--primary: #3b82f6;
+				--primary-hover: #2563eb;
+				--primary-orange: #f97316;
+				--secondary: #f97316;
+				--bg-color: #f1f5f9;
+				--card-bg: #ffffff;
+				--text-main: #0f172a;
+				--text-muted: #64748b;
+				--border: #e2e8f0;
+
+				--green-main: #10b981;
+				--green-light: #d1fae5;
+				--orange-main: #f59e0b;
+				--orange-light: #fef3c7;
+				--yellow-bg: #fef9c3;
+				--yellow-border: #fde047;
+				--yellow-text: #854d0e;
+			}
+
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: 'Inter', sans-serif;
+				background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				min-height: 100vh;
+				color: var(--text-main);
+				padding: 20px;
+			}
+
+			.login-wrapper {
+				display: flex;
+				width: 100%;
+				max-width: 1100px;
+				background: var(--card-bg);
+				border-radius: 24px;
+				box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+				overflow: hidden;
+				animation: fadeIn 0.6s ease-out;
+			}
+
+			@keyframes fadeIn {
+				from { opacity: 0; transform: translateY(20px); }
+				to { opacity: 1; transform: translateY(0); }
+			}
+
+			.login-left {
+				flex: 1;
+				background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+				color: white;
+				padding: 3rem;
+				display: flex;
+				flex-direction: column;
+				position: relative;
+				overflow: hidden;
+			}
+
+			.login-left::before {
+				content: '';
+				position: absolute;
+				top: -50%;
+				left: -50%;
+				width: 200%;
+				height: 200%;
+				background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+				transform: rotate(30deg);
+				pointer-events: none;
+			}
+
+			.logo-container {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				margin-bottom: 4rem;
+				animation: slideDown 0.6s ease-out 0.2s both;
+				position: relative;
+			}
+
+			@keyframes slideDown {
+				from { opacity: 0; transform: translateY(-20px); }
+				to { opacity: 1; transform: translateY(0); }
+			}
+
+			.logo-text {
+				font-family: 'Outfit', sans-serif;
+				font-size: 1.75rem;
+				font-weight: 700;
+				letter-spacing: -0.025em;
+			}
+
+			.welcome-heading {
+				font-family: 'Outfit', sans-serif;
+				font-size: 2.5rem;
+				font-weight: 700;
+				line-height: 1.2;
+				margin-bottom: 1rem;
+				animation: fadeRight 0.6s ease-out 0.3s both;
+				position: relative;
+			}
+			
+			.welcome-sub {
+				font-size: 1rem;
+				color: rgba(255, 255, 255, 0.9);
+				margin-bottom: 2.5rem;
+				animation: fadeRight 0.6s ease-out 0.4s both;
+				position: relative;
+			}
+			
+			.why-join {
+				font-family: 'Outfit', sans-serif;
+				font-size: 1.25rem;
+				font-weight: 600;
+				margin-bottom: 1.5rem;
+				text-align: center;
+				animation: fadeRight 0.6s ease-out 0.4s both;
+				position: relative;
+			}
+
+			.features-list {
+				list-style: none;
+				margin-bottom: auto;
+				animation: fadeRight 0.6s ease-out 0.5s both;
+				position: relative;
+			}
+
+			.features-list li {
+				display: flex;
+				gap: 1rem;
+				margin-bottom: 1.5rem;
+				font-size: 0.95rem;
+				align-items: flex-start;
+			}
+			
+			.feature-icon {
+				font-size: 1.25rem;
+				color: var(--primary-orange);
+				margin-top: 0.25rem;
+			}
+			
+			.feature-text strong {
+				display: block;
+				font-weight: 600;
+				margin-bottom: 0.25rem;
+				font-size: 1rem;
+			}
+			
+			.feature-text span {
+				color: rgba(255, 255, 255, 0.8);
+				font-size: 0.85rem;
+			}
+
+			.stats-container {
+				display: flex;
+				gap: 2.5rem;
+				margin-top: 2.5rem;
+				padding-top: 2rem;
+				border-top: 1px solid rgba(255, 255, 255, 0.2);
+				animation: fadeUp 0.6s ease-out 0.6s both;
+				position: relative;
+				justify-content: center;
+			}
+
+			@keyframes fadeUp {
+				from { opacity: 0; transform: translateY(20px); }
+				to { opacity: 1; transform: translateY(0); }
+			}
+
+			.stat-item {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+
+			.stat-number {
+				font-family: 'Outfit', sans-serif;
+				font-size: 1.5rem;
+				font-weight: 700;
+				color: var(--primary-orange);
+			}
+
+			.stat-label {
+				font-size: 0.8rem;
+				color: rgba(255, 255, 255, 0.9);
+				font-weight: 500;
+				margin-top: 0.25rem;
+			}
+
+			.login-right {
+				flex: 1.2;
+				padding: 3rem 4rem;
+				display: flex;
+				flex-direction: column;
+			}
+
+			.login-header {
+				text-align: center;
+				margin-bottom: 2rem;
+			}
+
+			.login-header h2 {
+				font-family: 'Outfit', sans-serif;
+				font-size: 2.25rem;
+				font-weight: 700;
+				margin-bottom: 0.5rem;
+				color: var(--text-main);
+				animation: fadeDown 0.5s ease-out 0.2s both;
+			}
+
+			@keyframes fadeDown {
+				from { opacity: 0; transform: translateY(-10px); }
+				to { opacity: 1; transform: translateY(0); }
+			}
+
+			.login-header p {
+				color: var(--text-muted);
+				font-size: 1rem;
+				animation: fadeDown 0.5s ease-out 0.3s both;
+			}
+
+			.account-cards {
+				display: flex;
+				flex-direction: column;
+				gap: 1.25rem;
+				animation: fadeIn 0.8s ease-out 0.4s both;
+			}
+
+			.account-card {
+				display: flex;
+				background: #fff;
+				border: 2px solid transparent;
+				border-radius: 16px;
+				padding: 1.5rem;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				text-decoration: none;
+				color: inherit;
+			}
+			
+			.account-card.traveler {
+				border-color: #22c55e;
+				box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.1);
+			}
+			
+			.account-card.traveler:hover {
+				background: #f0fdf4;
+				transform: translateY(-2px);
+				box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.15);
+			}
+
+			.account-card.agency {
+				border-color: #f59e0b;
+				box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.1);
+			}
+			
+			.account-card.agency:hover {
+				background: #fffbeb;
+				transform: translateY(-2px);
+				box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.15);
+			}
+
+			.card-icon {
+				width: 4rem;
+				height: 5rem;
+				border-radius: 40px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 2rem;
+				color: white;
+				margin-right: 1.5rem;
+				flex-shrink: 0;
+			}
+			
+			.traveler .card-icon {
+				background: #10b981;
+			}
+			
+			.agency .card-icon {
+				background: #f59e0b;
+			}
+
+			.card-content {
+				flex: 1;
+			}
+
+			.card-title {
+				display: flex;
+				align-items: center;
+				font-family: 'Outfit', sans-serif;
+				font-size: 1.25rem;
+				font-weight: 700;
+				margin-bottom: 0.5rem;
+				color: var(--text-main);
+			}
+
+			.badge {
+				font-family: 'Inter', sans-serif;
+				font-size: 0.65rem;
+				font-weight: 700;
+				padding: 0.25rem 0.5rem;
+				border-radius: 4px;
+				margin-left: 0.75rem;
+				letter-spacing: 0.05em;
+				color: white;
+			}
+			
+			.traveler .badge {
+				background: #10b981;
+			}
+			
+			.agency .badge {
+				background: #f59e0b;
+			}
+
+			.card-desc {
+				font-size: 0.85rem;
+				color: var(--text-muted);
+				margin-bottom: 0.75rem;
+				line-height: 1.4;
+			}
+
+			.card-features {
+				display: flex;
+				gap: 1rem;
+				font-size: 0.75rem;
+				font-weight: 500;
+			}
+			
+			.traveler .card-features {
+				color: #10b981;
+			}
+			
+			.agency .card-features {
+				color: #f59e0b;
+			}
+			
+			.card-features span i {
+				margin-right: 0.25rem;
+			}
+			
+			.card-action {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: #cbd5e1;
+				font-size: 1.5rem;
+				padding-left: 0.5rem;
+			}
+			
+			.traveler .card-action { color: #10b981; }
+			.agency .card-action { color: #f59e0b; }
+
+			.req-banner {
+				background: var(--yellow-bg);
+				border: 1px solid var(--yellow-border);
+				border-radius: 8px;
+				padding: 1.25rem;
+				margin-top: 1.5rem;
+				text-align: center;
+				animation: fadeIn 0.8s ease-out 0.6s both;
+			}
+			
+			.req-banner h4 {
+				color: var(--yellow-text);
+				font-family: 'Outfit', sans-serif;
+				font-size: 0.95rem;
+				margin-bottom: 0.5rem;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 0.5rem;
+			}
+			
+			.req-banner p {
+				color: #a16207;
+				font-size: 0.8rem;
+				line-height: 1.5;
+			}
+
+			.divider {
+				text-align: center;
+				color: #94a3b8;
+				font-size: 0.875rem;
+				margin: 2rem 0;
+				position: relative;
+				font-weight: 500;
+				animation: fadeIn 0.8s ease-out 0.8s both;
+			}
+
+			.divider::before,
+			.divider::after {
+				content: '';
+				position: absolute;
+				top: 50%;
+				width: calc(50% - 20px);
+				height: 1px;
+				background: var(--border);
+			}
+
+			.divider::before { left: 0; }
+			.divider::after { right: 0; }
+
+			.signin-link {
+				text-align: center;
+				font-size: 0.95rem;
+				color: var(--text-muted);
+				animation: fadeIn 0.8s ease-out 0.9s both;
+			}
+
+			.signin-link a {
+				color: var(--primary-orange);
+				text-decoration: none;
+				font-weight: 600;
+				margin-left: 0.25rem;
+			}
+
+			.signin-link a:hover {
+				text-decoration: underline;
+			}
+
+			@media (max-width: 900px) {
+				.login-wrapper {
+					flex-direction: column;
+				}
+				.login-left {
+					display: none;
+				}
+				.login-right {
+					padding: 2.5rem;
+				}
+			}
+		</style>
+	</head>
+	<body>
+
+		<div class="login-wrapper">
+			<!-- Left Side: Branding and Info -->
+			<div class="login-left">
+				<div class="logo-container">
+					<span class="fa-stack fa-lg">
+						<i class="fa-solid fa-earth-americas fa-stack-1x" style="color: #60A5FA;"></i>
+						<i class="fa-solid fa-location-arrow fa-stack-1x fa-inverse" style="transform: rotate(45deg); font-size: 0.8em; color: var(--primary-orange); margin-top: -2px; margin-left: -2px;"></i>
+					</span>
+					<span class="logo-text">Explora</span>
+				</div>
+
+				<h1 class="welcome-heading">Welcome to Explora</h1>
+				<p class="welcome-sub">Choose your account type to get started</p>
+				
+				<div class="why-join">Why Join Us?</div>
+
+				<ul class="features-list">
+					<li>
+						<i class="fa-solid fa-plane feature-icon"></i>
+						<div class="feature-text">
+							<strong>Explore the World</strong>
+							<span>Discover amazing destinations</span>
+						</div>
+					</li>
+					<li>
+						<i class="fa-solid fa-handshake feature-icon"></i>
+						<div class="feature-text">
+							<strong>Business Partnership</strong>
+							<span>Grow your travel agency</span>
+						</div>
+					</li>
+					<li>
+						<i class="fa-solid fa-shield-halved feature-icon" style="opacity:0.7"></i>
+						<div class="feature-text">
+							<strong>Secure Platform</strong>
+							<span>Your data is protected</span>
+						</div>
+					</li>
+					<li>
+						<i class="fa-solid fa-comment-dots feature-icon" style="color: #3b82f6;"></i>
+						<div class="feature-text">
+							<strong>24/7 Support</strong>
+							<span>We're always here to help</span>
+						</div>
+					</li>
+				</ul>
+
+				<div class="stats-container">
+					<div class="stat-item">
+						<span class="stat-number">10K+</span>
+						<span class="stat-label">Happy Travelers</span>
+					</div>
+					<div class="stat-item">
+						<span class="stat-number">500+</span>
+						<span class="stat-label">Partner Agencies</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Right Side: Account Type Selection -->
+			<div class="login-right">
+				<div class="login-header">
+					<h2>Choose Account Type</h2>
+					<p>Select the option that best describes you</p>
+				</div>
+
+				<div class="account-cards">
+					<!-- Traveler Option -->
+					<a href="{{ path('app_signup_traveler') }}" class="account-card traveler">
+						<div class="card-icon">
+							<i class="fa-solid fa-user"></i>
+						</div>
+						<div class="card-content">
+							<h3 class="card-title">
+								I'm a Traveler
+								<span class="badge">PERSONAL</span>
+							</h3>
+							<p class="card-desc">Book trips, explore destinations, and earn rewards ...</p>
+							<div class="card-features">
+								<span><i class="fa-solid fa-check"></i> Quick signup</span>
+								<span><i class="fa-solid fa-check"></i> Instant access</span>
+								<span><i class="fa-solid fa-check"></i> Earn rewards</span>
+							</div>
+						</div>
+						<div class="card-action">
+							<i class="fa-solid fa-ellipsis"></i>
+						</div>
+					</a>
+
+					<!-- Travel Agency Option -->
+					<a href="{{ path('app_signup_agent') }}" class="account-card agency">
+						<div class="card-icon">
+							<i class="fa-solid fa-building"></i>
+						</div>
+						<div class="card-content">
+							<h3 class="card-title">
+								I'm a Travel Agency
+								<span class="badge">BUSINESS</span>
+							</h3>
+							<p class="card-desc">Partner with us to reach more customers and ...</p>
+							<div class="card-features">
+								<span><i class="fa-solid fa-check"></i> Partnership</span>
+								<span><i class="fa-solid fa-check"></i> More reach</span>
+								<span><i class="fa-solid fa-check"></i> Verified</span>
+							</div>
+						</div>
+						<div class="card-action">
+							<i class="fa-solid fa-ellipsis"></i>
+						</div>
+					</a>
+				</div>
+				
+				<div class="req-banner">
+					<h4><i class="fa-solid fa-triangle-exclamation"></i> Agency Registration Requirements</h4>
+					<p>Agency applications require legal documents and admin verification. Approval might take up to 48 hours.</p>
+				</div>
+
+				<div class="divider">or</div>
+
+				<div class="signin-link">
+					Already have an account? <a href="{{ path('app_login') }}">Sign in here</a>
+				</div>
+			</div>
+		</div>
+
+	</body>
+</html>

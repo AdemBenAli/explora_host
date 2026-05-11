@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - Explora</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="/css/theme.css">
+    <script src="/js/theme.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap');
+        :root { --primary:#1e5faf; --orange:#F39C12; --bg:#F1F5F9; --card:#fff; --text:#1E293B; --muted:#94A3B8; --border:#E2E8F0; }
+        [data-theme="dark"] { --bg:#0F172A; --card:#1E293B; --text:#F1F5F9; --muted:#94A3B8; --border:#334155; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; color:var(--text); transition:background .3s; }
+        .card { background:var(--card); border-radius:20px; padding:40px 44px; max-width:460px; width:100%; box-shadow:0 20px 50px rgba(0,0,0,0.1); text-align:center; }
+        .icon-wrap { width:72px; height:72px; background:#eff6ff; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:2rem; color:var(--primary); }
+        h1 { font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:700; color:var(--text); margin-bottom:8px; }
+        .subtitle { font-size:14px; color:var(--muted); margin-bottom:6px; }
+        .email-badge { display:inline-block; background:#eff6ff; color:var(--primary); border-radius:20px; padding:4px 14px; font-size:13px; font-weight:600; margin-bottom:28px; }
+        .error-box { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; border-radius:9px; padding:10px 14px; font-size:13px; margin-bottom:20px; display:flex; align-items:center; gap:8px; text-align:left; }
+        .code-inputs { display:flex; gap:10px; justify-content:center; margin-bottom:24px; }
+        .code-inputs input { width:52px; height:60px; border:2px solid var(--border); border-radius:12px; text-align:center; font-size:1.6rem; font-weight:700; color:var(--text); background:var(--card); font-family:'Outfit',sans-serif; transition:border-color .2s; outline:none; }
+        .code-inputs input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(30,95,175,0.12); }
+        .code-inputs input.filled { border-color:var(--primary); }
+        .btn-verify { width:100%; padding:13px; background:var(--primary); color:white; border:none; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:background .2s; margin-bottom:16px; }
+        .btn-verify:hover { background:#174b8e; }
+        .btn-verify:disabled { opacity:0.5; cursor:not-allowed; }
+        .resend-row { font-size:13px; color:var(--muted); }
+        .resend-row button { background:none; border:none; color:var(--orange); font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; }
+        .resend-row button:disabled { opacity:0.5; cursor:not-allowed; }
+        .timer { font-weight:600; color:var(--primary); }
+        .back-link { display:block; margin-top:20px; font-size:13px; color:var(--muted); text-decoration:none; }
+        .back-link:hover { color:var(--text); }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="icon-wrap"><i class="fa-regular fa-envelope"></i></div>
+    <h1>Check your email</h1>
+    <p class="subtitle">We sent a 6-digit code to</p>
+    <span class="email-badge">{{ email }}</span>
+
+    {% if error %}
+    <div class="error-box"><i class="fa-solid fa-circle-exclamation"></i> {{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ path('app_verify_email') }}" id="verify-form">
+        <div class="code-inputs">
+            <input type="text" maxlength="1" class="digit-input" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+            <input type="text" maxlength="1" class="digit-input" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+            <input type="text" maxlength="1" class="digit-input" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+            <input type="text" maxlength="1" class="digit-input" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+            <input type="text" maxlength="1" class="digit-input" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+            <input type="text" maxlength="1" class="digit-input" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+        </div>
+        <input type="hidden" name="code" id="full-code">
+        <button type="submit" class="btn-verify" id="btn-verify" disabled>
+            <i class="fa-solid fa-circle-check"></i> Verify Email
+        </button>
+    </form>
+
+    <div class="resend-row">
+        Didn't receive it?
+        <form method="POST" action="{{ path('app_verify_email_resend') }}" style="display:inline;">
+            <button type="submit" id="btn-resend" disabled>Resend code</button>
+        </form>
+        <span id="timer-wrap">in <span class="timer" id="countdown">60</span>s</span>
+    </div>
+
+    <a href="{{ path('app_signup') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to signup</a>
+</div>
+
+<script>
+    const inputs = document.querySelectorAll('.digit-input');
+    const fullCode = document.getElementById('full-code');
+    const btnVerify = document.getElementById('btn-verify');
+
+    inputs.forEach((inp, i) => {
+        inp.addEventListener('input', () => {
+            inp.value = inp.value.replace(/\D/g, '');
+            if (inp.value && i < inputs.length - 1) inputs[i + 1].focus();
+            inp.classList.toggle('filled', !!inp.value);
+            syncCode();
+        });
+        inp.addEventListener('keydown', e => {
+            if (e.key === 'Backspace' && !inp.value && i > 0) inputs[i - 1].focus();
+        });
+        inp.addEventListener('paste', e => {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+            paste.split('').forEach((ch, j) => { if (inputs[j]) { inputs[j].value = ch; inputs[j].classList.add('filled'); } });
+            if (inputs[paste.length - 1]) inputs[Math.min(paste.length, 5)].focus();
+            syncCode();
+        });
+    });
+
+    function syncCode() {
+        const code = Array.from(inputs).map(i => i.value).join('');
+        fullCode.value = code;
+        btnVerify.disabled = code.length < 6;
+    }
+
+    // Countdown for resend
+    let secs = 60;
+    const countdown = document.getElementById('countdown');
+    const btnResend = document.getElementById('btn-resend');
+    const timerWrap = document.getElementById('timer-wrap');
+    const timer = setInterval(() => {
+        secs--;
+        countdown.textContent = secs;
+        if (secs <= 0) {
+            clearInterval(timer);
+            btnResend.disabled = false;
+            timerWrap.style.display = 'none';
+        }
+    }, 1000);
+
+    inputs[0].focus();
+</script>
+</body>
+</html>

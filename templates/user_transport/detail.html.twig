@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'DÃ©tails du transport'|trans }} - Explora{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ asset('css/user_transport.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="transport-detail-page">
+    <a href="{{ path('user_transport') }}" class="back-link">â† {{ 'Retour Ã  la recherche'|trans }}</a>
+
+    <section class="detail-card">
+        <h1>{{ transport.compagnie ?: 'Explora' }}</h1>
+        <p class="detail-type">{{ transport.type.value|upper }} â€¢ {{ transport.numeroVol ?: 'Sans numÃ©ro'|trans }}</p>
+
+        <div class="detail-grid">
+            <div>
+                <h2>{{ 'ItinÃ©raire'|trans }}</h2>
+                <p><strong>{{ 'Origine'|trans }} :</strong> {{ transport.origine }}</p>
+                <p><strong>{{ 'Destination'|trans }} :</strong> {{ transport.destination }}</p>
+                <p><strong>{{ 'Date dÃ©part'|trans }} :</strong> {{ transport.dateDepart ? transport.dateDepart|date('d/m/Y') : 'N/A'|trans }}</p>
+                <p><strong>{{ 'Heure dÃ©part'|trans }} :</strong> {{ transport.heureDepart ? transport.heureDepart|date('H:i') : 'N/A'|trans }}</p>
+                <p><strong>{{ 'Date arrivÃ©e'|trans }} :</strong> {{ transport.dateArrivee ? transport.dateArrivee|date('d/m/Y') : 'N/A'|trans }}</p>
+                <p><strong>{{ 'Heure arrivÃ©e'|trans }} :</strong> {{ transport.heureArrivee ? transport.heureArrivee|date('H:i') : 'N/A'|trans }}</p>
+            </div>
+            <div>
+                <h2>{{ 'Informations'|trans }}</h2>
+                <p><strong>{{ 'Prix'|trans }} :</strong> {{ transport.prix|number_format(2, ".", " ") }}</p>
+                <p><strong>{{ 'Places disponibles'|trans }} :</strong> {{ transport.placesDisponibles }}</p>
+                <p><strong>{{ 'CatÃ©gorie'|trans }} :</strong> {{ transport.categorie ?: 'Standard'|trans }}</p>
+                <p><strong>{{ 'Ã‰tat trafic'|trans }} :</strong> {{ transport.etatTrafic ?: 'N/A'|trans }}</p>
+                <p><strong>{{ 'Description'|trans }} :</strong> {{ transport.description ?: 'Aucune description disponible.'|trans }}</p>
+
+                <h2 style="margin-top:20px; color:#1a3a5c;">{{ 'Impact Environnemental'|trans }}</h2>
+                {% if transport.emissionsKgCO2 and transport.emissionsKgCO2 > 0 %}
+                    {% set cc = transport.categorieEcologique|default('INCONNU') %}
+                    {% set couleurBadge = '#6b7280' %}
+                    {% set iconeCO2 = 'ðŸŒ' %}
+                    {% if cc == 'EXCELLENT' %}{% set couleurBadge = '#10b981' %}{% set iconeCO2 = 'ðŸŸ¢' %}{% endif %}
+                    {% if cc == 'BON' %}{% set couleurBadge = '#84cc16' %}{% set iconeCO2 = 'ðŸŸ¡' %}{% endif %}
+                    {% if cc == 'MOYEN' %}{% set couleurBadge = '#f59e0b' %}{% set iconeCO2 = 'ðŸŸ ' %}{% endif %}
+                    {% if cc == 'MAUVAIS' %}{% set couleurBadge = '#ef4444' %}{% set iconeCO2 = 'ðŸ”´' %}{% endif %}
+                    {% if cc == 'TRES_MAUVAIS' %}{% set couleurBadge = '#7f1d1d' %}{% set iconeCO2 = 'âš«' %}{% endif %}
+                    <p><strong>{{ 'Distance'|trans }} :</strong> {{ transport.distanceKm|default(0)|number_format(0) }} km</p>
+                    <p><strong>{{ 'Ã‰missions'|trans }} :</strong> <span style="background-color: {{ couleurBadge }}22; color: {{ couleurBadge }}; font-weight: bold; padding: 2px 6px; border-radius: 6px;">{{ iconeCO2 }} {{ transport.emissionsKgCO2|number_format(1) }} kg CO2 ({{ cc }})</span></p>
+                    <p style="font-size: 0.9em; margin-top: 5px; color: #6c757d;"><em>ðŸŒ³ Il faudrait {{ (transport.emissionsKgCO2 / 25)|round(0, 'ceil') }} arbre(s) au cours d'une annÃ©e pour compenser ce trajet.</em></p>
+                {% else %}
+                    <p>{{ 'Impact inconnu'|trans }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+

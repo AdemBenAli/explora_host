@@ -1,0 +1,410 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'planner.title'|trans }} - Explora{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --navy: #1a3a5c; --navy-mid: #2d5a8a; --orange: #f7941d;
+    --bg: #f0f4f8; --card: #ffffff; --text: #212529;
+    --emerald: #10b981; --gray: #e2e8f0; --navy-dark: #0f2540;
+    --sh: 0 10px 40px rgba(26,58,92,0.1);
+  }
+
+  body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; transition: 0.3s; }
+  body.dark-mode { --navy: #a8c4e0; --bg: #0f1923; --card: #162032; --text: #e8edf3; --gray: #2d3e50; --sh: 0 10px 40px rgba(0,0,0,0.3); }
+
+  .rm-wrap { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
+  
+  .rm-back { 
+    display: inline-flex; align-items: center; gap: 8px; 
+    margin-bottom: 20px; color: var(--navy); text-decoration: none; 
+    font-weight: 700; transition: transform 0.2s;
+  }
+  .rm-back:hover { transform: translateX(-5px); color: var(--orange); }
+
+  .rm-main-grid { display: grid; grid-template-columns: 1fr 340px; gap: 25px; align-items: start; }
+  
+  .rm-card { 
+    background: var(--card); border-radius: 24px; 
+    box-shadow: var(--sh); padding: 25px; border: 1px solid rgba(26,58,92,0.05);
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .rm-header { margin-bottom: 20px; }
+  .rm-title { font-size: 24px; font-weight: 800; color: var(--navy); display: flex; align-items: center; gap: 12px; }
+  [dir="rtl"] .rm-title { flex-direction: row-reverse; }
+
+  .rm-controls { display: flex; gap: 12px; align-items: flex-end; background: rgba(0,0,0,0.03); padding: 15px; border-radius: 16px; margin-bottom: 15px; }
+  [dir="rtl"] .rm-controls { flex-direction: row-reverse; }
+  
+  .rm-field { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+  [dir="rtl"] .rm-field { text-align: right; }
+  .rm-field label { font-size: 11px; font-weight: 800; color: var(--navy); text-transform: uppercase; }
+  .rm-field input { 
+    height: 44px; border: 2px solid var(--gray); border-radius: 10px; padding: 0 12px;
+    font-size: 14px; font-weight: 600; color: var(--navy); outline: none; width: 100%;
+    background: var(--card);
+  }
+  .rm-field input:focus { border-color: var(--orange); }
+
+  .rm-btn { 
+    height: 44px; padding: 0 20px; border: 0; border-radius: 10px; 
+    background: var(--navy); color: #fff; font-weight: 700; cursor: pointer; transition: 0.2s;
+  }
+  .rm-btn:hover { background: var(--orange); transform: scale(1.05); }
+
+  #routeMap { height: 60vh; border-radius: 20px; border: 1px solid var(--gray); z-index: 10; }
+
+  /* SIDEBAR: Travel Options */
+  .rm-sidebar { position: sticky; top: 30px; display: flex; flex-direction: column; gap: 20px; }
+  .opt-card { background: var(--card); border-radius: 24px; box-shadow: var(--sh); padding: 20px; border: 1px solid rgba(0,0,0,.04); }
+  .opt-title { font-size: 16px; font-weight: 800; color: var(--navy); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+  [dir="rtl"] .opt-title { flex-direction: row-reverse; }
+  .opt-list { display: flex; flex-direction: column; gap: 12px; }
+  
+  .opt-item { 
+    display: flex; align-items: center; gap: 15px; padding: 12px; 
+    border-radius: 14px; background: rgba(0,0,0,0.02); border: 1.5px solid transparent;
+    transition: all 0.2s; cursor: pointer;
+  }
+  [dir="rtl"] .opt-item { flex-direction: row-reverse; text-align: right; }
+  .opt-item:hover { border-color: var(--orange); background: var(--card); transform: scale(1.02); }
+  .opt-item.active { border-color: var(--navy); background: rgba(45,90,138,0.05); box-shadow: 0 4px 12px rgba(26,58,92,0.08); }
+
+  .opt-icon { 
+    width: 44px; height: 44px; border-radius: 12px; background: var(--navy); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .opt-info { flex: 1; }
+  .opt-name { font-size: 14px; font-weight: 800; color: var(--navy); }
+  .opt-detail { font-size: 12px; color: #64748b; font-weight: 600; }
+  .opt-time { font-size: 15px; font-weight: 800; color: var(--orange); text-align: right; }
+  [dir="rtl"] .opt-time { text-align: left; }
+
+  .rm-info-footer { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+  .stat-box { background: var(--navy); color: #fff; padding: 12px; border-radius: 12px; text-align: center; }
+  .stat-label { font-size: 10px; text-transform: uppercase; opacity: 0.7; font-weight: 700; margin-bottom: 2px; }
+  .stat-val { font-size: 16px; font-weight: 800; }
+
+  .status-msg { font-size: 13px; color: #64748b; margin-top: 10px; font-weight: 600; display: none; text-align: center; }
+
+  /* FLOATING BUTTONS */
+  .floating-tools { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 12px; z-index: 1000; }
+  [dir="rtl"] .floating-tools { right: auto; left: 30px; }
+  .tool-btn { 
+    width: 54px; height: 54px; border-radius: 50%; background: var(--navy); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2); cursor: pointer; transition: 0.3s; border: none;
+  }
+  .tool-btn:hover { transform: translateY(-5px) rotate(10deg); background: var(--orange); }
+  .tool-btn--eco { background: var(--emerald); }
+  .tool-btn--weather { background: #3b82f6; }
+
+  /* MODALS & OVERLAYS (Copied for consistency) */
+  .ut-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .ut-modal-overlay.open { display: flex; }
+  .ut-modal-box { background: var(--card); border-radius: 24px; padding: 30px; width: 90%; max-width: 450px; position: relative; animation: slideUp 0.3s ease-out; }
+  .ut-modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 22px; cursor: pointer; color: var(--navy); }
+  .ut-modal-title { font-weight: 800; font-size: 20px; color: var(--navy); margin-bottom: 15px; }
+
+  /* Weather Box */
+  .ut-weather-box { background: var(--card); border-radius: 20px; padding: 25px; width: 320px; }
+  .ut-weather-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+  .ut-weather-title { font-weight: 800; color: var(--navy); }
+  .ut-weather-search { display: flex; gap: 8px; margin-bottom: 15px; }
+  .ut-weather-search input { flex: 1; border: 1px solid var(--gray); border-radius: 8px; padding: 6px 12px; font-size: 13px; background: var(--bg); color: var(--text); }
+  .ut-weather-search button { background: var(--navy); color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; }
+  .ut-weather-main { display: flex; align-items: center; gap: 15px; }
+  .ut-weather-icon { font-size: 40px; }
+  .ut-weather-temp { font-size: 28px; font-weight: 800; color: var(--navy); }
+  .ut-weather-city { font-size: 14px; font-weight: 600; color: var(--orange); }
+  .ut-weather-forecast { display: flex; gap: 10px; margin-top: 20px; border-top: 1px dashed var(--gray); padding-top: 15px; justify-content: center; }
+  .ut-weather-day { text-align: center; }
+
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+  @media(max-width: 900px) {
+    .rm-main-grid { grid-template-columns: 1fr; }
+    .rm-sidebar { position: static; }
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="rm-wrap" {{ app.request.locale == 'ar' ? 'dir="rtl"' : '' }}>
+  <a class="rm-back" href="{{ path('user_transport') }}">
+    <i class="fas fa-arrow-{{ app.request.locale == 'ar' ? 'right' : 'left' }}"></i> {{ 'planner.btn_back'|trans }}
+  </a>
+
+  <div class="rm-main-grid">
+    {# MAIN COLUMN #}
+    <div class="rm-card">
+      <div class="rm-header">
+        <div class="rm-title"><i class="fas fa-map-marked-alt"></i> {{ 'planner.title'|trans }}</div>
+      </div>
+
+      <div class="rm-controls">
+        <div class="rm-field">
+          <label>{{ 'planner.label_origin'|trans }}</label>
+          <input id="inputOrigin" value="{{ origin }}" placeholder="{{ 'search.origin_placeholder'|trans }}">
+        </div>
+        <div class="rm-field">
+          <label>{{ 'planner.label_destination'|trans }}</label>
+          <input id="inputDest" value="{{ destination }}" placeholder="{{ 'search.destination_placeholder'|trans }}">
+        </div>
+        <button class="rm-btn" id="btnUpdate"><i class="fas fa-search-location"></i></button>
+      </div>
+
+      <div id="statusMsg" class="status-msg">{{ 'planner.msg_loading'|trans }}</div>
+      <div id="routeMap"></div>
+
+      <div class="rm-info-footer" id="infoFooter" style="display:none">
+        <div class="stat-box">
+          <div class="stat-label">{{ 'planner.stat_distance'|trans }}</div>
+          <div class="stat-val" id="valDist">-- km</div>
+        </div>
+        <div class="stat-box" style="background:var(--emerald)">
+          <div class="stat-label">{{ 'planner.stat_eco'|trans }}</div>
+          <div class="stat-val" id="valEco">-- kg CO2</div>
+        </div>
+      </div>
+    </div>
+
+    {# SIDEBAR COLUMN #}
+    <div class="rm-sidebar">
+      <div class="opt-card">
+        <div class="opt-title"><i class="fas fa-list-ul"></i> {{ 'planner.options_title'|trans }}</div>
+        <div class="opt-list" id="transportList">
+          {# VOITURE #}
+          <div class="opt-item active" id="opt-car">
+            <div class="opt-icon"><i class="fas fa-car"></i></div>
+            <div class="opt-info">
+              <div class="opt-name">{{ 'type.voiture'|trans }}</div>
+              <div class="opt-detail">{{ 'planner.car_detail'|trans }}</div>
+            </div>
+            <div class="opt-time" id="time-car">--</div>
+          </div>
+          {# TRAIN #}
+          <div class="opt-item" id="opt-train">
+            <div class="opt-icon" style="background:#ef4444"><i class="fas fa-train"></i></div>
+            <div class="opt-info">
+              <div class="opt-name">{{ 'type.train'|trans }}</div>
+              <div class="opt-detail">{{ 'planner.train_detail'|trans }}</div>
+            </div>
+            <div class="opt-time" id="time-train">--</div>
+          </div>
+          {# BUS #}
+          <div class="opt-item" id="opt-bus">
+            <div class="opt-icon" style="background:#f59e0b"><i class="fas fa-bus"></i></div>
+            <div class="opt-info">
+              <div class="opt-name">{{ 'type.bus'|trans }}</div>
+              <div class="opt-detail">{{ 'planner.bus_detail'|trans }}</div>
+            </div>
+            <div class="opt-time" id="time-bus">--</div>
+          </div>
+          {# BATEAU #}
+          <div class="opt-item" style="display:none" id="opt-boat">
+            <div class="opt-icon" style="background:#0891b2"><i class="fas fa-ship"></i></div>
+            <div class="opt-info">
+              <div class="opt-name">{{ 'type.bateau'|trans }}</div>
+              <div class="opt-detail">{{ 'planner.boat_detail'|trans }}</div>
+            </div>
+            <div class="opt-time" id="time-boat">--</div>
+          </div>
+          {# AVION #}
+          <div class="opt-item" style="display:none" id="opt-plane">
+            <div class="opt-icon" style="background:#3b82f6"><i class="fas fa-plane"></i></div>
+            <div class="opt-info">
+              <div class="opt-name">{{ 'type.avion'|trans }}</div>
+              <div class="opt-detail">{{ 'planner.plane_detail'|trans }}</div>
+            </div>
+            <div class="opt-time" id="time-plane">--</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opt-card" id="ecoAdviceCard" style="background:rgba(247,148,29,0.05); border-color:rgba(247,148,29,0.2);">
+        <div class="opt-title" style="color:var(--orange)"><i class="fas fa-lightbulb"></i> {{ 'planner.advice_title'|trans }}</div>
+        <p id="ecoAdviceText" style="font-size:13px; color:var(--navy); line-height:1.5; font-weight:600;">
+          {{ 'planner.advice_searching'|trans }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# FLOATING TOOLS #}
+<div class="floating-tools">
+    <button class="tool-btn" id="btnTheme" title="Mode sombre/clair"><i class="fas fa-moon" id="themeIcon"></i></button>
+</div>
+
+<div class="ut-modal-overlay" id="veloOverlay">
+    <div class="ut-modal-box" style="text-align: center;">
+        <button class="ut-modal-close" id="veloClose">&times;</button>
+        <div style="font-size: 50px; margin-bottom: 15px; color:var(--emerald);"><i class="fas fa-bicycle"></i></div>
+        <h3 class="ut-modal-title" style="color:var(--emerald)">{{ 'eco.bike_alert_title'|trans }}</h3>
+        <p style="margin-bottom: 20px;">{{ 'eco.bike_alert_text'|trans({'%dist%': '<strong id="veloDistLabel"></strong>'})|raw }}</p>
+        <button type="button" class="rm-btn" style="background:var(--emerald); width:100%;" onclick="window.location.href='{{ path('user_transport') }}?type=VOITURE'">{{ 'eco.btn_rent_bike'|trans }}</button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // ════════════════════════════════════ MAP LOGIC ════════════════════════════════════
+    const map = L.map('routeMap').setView([36.0, 10.0], 7);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(map);
+    let routeLine = null, markers = [];
+
+    const trans = {
+        h: '{{ 'unit.hour'|trans }}', m: '{{ 'unit.minute'|trans }}',
+        short: "{{ 'planner.advice_short'|trans }}", 
+        med: "{{ 'planner.advice_medium'|trans }}", 
+        sea: "{{ 'planner.advice_sea'|trans }}",
+        loading: "{{ 'planner.msg_loading'|trans }}"
+    };
+
+    function formatTime(minutes) {
+        if (minutes > 60) return Math.floor(minutes/60) + trans.h + ' ' + Math.round(minutes%60) + trans.m;
+        return Math.round(minutes) + trans.m;
+    }
+
+    function haversine(lat1, lon1, lat2, lon2) {
+        const R = 6371; const dLat = (lat2 - lat1) * Math.PI / 180; const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+    }
+
+    async function loadRoute() {
+        const origin = document.getElementById('inputOrigin').value.trim(), dest = document.getElementById('inputDest').value.trim();
+        const msg = document.getElementById('statusMsg'), btn = document.getElementById('btnUpdate');
+        const footer = document.getElementById('infoFooter'), advice = document.getElementById('ecoAdviceText'), adviceCard = document.getElementById('ecoAdviceCard');
+
+        if(!origin || !dest) return;
+        msg.style.display = 'block'; btn.disabled = true;
+        if(routeLine) map.removeLayer(routeLine); markers.forEach(m => map.removeLayer(m)); markers = [];
+
+        try {
+            const res = await fetch(`{{ path('user_transport_route_data') }}?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}`);
+            const data = await res.json(); if(data.error) throw new Error(data.error);
+
+            const coords = data.route.features[0].geometry.coordinates.map(c => [c[1], c[0]]);
+            routeLine = L.polyline(coords, {color: '#f7941d', weight: 5}).addTo(map);
+            const icon = (c) => L.divIcon({className: 'custom-marker '+c, html: '<i class="fas fa-map-pin" style="color:var(--orange)"></i>'});
+            markers.push(L.marker([data.origin.lat, data.origin.lon], {icon: icon('')}).addTo(map));
+            markers.push(L.marker([data.destination.lat, data.destination.lon], {icon: icon('dest')}).addTo(map));
+            map.fitBounds(routeLine.getBounds(), {padding: [50,50]});
+
+            const roadDist = data.route.features[0].properties.segments[0].distance / 1000, roadTime = data.route.features[0].properties.segments[0].duration / 60;
+            const directDist = haversine(data.origin.lat, data.origin.lon, data.destination.lat, data.destination.lon);
+
+            document.getElementById('valDist').textContent = roadDist.toFixed(1) + ' km';
+            document.getElementById('valEco').textContent = (roadDist * 0.12).toFixed(1) + ' kg';
+
+            const ratio = roadDist / directDist;
+            
+            // Force Sea if crossing continents (Africa ~30-37, Sicily/Europe > 37)
+            const isAfricaOrigin = data.origin.lat < 37.1;
+            const isEuropeDest   = data.destination.lat > 37.4;
+            const isAfricaDest   = data.destination.lat < 37.1;
+            const isEuropeOrigin = data.origin.lat > 37.4;
+            const isCrossingSea  = (isAfricaOrigin && isEuropeDest) || (isEuropeOrigin && isAfricaDest);
+            
+            const isSea = isCrossingSea || (ratio > 1.4 && directDist > 200);
+            const isLong = directDist > 2500;
+            
+            const toggle = (id, s) => document.getElementById(id).style.display = s;
+
+            // ── CALCUL DES TEMPS ──
+            const timeCar   = roadTime;
+            const timeTrain = (roadDist / 90) * 60 + 20;
+            const timeBus   = (roadDist / 60) * 60 + 40;
+            const timeBoat  = roadTime + 120; // Ferry offset
+            const timePlane = (directDist / 850) * 60 + 45;
+
+            // ── AFFICHAGE DES OPTIONS DISPONIBLES ──
+            if (isSea || isLong) {
+                ['opt-car','opt-train','opt-bus'].forEach(id => toggle(id, 'none'));
+                toggle('opt-boat', 'flex');
+                document.getElementById('time-boat').textContent = formatTime(timeBoat);
+                adviceCard.style.borderColor = "#0891b2";
+            } else {
+                ['opt-car','opt-train','opt-bus'].forEach(id => toggle(id, 'flex'));
+                toggle('opt-boat', 'none');
+                document.getElementById('time-car').textContent   = formatTime(timeCar);
+                document.getElementById('time-train').textContent = formatTime(timeTrain);
+                document.getElementById('time-bus').textContent   = formatTime(timeBus);
+                adviceCard.style.borderColor = "var(--orange)";
+            }
+
+            if (directDist > 300 || isCrossingSea) {
+                toggle('opt-plane', 'flex');
+                document.getElementById('time-plane').textContent = formatTime(timePlane);
+            } else {
+                toggle('opt-plane', 'none');
+            }
+
+            // ── CONSEIL INTELLIGENT BASÉ SUR LE VISIBLE ──
+            const candidates = [];
+            if (document.getElementById('opt-car').style.display !== 'none')   candidates.push({ mode: "{{ 'type.voiture'|trans|e('js') }}", time: timeCar });
+            if (document.getElementById('opt-train').style.display !== 'none') candidates.push({ mode: "{{ 'type.train'|trans|e('js') }}",   time: timeTrain });
+            if (document.getElementById('opt-bus').style.display !== 'none')   candidates.push({ mode: "{{ 'type.bus'|trans|e('js') }}",     time: timeBus });
+            if (document.getElementById('opt-boat').style.display !== 'none')  candidates.push({ mode: "{{ 'type.bateau'|trans|e('js') }}",  time: timeBoat });
+            if (document.getElementById('opt-plane').style.display !== 'none') candidates.push({ mode: "{{ 'type.avion'|trans|e('js') }}",   time: timePlane });
+
+            if (candidates.length > 0) {
+                candidates.sort((a, b) => a.time - b.time);
+                const fastest = candidates[0];
+                const slowest = candidates[candidates.length - 1];
+                const diffMin = Math.round(slowest.time - fastest.time);
+
+                if (diffMin < 15) {
+                    advice.textContent = "{{ 'planner.advice_similar'|trans|e('js') }}";
+                } else {
+                    advice.textContent = `${fastest.mode} : ${formatTime(fastest.time)} — {{ 'planner.advice_fastest'|trans|e('js') }} ${diffMin} {{ 'unit.minute'|trans|e('js') }} {{ 'planner.advice_vs'|trans|e('js') }} ${slowest.mode} (${formatTime(slowest.time)}).`;
+                }
+                
+                // Trigger Vélo si distance < 10km (land only)
+                if (roadDist < 10 && !isSea) {
+                    document.getElementById('veloDistLabel').textContent = roadDist.toFixed(1) + ' km';
+                    document.getElementById('veloOverlay').classList.add('open');
+                }
+            }
+
+            document.querySelectorAll('.opt-item').forEach(item => {
+                item.onclick = () => {
+                   const typeMap = { 'opt-car': 'VOITURE', 'opt-train': 'TRAIN', 'opt-bus': 'BUS', 'opt-plane': 'AVION', 'opt-boat': 'BATEAU' };
+                   const type = typeMap[item.id];
+                   if (type) {
+                       window.location.href = `{{ path('user_transport') }}?origine=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&type=${type}`;
+                   }
+                };
+            });
+
+            footer.style.display = 'grid'; msg.style.display = 'none';
+        } catch(e) { msg.textContent = 'Erreur: ' + e.message; } finally { btn.disabled = false; }
+    }
+
+    document.getElementById('btnUpdate').onclick = loadRoute;
+    loadRoute();
+
+    // ════════════════════════════════════ UI TOOLS ════════════════════════════════════
+    // Theme
+    const themeBtn = document.getElementById('btnTheme'), themeIcon = document.getElementById('themeIcon');
+    let dark = localStorage.getItem('ut-dark') === '1';
+    const applyTheme = () => { document.body.classList.toggle('dark-mode', dark); themeIcon.className = dark ? 'fas fa-sun' : 'fas fa-moon'; };
+    applyTheme(); themeBtn.onclick = () => { dark = !dark; localStorage.setItem('ut-dark', dark?'1':'0'); applyTheme(); };
+
+    // Modals
+    const q = (id) => document.getElementById(id);
+    q('veloClose').onclick = () => q('veloOverlay').classList.remove('open');
+});
+</script>
+{% endblock %}

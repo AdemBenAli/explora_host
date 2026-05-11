@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Explora{% endblock %}</title>
+
+        <link rel="stylesheet" href="{{ asset('css/explora.css') }}">
+        <link rel="icon" href="{{ asset('images/Explora.png') }}">
+
+        <style>
+            body {
+                outline: none !important;
+                border: none !important;
+            }
+        </style>
+
+        {% block stylesheets %}{% endblock %}
+    </head>
+
+    <body>
+        {% block body %}{% endblock %}
+    </body>
+</html>

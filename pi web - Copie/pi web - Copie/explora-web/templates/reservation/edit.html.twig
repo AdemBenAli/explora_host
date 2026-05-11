@@ -1,0 +1,198 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Reservation | Explora{% endblock %}
+
+{% block body %}
+<div class="front-hotels-shell">
+
+    <header class="front-navbar">
+        <div class="front-navbar-inner">
+            <a href="{{ path('app_hebergement_front') }}" class="front-brand">
+                <img src="{{ asset('images/Explora.png') }}" alt="Explora" class="front-brand-logo">
+            </a>
+
+            <nav class="front-center-nav">
+                <a href="#" class="front-nav-pill">Home</a>
+                <a href="#" class="front-nav-pill">Voyages</a>
+                <a href="#" class="front-nav-pill">Transport</a>
+                <a href="{{ path('app_hebergement_front') }}" class="front-nav-pill">Hotels</a>
+            </nav>
+
+            <div class="front-right-nav">
+                <a href="{{ path('app_hebergement_index') }}" class="front-outline-pill">Dashboard</a>
+                <a href="{{ path('app_reservation_history') }}" class="front-outline-pill">History</a>
+                <a href="#" class="front-accent-pill">Profile</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="front-hero-hotels">
+        <div class="front-hero-content">
+            <h1>Edit Reservation</h1>
+            <p>Update reservation details</p>
+        </div>
+    </section>
+
+    <section style="width:min(900px, calc(100% - 32px)); margin:44px auto 56px;">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div
+                    style="
+                        margin-bottom: 18px;
+                        padding: 14px 16px;
+                        border-radius: 14px;
+                        font-weight: 700;
+                        background: {{ label == 'success' ? '#e9f8ee' : '#fdeceb' }};
+                        color: {{ label == 'success' ? '#1f7a39' : '#b42318' }};
+                        border: 1px solid {{ label == 'success' ? '#b7e4c7' : '#f5c2c7' }};
+                    "
+                >
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <div
+            style="
+                background:#ffffff;
+                border-radius:24px;
+                box-shadow:0 8px 20px rgba(0,0,0,0.08);
+                padding:28px;
+            "
+        >
+            <h2 style="margin:0 0 24px;color:#1a3a5c;font-size:30px;font-weight:800;">
+                {{ reservation.hebergement ? reservation.hebergement.nom : 'Reservation' }}
+            </h2>
+
+            <form method="post" action="{{ path('app_reservation_edit', {'id': reservation.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('edit_reservation_' ~ reservation.id) }}">
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+                    <div>
+                        <label style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Full name</label>
+                        <input
+                            type="text"
+                            name="nomClient"
+                            value="{{ reservation.nomClient }}"
+                            required
+                            style="width:100%;height:44px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                        >
+                    </div>
+
+                    <div>
+                        <label style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Email</label>
+                        <input
+                            type="email"
+                            name="emailClient"
+                            value="{{ reservation.emailClient }}"
+                            style="width:100%;height:44px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                        >
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px;">
+                    <div>
+                        <label style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Check-in</label>
+                        <input
+                            type="date"
+                            name="dateCheckin"
+                            value="{{ reservation.dateCheckin ? reservation.dateCheckin|date('Y-m-d') : '' }}"
+                            required
+                            style="width:100%;height:44px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                        >
+                    </div>
+
+                    <div>
+                        <label style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Check-out</label>
+                        <input
+                            type="date"
+                            name="dateCheckout"
+                            value="{{ reservation.dateCheckout ? reservation.dateCheckout|date('Y-m-d') : '' }}"
+                            required
+                            style="width:100%;height:44px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                        >
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:18px;margin-top:18px;">
+                    <div>
+                        <label style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Guests</label>
+                        <input
+                            type="number"
+                            name="guestsCount"
+                            min="1"
+                            value="{{ reservation.guestsCount }}"
+                            required
+                            style="width:100%;height:44px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                        >
+                    </div>
+
+                    <div>
+                        <label style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Rooms</label>
+                        <input
+                            type="number"
+                            name="roomsCount"
+                            min="1"
+                            value="{{ reservation.roomsCount }}"
+                            required
+                            style="width:100%;height:44px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                        >
+                    </div>
+
+                    <div>
+                        <label style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Occupancy</label>
+                        <select
+                            name="occupancy"
+                            style="width:100%;height:44px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                        >
+                            <option value="SINGLE" {{ reservation.occupancy == 'SINGLE' ? 'selected' : '' }}>Single</option>
+                            <option value="DOUBLE" {{ reservation.occupancy == 'DOUBLE' ? 'selected' : '' }}>Double</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Room type</label>
+                        <select
+                            name="roomType"
+                            style="width:100%;height:44px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                        >
+                            <option value="Standard" {{ reservation.roomType == 'Standard' ? 'selected' : '' }}>Standard</option>
+                            <option value="Deluxe" {{ reservation.roomType == 'Deluxe' ? 'selected' : '' }}>Deluxe</option>
+                            <option value="Suite" {{ reservation.roomType == 'Suite' ? 'selected' : '' }}>Suite</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px;">
+                    <div>
+                        <label style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Status</label>
+                        <select
+                            name="statut"
+                            style="width:100%;height:44px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                        >
+                            <option value="CONFIRMED" {{ reservation.statut == 'CONFIRMED' ? 'selected' : '' }}>CONFIRMED</option>
+                            <option value="PENDING" {{ reservation.statut == 'PENDING' ? 'selected' : '' }}>PENDING</option>
+                            <option value="CANCELLED" {{ reservation.statut == 'CANCELLED' ? 'selected' : '' }}>CANCELLED</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Current total</label>
+                        <input
+                            type="text"
+                            value="${{ reservation.prixTotal is not null ? reservation.prixTotal|number_format(1, '.', '') : '0.0' }}"
+                            disabled
+                            style="width:100%;height:44px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#f8f9fb;color:#1a3a5c;font-weight:700;"
+                        >
+                    </div>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;gap:14px;margin-top:28px;flex-wrap:wrap;">
+                    <a href="{{ path('app_reservation_history') }}" class="front-btn-outline">Cancel</a>
+                    <button type="submit" class="front-btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,419 @@
+﻿{% extends 'base.html.twig' %}
+{% block title %}Explora - Shopping Carts Management{% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #2c3e50; transition: background-color .25s ease, color .25s ease; }
+        .layout { display: grid; grid-template-columns: 245px 1fr; min-height: 100vh; }
+        .sidebar { background: linear-gradient(to bottom, #1a3a5c, #0f2438); color: #c8d1dc; padding: 30px 0; }
+        .logo { color: #fff; font-size: 28px; font-weight: 800; letter-spacing: 1px; padding: 0 26px 34px; }
+        .section { color: #8492a6; font-size: 11px; padding: 18px 26px 8px; text-transform: uppercase; font-weight: 700; }
+        .nav a { display: block; color: inherit; text-decoration: none; padding: 13px 26px; }
+        .nav a.active { background: #f7941d; color: white; }
+        .main { display: flex; flex-direction: column; }
+        .topbar { background: white; padding: 18px 36px; box-shadow: 0 2px 10px rgba(0,0,0,.05); display: flex; align-items: center; gap: 20px; }
+        .topbar input { width: 380px; max-width: 100%; border: none; border-radius: 10px; background: #f7f8fa; padding: 12px 14px; }
+        .topbar .right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+        .badge { width: 40px; height: 40px; border-radius: 50%; background: #f0f2f5; display: grid; place-items: center; color: #f7941d; font-weight: 700; position: relative; }
+        .badge::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #e74c3c; right: -1px; top: -1px; }
+        .profile { display: flex; align-items: center; gap: 10px; background: #f0f2f5; border-radius: 20px; padding: 7px 12px; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #f7941d; }
+        .btn-theme { width: 40px; height: 40px; border-radius: 10px; border: none; background: #f0f2f5; cursor: pointer; font-size: 16px; }
+        .content { padding: 30px 36px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .header h1 { margin: 0; font-size: 48px; }
+        .actions { display: flex; gap: 10px; }
+        .btn { border-radius: 8px; padding: 10px 20px; font-weight: 600; border: none; cursor: pointer; }
+        .btn.stats { color: white; background: linear-gradient(to right, #667eea, #764ba2); }
+        .btn.outline { color: #f7941d; background: white; border: 2px solid #f7941d; }
+        .btn.danger { color: white; background: #e74c3c; }
+        .cards { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap: 18px; margin-bottom: 20px; }
+        .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 8px 20px rgba(0,0,0,.06); }
+        .card .num { font-size: 40px; font-weight: 700; }
+        .card .sub { color: #8492a6; margin-top: 2px; }
+        .card .mini { margin-top: 8px; font-size: 13px; font-weight: 600; }
+        .filters, .tableWrap { background: white; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.06); }
+        .filters { padding: 16px; display: grid; grid-template-columns: 180px 180px 180px 180px 1fr auto; gap: 10px; align-items: center; margin-bottom: 20px; }
+        .filters input, .filters select { padding: 10px; border: 1px solid #e1e5eb; border-radius: 8px; background: #f7f8fa; }
+        .tableWrap { padding: 20px; }
+        .tableHead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { border: 1px solid #ecf0f3; padding: 9px; text-align: left; }
+        th { background: #f8fafc; cursor: pointer; user-select: none; }
+        .status { padding: 5px 10px; border-radius: 14px; font-weight: 700; font-size: 12px; display: inline-block; }
+        .s-active { background: #d4edda; color: #155724; }
+        .s-valid { background: #cce5ff; color: #004085; }
+        .s-abandoned { background: #f8d7da; color: #721c24; }
+        .money { font-weight: 700; color: #f7941d; }
+        .row-actions { display: flex; gap: 8px; align-items: center; }
+        .row-btn { border: none; border-radius: 6px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+        .row-btn.edit { background: #e8f1ff; color: #1d4f91; }
+        .row-btn.delete { background: #ffe8e8; color: #9f1f1f; }
+        .delete-form { margin: 0; }
+        .edit-modal-overlay { position: fixed; inset: 0; background: rgba(15,36,56,.55); display: none; align-items: center; justify-content: center; z-index: 2100; padding: 20px; }
+        .edit-modal-overlay.open { display: flex; }
+        .edit-modal { width: min(460px, 100%); background: #fff; border-radius: 12px; box-shadow: 0 18px 45px rgba(0,0,0,.28); overflow: hidden; }
+        .edit-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; color: #fff; background: linear-gradient(to right, #1a3a5c, #0f2438); }
+        .edit-modal-title { margin: 0; font-size: 20px; }
+        .edit-modal-close { border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; color: #fff; background: rgba(255,255,255,.2); font-size: 20px; }
+        .edit-modal-body { padding: 16px; display: grid; gap: 12px; }
+        .edit-modal-body label { font-weight: 700; }
+        .edit-modal-body select { width: 100%; padding: 10px; border: 1px solid #e1e5eb; border-radius: 8px; background: #f7f8fa; }
+        .edit-modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .stats-modal-overlay { position: fixed; inset: 0; background: rgba(15,36,56,.55); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+        .stats-modal-overlay.open { display: flex; }
+        .stats-modal { width: min(720px, 100%); background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 18px 45px rgba(0,0,0,.28); }
+        .stats-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; color: #fff; background: linear-gradient(to right, #667eea, #764ba2); }
+        .stats-modal-head h3 { margin: 0; font-size: 24px; }
+        .stats-close { border: none; width: 34px; height: 34px; border-radius: 6px; cursor: pointer; color: #fff; background: rgba(255,255,255,.2); font-size: 22px; line-height: 1; }
+        .stats-modal-body { padding: 20px; }
+        .stats-chart-wrap { display: grid; place-items: center; min-height: 360px; }
+
+        body.dark-theme { background: #0f172a; color: #e2e8f0; }
+        body.dark-theme .topbar,
+        body.dark-theme .card,
+        body.dark-theme .filters,
+        body.dark-theme .tableWrap,
+        body.dark-theme .profile,
+        body.dark-theme .edit-modal,
+        body.dark-theme .stats-modal { background: #111827; box-shadow: 0 8px 20px rgba(0,0,0,.35); }
+        body.dark-theme .header h1,
+        body.dark-theme .tableHead h2,
+        body.dark-theme .card .num,
+        body.dark-theme .nav a,
+        body.dark-theme th,
+        body.dark-theme td,
+        body.dark-theme .edit-modal-body label,
+        body.dark-theme .topbar input,
+        body.dark-theme .profile,
+        body.dark-theme #rowMeta { color: #e5e7eb !important; }
+        body.dark-theme .topbar input,
+        body.dark-theme .filters input,
+        body.dark-theme .filters select,
+        body.dark-theme .edit-modal-body select,
+        body.dark-theme .btn-theme,
+        body.dark-theme .badge { background: #1f2937; color: #e5e7eb; border-color: #374151; }
+        body.dark-theme .card .sub,
+        body.dark-theme .section,
+        body.dark-theme small,
+        body.dark-theme .tableHead small { color: #94a3b8 !important; }
+        body.dark-theme th { background: #1f2937; }
+        body.dark-theme th,
+        body.dark-theme td { border-color: #273244; }
+        body.dark-theme .btn.outline { background: #111827; color: #f7ae4b; border-color: #f7ae4b; }
+        @media (max-width: 1200px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .cards { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+            .filters { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+<style>
+/* == SIDEBAR == */
+.at-sidebar{width:250px;height:100vh;overflow-y:auto;background:#1e3a5f;color:white;display:flex;flex-direction:column;flex-shrink:0;}
+.at-sidebar-logo{display:flex;align-items:center;gap:12px;padding:24px 20px 28px;border-bottom:1px solid rgba(255,255,255,.08);}
+.at-sidebar-section{font-size:11px;font-weight:700;letter-spacing:.8px;color:rgba(255,255,255,.45);padding:18px 20px 6px;text-transform:uppercase;}
+.at-sidebar-item{display:flex;align-items:center;gap:12px;padding:0 20px;height:45px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:14px;color:rgba(255,255,255,.75);text-decoration:none;cursor:pointer;transition:.22s ease;background:transparent;border:none;width:100%;text-align:left;border-radius:8px;margin:0 0 2px;}
+.at-sidebar-item:hover{background:rgba(247,148,29,.18);color:#fff;}
+.at-sidebar-item--active{background:rgba(247,148,29,.15);color:#f7941d;font-weight:700;border-left:3px solid #f7941d;}
+.at-sidebar-item--logout{color:#e74c3c;background:rgba(231,76,60,.08);}
+.at-sidebar-item--logout:hover{background:rgba(231,76,60,.18);color:#e74c3c;}
+.at-sidebar-spacer{flex:1;}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="layout" style="display:flex; min-height:100vh;">
+    {% include 'partials/sidebar.html.twig' with { active: 'paniers' } %}
+
+    <main class="main" style="flex:1; display:flex; flex-direction:column;">
+        <div class="topbar">
+            <input id="globalSearch" placeholder="Search carts by customer, ID...">
+            <div class="right">
+                <button type="button" class="btn-theme" id="themeToggleBtn" onclick="toggleTheme()">ðŸŒ™</button>
+                <div class="badge">3</div>
+                <div class="badge">5</div>
+                <div class="profile"><div class="avatar"></div><div><div>John Doe</div><small style="color:#8492a6;">Administrator</small></div></div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="header">
+                <h1>Shopping Carts Management</h1>
+                <div class="actions">
+                    
+                    <button class="btn stats" id="openCartsStats">Statistics</button>
+                    <a class="btn outline" href="{{ path('admin_carts_export') }}">Export Data</a>
+                    <button class="btn danger">Clear Abandoned</button>
+                </div>
+            </div>
+
+            <section class="cards">
+                <article class="card"><div class="num" id="sTotal">{{ stats.total }}</div><div class="sub">Total Carts</div><div class="mini" style="color:#11998e;">{{ stats.today }} today</div></article>
+                <article class="card"><div class="num" id="sActive">{{ stats.active }}</div><div class="sub">Active Carts</div><div class="mini" style="color:#11998e;">{{ stats.activePercent }}% of total</div></article>
+                <article class="card"><div class="num" id="sAbandoned">{{ stats.abandoned }}</div><div class="sub">Abandoned Carts</div><div class="mini" style="color:#e74c3c;">{{ stats.abandonedPercent }}% abandoned</div></article>
+                <article class="card"><div class="num" id="sValue">${{ (stats.value / 1000)|number_format(0, '.', ',') }}K</div><div class="sub">Total Cart Value</div><div class="mini" style="color:#1a3a5c;">${{ stats.avg|number_format(0, '.', ',') }} avg/cart</div></article>
+            </section>
+
+            <section class="filters">
+                <select id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="ACTIF">ACTIF</option>
+                    <option value="VALIDE">VALIDE</option>
+                    <option value="ABANDONNE">ABANDONNE</option>
+                </select>
+                <select id="amountFilter">
+                    <option value="">All Amounts</option>
+                    <option value="0-100">$0-$100</option>
+                    <option value="100-500">$100-$500</option>
+                    <option value="500-1000">$500-$1000</option>
+                    <option value="1000+">$1000+</option>
+                </select>
+                <input id="startDate" type="date">
+                <input id="endDate" type="date">
+                <div></div>
+                <button class="btn outline" id="clearFilters">Clear Filters</button>
+            </section>
+
+            <section class="tableWrap">
+                <div class="tableHead">
+                    <h2 style="margin:0;font-size:30px;">All Shopping Carts</h2>
+                    <small id="rowMeta" style="color:#8492a6;"></small>
+                </div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th data-sort="id">Cart ID</th>
+                        <th data-sort="userName">Customer</th>
+                        <th data-sort="email">Email</th>
+                        <th data-sort="itemsCount">Items</th>
+                        <th data-sort="total">Total</th>
+                        <th data-sort="status">Status</th>
+                        <th data-sort="createdAt">Created</th>
+                        <th data-sort="updatedAt">Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="cartTableBody"></tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+</div>
+
+<div class="stats-modal-overlay" id="cartsStatsModal" aria-hidden="true">
+    <div class="stats-modal" role="dialog" aria-modal="true" aria-labelledby="cartsStatsTitle">
+        <div class="stats-modal-head">
+            <h3 id="cartsStatsTitle">Cart Statistics</h3>
+            <button class="stats-close" id="closeCartsStats">&times;</button>
+        </div>
+        <div class="stats-modal-body">
+            <div class="stats-chart-wrap">
+                {{ render_chart(cartsStatsChart, {'class': 'ux-chart-carts'}) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="edit-modal-overlay" id="cartEditModal" aria-hidden="true">
+    <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="cartEditTitle">
+        <div class="edit-modal-head">
+            <h3 class="edit-modal-title" id="cartEditTitle">Update Cart <span id="cartEditIdLabel"></span></h3>
+            <button class="edit-modal-close" id="closeCartEditModal">&times;</button>
+        </div>
+        <form id="cartEditForm" method="post">
+            <div class="edit-modal-body">
+                <label for="cartStatusSelect">Status</label>
+                <select id="cartStatusSelect" name="status">
+                    <option value="ACTIF">ACTIF</option>
+                    <option value="VALIDE">VALIDE</option>
+                    <option value="ABANDONNE">ABANDONNE</option>
+                </select>
+                <div class="edit-modal-actions">
+                    <button type="button" class="btn outline" id="cancelCartEdit">Cancel</button>
+                    <button type="submit" class="btn stats">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{ importmap('app') }}
+<script>
+function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+    localStorage.setItem('explora-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+        btn.textContent = document.body.classList.contains('dark-theme') ? 'â˜€ï¸' : 'ðŸŒ™';
+    }
+}
+
+function applySavedTheme() {
+    const savedTheme = localStorage.getItem('explora-theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+        btn.textContent = document.body.classList.contains('dark-theme') ? 'â˜€ï¸' : 'ðŸŒ™';
+    }
+}
+
+applySavedTheme();
+
+const carts = {{ carts|json_encode|raw }};
+let currentSort = { key: 'id', dir: 'desc' };
+
+const tableBody = document.getElementById('cartTableBody');
+const rowMeta = document.getElementById('rowMeta');
+const globalSearch = document.getElementById('globalSearch');
+const statusFilter = document.getElementById('statusFilter');
+const amountFilter = document.getElementById('amountFilter');
+const startDate = document.getElementById('startDate');
+const endDate = document.getElementById('endDate');
+const cartUpdateUrlTemplate = '{{ path('admin_carts_update', {'id': '__ID__'}) }}';
+
+function statusClass(status) {
+    if (status === 'ACTIF') return 's-active';
+    if (status === 'VALIDE') return 's-valid';
+    if (status === 'ABANDONNE') return 's-abandoned';
+    return 's-valid';
+}
+
+function parseDateSafe(v) {
+    if (!v) return null;
+    return new Date(v.replace(' ', 'T'));
+}
+
+function formatDate(v) {
+    const d = parseDateSafe(v);
+    return d ? d.toLocaleString() : 'N/A';
+}
+
+function amountMatches(total, filterValue) {
+    if (!filterValue) return true;
+    if (filterValue === '1000+') return total >= 1000;
+    const parts = filterValue.split('-');
+    const min = Number(parts[0] || 0);
+    const max = Number(parts[1] || Infinity);
+    return total >= min && total < max;
+}
+
+function applyFilters() {
+    const term = (globalSearch.value || '').toLowerCase().trim();
+    const status = statusFilter.value;
+    const amount = amountFilter.value;
+    const sd = startDate.value ? new Date(startDate.value + 'T00:00:00') : null;
+    const ed = endDate.value ? new Date(endDate.value + 'T23:59:59') : null;
+
+    return carts.filter((row) => {
+        const hay = (`cart-${String(row.id).padStart(5, '0')} ${row.userName} ${row.email}`).toLowerCase();
+        if (term && !hay.includes(term)) return false;
+        if (status && row.status !== status) return false;
+        if (!amountMatches(Number(row.total || 0), amount)) return false;
+        const created = parseDateSafe(row.createdAt);
+        if (sd && created && created < sd) return false;
+        if (ed && created && created > ed) return false;
+        return true;
+    });
+}
+
+function compareRows(a, b) {
+    const av = a[currentSort.key];
+    const bv = b[currentSort.key];
+    if (av === bv) return 0;
+    const res = av > bv ? 1 : -1;
+    return currentSort.dir === 'asc' ? res : -res;
+}
+
+function render() {
+    const rows = applyFilters().sort(compareRows);
+    rowMeta.textContent = `Showing ${rows.length} of ${carts.length}`;
+
+    tableBody.innerHTML = rows.map((r) => `
+        <tr>
+            <td>CART-${String(r.id).padStart(5, '0')}</td>
+            <td>${r.userName}</td>
+            <td>${r.email}</td>
+            <td>${r.itemsCount}</td>
+            <td class="money">$${Number(r.total || 0).toFixed(2)}</td>
+            <td><span class="status ${statusClass(r.status)}">${r.status}</span></td>
+            <td>${formatDate(r.createdAt)}</td>
+            <td>${formatDate(r.updatedAt)}</td>
+            <td>
+                <div class="row-actions">
+                    <button type="button" class="row-btn edit" onclick="openCartUpdateModal(${r.id}, '${r.status}')">Update</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+document.querySelectorAll('th[data-sort]').forEach((th) => {
+    th.addEventListener('click', () => {
+        const key = th.getAttribute('data-sort');
+        if (currentSort.key === key) {
+            currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSort.key = key;
+            currentSort.dir = 'asc';
+        }
+        render();
+    });
+});
+
+[globalSearch, statusFilter, amountFilter, startDate, endDate].forEach((el) => el.addEventListener('input', render));
+[statusFilter, amountFilter, startDate, endDate].forEach((el) => el.addEventListener('change', render));
+
+document.getElementById('clearFilters').addEventListener('click', () => {
+    globalSearch.value = '';
+    statusFilter.value = '';
+    amountFilter.value = '';
+    startDate.value = '';
+    endDate.value = '';
+    render();
+});
+
+function openCartsStatsModal() {
+    const overlay = document.getElementById('cartsStatsModal');
+    overlay.classList.add('open');
+}
+
+function closeCartsStatsModal() {
+    document.getElementById('cartsStatsModal').classList.remove('open');
+}
+
+function openCartUpdateModal(id, status) {
+    const modal = document.getElementById('cartEditModal');
+    document.getElementById('cartEditIdLabel').textContent = `#${id}`;
+    document.getElementById('cartStatusSelect').value = status;
+    document.getElementById('cartEditForm').action = cartUpdateUrlTemplate.replace('__ID__', String(id));
+    modal.classList.add('open');
+}
+
+function closeCartUpdateModal() {
+    document.getElementById('cartEditModal').classList.remove('open');
+}
+
+document.getElementById('openCartsStats').addEventListener('click', openCartsStatsModal);
+document.getElementById('closeCartsStats').addEventListener('click', closeCartsStatsModal);
+document.getElementById('cartsStatsModal').addEventListener('click', (event) => {
+    if (event.target.id === 'cartsStatsModal') {
+        closeCartsStatsModal();
+    }
+});
+document.getElementById('closeCartEditModal').addEventListener('click', closeCartUpdateModal);
+document.getElementById('cancelCartEdit').addEventListener('click', closeCartUpdateModal);
+document.getElementById('cartEditModal').addEventListener('click', (event) => {
+    if (event.target.id === 'cartEditModal') {
+        closeCartUpdateModal();
+    }
+});
+
+render();
+</script>
+{% endblock %}
+

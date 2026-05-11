@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Transports{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="app-container">
+    {% include 'admin/sidebar.html.twig' with {'activePage': 'transport'} %}
+
+    <main class="content">
+        <section class="panel-header">
+            <div>
+                <span class="badge-header">Panel Admin</span>
+                <h1>Gestion des Transports</h1>
+                <p>Depuis cette interface, gÃ©rez les trajets, les horaires et les places disponibles.</p>
+            </div>
+            <a href="{{ path('app_transport_new') }}" class="btn btn-primary">âž• Ajouter un transport</a>
+        </section>
+
+        <section class="overview-cards">
+            <div class="stat-card">
+                <span>Total des transports</span>
+                <strong>{{ transports|length }}</strong>
+            </div>
+            <div class="stat-card">
+                <span>Trajets enregistrÃ©s</span>
+                <strong>{{ transports|length }}</strong>
+            </div>
+            <div class="stat-card">
+                <span>Places totales disponibles</span>
+                <strong>{{ transports|length * 1 }}</strong>
+            </div>
+        </section>
+
+        <section class="admin-table-card">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Compagnie</th>
+                        <th>Trajet</th>
+                        <th>Type</th>
+                        <th>DÃ©part</th>
+                        <th>ArrivÃ©e</th>
+                        <th>Prix</th>
+                        <th>Places</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transport in transports %}
+                        <tr>
+                            <td>{{ transport.id }}</td>
+                            <td>{{ transport.compagnie ?: 'Explora' }}</td>
+                            <td>{{ transport.origine }} â†’ {{ transport.destination }}</td>
+                            <td>{{ transport.type }}</td>
+                            <td>{{ transport.dateDepart|date('d/m/Y H:i') }}</td>
+                            <td>{{ transport.dateArrivee ? transport.dateArrivee|date('d/m/Y H:i') : 'N/A' }}</td>
+                            <td>{{ transport.prix|number_format(2, ".", " ") }}</td>
+                            <td>{{ transport.placesDisponibles }}</td>
+                            <td class="actions-cell">
+                                <a href="{{ path('app_transport_show', {'id': transport.id}) }}" class="btn btn-secondary small">Voir</a>
+                                <a href="{{ path('app_transport_edit', {'id': transport.id}) }}" class="btn btn-secondary small">Modifier</a>
+                                <form method="post" action="{{ path('app_transport_delete', {'id': transport.id}) }}" class="inline-form" onsubmit="return confirm('Voulez-vous vraiment supprimer ce transport ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ transport.id) }}">
+                                    <button type="submit" class="btn btn-danger small">Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="9">Aucun transport trouvÃ©.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+{% endblock %}
+

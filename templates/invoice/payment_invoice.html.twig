@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: DejaVu Sans, Arial, sans-serif; color: #1f2d3d; font-size: 12px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .brand { font-size: 26px; color: #11998e; font-weight: bold; }
+        .title { font-size: 18px; margin-top: 6px; }
+        .meta { margin: 16px 0; }
+        .meta td { padding: 4px 8px; }
+        table.items { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        table.items th, table.items td { border: 1px solid #d7deea; padding: 8px; }
+        table.items th { background: #11998e; color: #fff; }
+        .right { text-align: right; }
+        .totals { margin-top: 12px; width: 100%; }
+        .totals td { padding: 5px 8px; }
+        .totals .label { text-align: right; color: #4f5f74; }
+        .totals .value { text-align: right; width: 140px; }
+        .totals .grand { font-weight: bold; color: #11998e; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="brand">EXPLORA</div>
+        <div class="title">Invoice</div>
+    </div>
+
+    <table class="meta">
+        <tr>
+            <td><strong>Reference:</strong> {{ paiement.referenceTransaction ?? 'N/A' }}</td>
+            <td><strong>Date:</strong> {{ (paiement.datePaiement ?? generatedAt)|date('d/m/Y H:i') }}</td>
+        </tr>
+        <tr>
+            <td><strong>Payment Method:</strong> {{ paiement.methodePaiement ?? 'CARTE' }}</td>
+            <td><strong>Status:</strong> {{ paiement.statut ?? 'VALIDE' }}</td>
+        </tr>
+        <tr>
+            <td colspan="2"><strong>Billing Address:</strong> {{ paiement.adresseFacturation ?? 'N/A' }}</td>
+        </tr>
+    </table>
+
+    <table class="items">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th class="right">Qty</th>
+                <th class="right">Unit Price</th>
+                <th class="right">Line Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cartItems %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td class="right">{{ item.quantity }}</td>
+                    <td class="right">${{ (item.pricePerPerson ?? 0)|number_format(2, '.', ',') }}</td>
+                    <td class="right">${{ ((item.pricePerPerson ?? 0) * (item.quantity ?? 0))|number_format(2, '.', ',') }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" class="right">No items</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="totals">
+        <tr>
+            <td class="label">Subtotal (HT):</td>
+            <td class="value">${{ (panier.montantTotalHt ?? 0)|number_format(2, '.', ',') }}</td>
+        </tr>
+        <tr>
+            <td class="label">TVA (10%):</td>
+            <td class="value">${{ (panier.montantTva ?? 0)|number_format(2, '.', ',') }}</td>
+        </tr>
+        <tr>
+            <td class="label">Reduction:</td>
+            <td class="value">-${{ (panier.montantReduction ?? 0)|number_format(2, '.', ',') }}</td>
+        </tr>
+        <tr>
+            <td class="label grand">Total (TTC):</td>
+            <td class="value grand">${{ (panier.montantTtc ?? 0)|number_format(2, '.', ',') }}</td>
+        </tr>
+    </table>
+</body>
+</html>

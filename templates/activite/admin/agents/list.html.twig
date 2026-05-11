@@ -1,0 +1,192 @@
+{% extends 'base.html.twig' %}
+{% block title %}Agents | Explora Admin{% endblock %}
+
+{% block body %}
+<div style="display:flex;min-height:100vh;background:#1a1f2e;">
+
+  {# ═══ SIDEBAR ═══ #}
+  <aside style="width:220px;min-width:220px;background:#1a2235;display:flex;flex-direction:column;">
+
+    <div style="padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.07);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:22px;color:#ff8c42;">✈</span>
+        <span style="font-size:20px;font-weight:bold;color:white;">Explora</span>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);padding-left:32px;margin-top:2px;">
+        Administration
+      </div>
+    </div>
+
+    <nav style="flex:1;padding-top:14px;">
+      <div style="font-size:10px;color:rgba(255,255,255,.32);padding:6px 20px 5px;font-weight:bold;">
+        PRINCIPAL
+      </div>
+      <a href="{{ path('admin_dashboard') }}"
+         style="display:flex;align-items:center;gap:12px;padding:11px 20px;
+                color:rgba(255,255,255,.72);text-decoration:none;font-size:13px;">
+        📊 Dashboard
+      </a>
+
+      <div style="font-size:10px;color:rgba(255,255,255,.32);padding:14px 20px 5px;font-weight:bold;">
+        GESTION
+      </div>
+
+      {# Agents — actif #}
+      <a href="{{ path('admin_agents_list') }}"
+         style="display:flex;align-items:center;gap:12px;padding:11px 20px;
+                color:white;font-weight:bold;text-decoration:none;font-size:13px;
+                background:rgba(102,126,234,.18);border-left:3px solid #667eea;">
+        👥 Agents List
+      </a>
+      <a href="{{ path('admin_activites_list') }}"
+         style="display:flex;align-items:center;gap:12px;padding:11px 20px;
+                color:rgba(255,255,255,.72);text-decoration:none;font-size:13px;">
+        🏄 Activités
+      </a>
+      <a href="#"
+         style="display:flex;align-items:center;gap:12px;padding:11px 20px;
+                color:rgba(255,255,255,.72);text-decoration:none;font-size:13px;">
+        🌍 Voyages
+      </a>
+
+      <div style="font-size:10px;color:rgba(255,255,255,.32);padding:14px 20px 5px;font-weight:bold;">
+        RAPPORTS
+      </div>
+      <a href="{{ path('admin_avis_list') }}"
+         style="display:flex;align-items:center;gap:12px;padding:11px 20px;
+                color:rgba(255,255,255,.72);text-decoration:none;font-size:13px;">
+        💬 Avis
+      </a>
+    </nav>
+
+    <a href="{{ path('app_logout') }}"
+       style="display:flex;align-items:center;gap:12px;padding:13px 20px;
+              color:rgba(220,80,80,.85);text-decoration:none;font-size:13px;
+              border-top:1px solid rgba(255,255,255,.07);">
+      🚪 Déconnexion
+    </a>
+  </aside>
+
+  {# ═══ CONTENU ═══ #}
+  <div style="flex:1;display:flex;flex-direction:column;">
+
+    {# Header #}
+    <div style="background:#252b3b;padding:20px 28px;display:flex;align-items:center;gap:18px;
+                border-bottom:1px solid #2e3650;">
+      <div style="background:#667eea;border-radius:12px;padding:12px;
+                  box-shadow:0 0 14px rgba(102,126,234,.55);font-size:22px;">👥</div>
+      <div>
+        <div style="font-size:22px;font-weight:bold;color:white;">Gestion des Agents</div>
+        <div style="font-size:12px;color:#8892a4;">
+          Consultez les agents et accédez à leurs activités
+        </div>
+      </div>
+      <div style="margin-left:auto;">
+        <a href="{{ path('admin_agents_list') }}"
+           style="background:#f5a623;color:#1a1f2e;font-weight:bold;font-size:13px;
+                  padding:11px 22px;border-radius:10px;text-decoration:none;
+                  box-shadow:0 0 12px rgba(245,166,35,.45);">
+          🔄 Actualiser
+        </a>
+      </div>
+    </div>
+
+    {# Body #}
+    <div style="flex:1;padding:20px 24px;background:#1a1f2e;">
+
+      {# Recherche #}
+      <form method="get" action="{{ path('admin_agents_list') }}"
+            style="background:#252b3b;border-radius:12px;padding:14px 18px;
+                   border:1px solid #2e3650;display:flex;align-items:center;gap:12px;
+                   margin-bottom:16px;">
+        <span style="font-size:16px;color:#f5a623;">🔍</span>
+        <span style="font-size:13px;font-weight:bold;color:#c8d0e0;min-width:70px;">Recherche</span>
+        <input type="text" name="q" value="{{ search }}"
+               placeholder="Rechercher par nom, prénom ou email..."
+               style="flex:1;background:#1a1f2e;border:1px solid #3a4260;border-radius:8px;
+                      padding:9px 12px;color:#e0e6f0;font-size:13px;">
+        <button type="submit"
+                style="background:#667eea;color:white;border:none;border-radius:8px;
+                       padding:9px 18px;cursor:pointer;font-weight:bold;">
+          Rechercher
+        </button>
+      </form>
+
+      {# Tableau #}
+      <div style="background:#f0f3f8;border-radius:12px;overflow:hidden;border:1px solid #d0d8e8;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="background:#e6eaf2;">
+              <th style="padding:14px 16px;text-align:left;color:#2c3e50;font-weight:bold;">ID</th>
+              <th style="padding:14px 16px;text-align:left;color:#2c3e50;font-weight:bold;">Nom</th>
+              <th style="padding:14px 16px;text-align:left;color:#2c3e50;font-weight:bold;">Prénom</th>
+              <th style="padding:14px 16px;text-align:left;color:#2c3e50;font-weight:bold;">Email</th>
+              <th style="padding:14px 16px;text-align:left;color:#2c3e50;font-weight:bold;">Téléphone</th>
+              <th style="padding:14px 16px;text-align:center;color:#2c3e50;font-weight:bold;">Statut</th>
+              <th style="padding:14px 16px;text-align:center;color:#2c3e50;font-weight:bold;">⚡ Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for agent in agents %}
+              <tr style="background:{{ loop.index is odd ? '#f0f3f8' : '#e6eaf2' }};
+                         border-bottom:1px solid #dde3ee;"
+                  onmouseenter="this.style.background='#d8e0ef'"
+                  onmouseleave="this.style.background='{{ loop.index is odd ? '#f0f3f8' : '#e6eaf2' }}'">
+
+                <td style="padding:14px 16px;color:#2c3e50;">{{ agent.id }}</td>
+                <td style="padding:14px 16px;color:#2c3e50;font-weight:500;">{{ agent.nom }}</td>
+                <td style="padding:14px 16px;color:#2c3e50;">{{ agent.prenom }}</td>
+                <td style="padding:14px 16px;color:#4a90d9;">{{ agent.email }}</td>
+                <td style="padding:14px 16px;color:#2c3e50;text-align:center;">
+                  {{ agent.telephone ?? '—' }}
+                </td>
+
+                <td style="padding:14px 16px;text-align:center;">
+                  {% set actif = agent.statut is not null and agent.statut.value == 'ACTIF' %}
+                  <span style="background:{{ actif ? '#d6f5e3' : '#fde8e8' }};
+                               color:{{ actif ? '#1a7a45' : '#c0392b' }};
+                               border:1px solid {{ actif ? '#a8dfc0' : '#f5bebe' }};
+                               padding:5px 12px;border-radius:7px;
+                               font-weight:bold;font-size:11px;">
+                    {{ actif ? '✔ Actif' : '✖ Inactif' }}
+                  </span>
+                </td>
+
+                <td style="padding:14px 16px;text-align:center;">
+                  <div style="display:flex;gap:8px;justify-content:center;align-items:center;">
+                    <a href="{{ path('admin_agents_activites', {id: agent.id}) }}"
+                       style="background:#dbeeff;color:#2a72c3;padding:7px 14px;
+                              border-radius:8px;text-decoration:none;font-weight:bold;font-size:12px;"
+                       onmouseenter="this.style.background='#2a72c3';this.style.color='white'"
+                       onmouseleave="this.style.background='#dbeeff';this.style.color='#2a72c3'">
+                      🎯 Activités
+                    </a>
+                    <span style="background:#d6f5e3;color:#1a7a45;width:34px;height:34px;
+                                 border-radius:8px;display:inline-flex;align-items:center;
+                                 justify-content:center;cursor:pointer;font-size:15px;"
+                          title="{{ agent.nom }} {{ agent.prenom }} — {{ agent.email }}"
+                          onmouseenter="this.style.background='#1a7a45';this.style.color='white'"
+                          onmouseleave="this.style.background='#d6f5e3';this.style.color='#1a7a45'">
+                      👁
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="7" style="padding:60px;text-align:center;color:#9aaabb;">
+                  <div style="font-size:52px;margin-bottom:16px;">👤</div>
+                  <div style="font-size:17px;font-weight:bold;color:#2c3e50;margin-bottom:6px;">
+                    Aucun agent trouvé
+                  </div>
+                  <div style="font-size:12px;">Modifiez votre recherche ou actualisez la liste</div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

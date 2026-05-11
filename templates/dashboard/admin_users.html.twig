@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Explora Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="/css/theme.css">
+    <script src="/js/theme.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --sidebar-bg: #1a2332;
+            --sidebar-active-bg: #e53935;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-heading: #0f172a;
+            --text-body: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0F172A;
+            --bg-card: #1E293B;
+            --text-heading: #F1F5F9;
+            --text-body: #94A3B8;
+            --border-color: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-body);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            margin: 16px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-box {
+            background: #e53935;
+            color: white;
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+
+        .logo-text h2 { font-size: 16px; font-weight: 800; color: white; text-transform: uppercase; letter-spacing: 0.5px; }
+        .logo-text span { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.45); }
+
+        .sidebar-nav { flex: 1; padding: 8px 0; overflow-y: auto; }
+
+        .nav-section-label {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+            color: rgba(255,255,255,0.3); font-weight: 700; padding: 20px 20px 8px;
+        }
+
+        .nav-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 8px 20px 4px; }
+
+        .nav-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 20px; margin: 2px 12px;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none; font-size: 14px; font-weight: 500;
+            transition: all 0.2s; border-radius: 10px;
+        }
+
+        .nav-item i { font-size: 16px; width: 20px; text-align: center; }
+        .nav-item:hover { background: rgba(255,255,255,0.06); color: white; }
+        .nav-item.active { background: #e53935; color: white; font-weight: 600; box-shadow: 0 4px 12px rgba(229,57,53,0.4); }
+        .nav-item.logout { color: #e53935; background: rgba(229,57,53,0.08); }
+        .nav-item.logout:hover { background: rgba(229,57,53,0.18); color: #ff6b6b; }
+
+        .sidebar-footer { padding: 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+
+        .theme-nav-option {
+            background: none; border: none; color: rgba(255,255,255,0.65);
+            font-size: 13px; font-family: 'Inter', sans-serif;
+            padding: 9px 20px; text-align: left; cursor: pointer;
+            transition: background 0.15s; border-radius: 6px; width: 100%;
+        }
+        .theme-nav-option:hover { background: rgba(255,255,255,0.06); color: white; }
+        .theme-nav-option.active { color: #e53935; font-weight: 600; }
+
+        /* ── Main ── */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        .topbar {
+            height: 64px; background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 28px; flex-shrink: 0;
+        }
+
+        .topbar-title { font-size: 18px; font-weight: 700; color: var(--text-heading); }
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
+
+        .icon-btn {
+            background: var(--bg-body); border: none; width: 36px; height: 36px;
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            color: var(--text-body); cursor: pointer; transition: all 0.2s;
+        }
+        .icon-btn:hover { background: var(--border-color); }
+
+        .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; padding-left: 16px; border-left: 1px solid var(--border-color); }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .user-name { font-weight: 600; color: var(--text-heading); font-size: 14px; }
+        .user-role-label { font-size: 11px; color: var(--text-body); }
+
+        /* ── Content ── */
+        .content-area { flex: 1; padding: 24px 28px; overflow-y: auto; }
+
+        .breadcrumb { font-size: 13px; color: var(--text-body); margin-bottom: 20px; }
+        .breadcrumb a { color: var(--text-body); text-decoration: none; }
+        .breadcrumb span { color: var(--text-heading); font-weight: 600; }
+
+        /* Stats */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 16px; margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card); border-radius: 14px;
+            padding: 18px 20px; display: flex; align-items: center; gap: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-icon-wrap {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .stat-icon-wrap.blue   { background: #eff6ff; color: #3b82f6; }
+        .stat-icon-wrap.green  { background: #f0fdf4; color: #22c55e; }
+        .stat-icon-wrap.red    { background: #fef2f2; color: #ef4444; }
+        .stat-icon-wrap.yellow { background: #fffbeb; color: #f59e0b; }
+
+        [data-theme="dark"] .stat-icon-wrap.blue   { background: rgba(59,130,246,0.15); }
+        [data-theme="dark"] .stat-icon-wrap.green  { background: rgba(34,197,94,0.15); }
+        [data-theme="dark"] .stat-icon-wrap.red    { background: rgba(239,68,68,0.15); }
+        [data-theme="dark"] .stat-icon-wrap.yellow { background: rgba(245,158,11,0.15); }
+
+        .stat-info label { font-size: 12px; color: var(--text-body); display: block; margin-bottom: 2px; }
+        .stat-info strong { font-size: 1.6rem; font-weight: 700; color: var(--text-heading); line-height: 1; }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex; gap: 12px; margin-bottom: 16px; align-items: center;
+        }
+
+        .search-wrap {
+            flex: 1; position: relative;
+        }
+
+        .search-wrap i {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: var(--text-body); font-size: 14px;
+        }
+
+        .search-input {
+            width: 100%; padding: 10px 14px 10px 40px;
+            border: 1px solid var(--border-color); border-radius: 10px;
+            background: var(--bg-card); color: var(--text-heading);
+            font-size: 14px; font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus { outline: none; border-color: #e53935; }
+        .search-input::placeholder { color: var(--text-body); }
+
+        .filter-select {
+            padding: 10px 14px; border: 1px solid var(--border-color);
+            border-radius: 10px; background: var(--bg-card); color: var(--text-heading);
+            font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer;
+            min-width: 140px;
+        }
+
+        .filter-select:focus { outline: none; border-color: #e53935; }
+
+        .btn-refresh {
+            padding: 10px 20px; background: #e53935; color: white;
+            border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
+            font-family: 'Inter', sans-serif; transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-refresh:hover { background: #c62828; }
+
+        /* Table card */
+        .table-card {
+            background: var(--bg-card); border-radius: 14px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden;
+        }
+
+        .table-card-header {
+            padding: 18px 24px; border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .table-card-header h3 { font-size: 16px; font-weight: 700; color: var(--text-heading); }
+        .user-count { font-size: 13px; color: var(--text-body); }
+
+        .table-wrap { overflow-x: auto; max-height: calc(100vh - 380px); overflow-y: auto; }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        thead th {
+            padding: 12px 20px; font-size: 12px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-body); background: var(--bg-body);
+            text-align: left; white-space: nowrap;
+            position: sticky; top: 0; z-index: 1;
+        }
+
+        tbody tr { border-top: 1px solid var(--border-color); transition: background 0.15s; }
+        tbody tr:hover { background: var(--bg-body); }
+
+        tbody td { padding: 14px 20px; font-size: 14px; color: var(--text-heading); vertical-align: middle; }
+
+        .user-cell { display: flex; align-items: center; gap: 12px; }
+
+        .user-initials {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; color: white; flex-shrink: 0;
+        }
+
+        .user-cell-info .name { font-weight: 600; color: var(--text-heading); font-size: 14px; }
+        .user-cell-info .email { font-size: 12px; color: var(--text-body); margin-top: 1px; }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
+        }
+
+        .badge-voyageur { background: #eff6ff; color: #3b82f6; }
+        .badge-agent    { background: #fff7ed; color: #d97706; }
+        .badge-admin    { background: #faf5ff; color: #9333ea; }
+
+        .badge-actif      { background: #f0fdf4; color: #16a34a; }
+        .badge-suspendu   { background: #fef2f2; color: #dc2626; }
+        .badge-en_attente { background: #fffbeb; color: #d97706; }
+
+        [data-theme="dark"] .badge-voyageur { background: rgba(59,130,246,0.15); }
+        [data-theme="dark"] .badge-agent    { background: rgba(217,119,6,0.15); }
+        [data-theme="dark"] .badge-admin    { background: rgba(147,51,234,0.15); }
+        [data-theme="dark"] .badge-actif      { background: rgba(22,163,74,0.15); }
+        [data-theme="dark"] .badge-suspendu   { background: rgba(220,38,38,0.15); }
+        [data-theme="dark"] .badge-en_attente { background: rgba(217,119,6,0.15); }
+
+        .action-form { display: inline; }
+
+        .btn-ban {
+            padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+            cursor: pointer; border: none; font-family: 'Inter', sans-serif; transition: all 0.2s;
+        }
+
+        .btn-ban.ban        { background: #fef2f2; color: #dc2626; }
+        .btn-ban.ban:hover  { background: #dc2626; color: white; }
+        .btn-ban.reactivate { background: #f0fdf4; color: #16a34a; }
+        .btn-ban.reactivate:hover { background: #16a34a; color: white; }
+
+        [data-theme="dark"] .btn-ban.ban        { background: rgba(220,38,38,0.15); }
+        [data-theme="dark"] .btn-ban.reactivate { background: rgba(22,163,74,0.15); }
+
+        .empty-row td { text-align: center; padding: 48px; color: var(--text-body); font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-box"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="logo-text">
+            <h2>Explora</h2>
+            <span>Admin Panel</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+        <a href="{{ path('app_admin_dashboard') }}" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+        <a href="{{ path('app_admin_users') }}" class="nav-item active"><i class="fa-solid fa-users"></i> User Management</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-handshake"></i> Partnerships</a>
+
+        <div class="nav-divider"></div>
+
+        <div class="nav-section-label">Management</div>
+        <a href="#" class="nav-item"><i class="fa-solid fa-user-tie"></i> Agents</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-circle-exclamation"></i> Complaints</a>
+        <a href="{{ path('app_admin_coupons') }}" class="nav-item"><i class="fa-solid fa-tag"></i> Coupons</a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="#" class="nav-item" id="theme-nav-btn" onclick="toggleThemeMenu(event)">
+            <i class="fa-solid fa-circle-half-stroke"></i> Theme
+            <span id="theme-nav-icon" style="margin-left:auto;font-size:1rem;"></span>
+        </a>
+        <div id="theme-nav-menu" style="display:none;flex-direction:column;background:rgba(255,255,255,0.04);border-radius:8px;margin:0 12px 4px;">
+            <button class="theme-nav-option" data-mode="light" onclick="pickTheme('light')">☀️ Light</button>
+            <button class="theme-nav-option" data-mode="dark"  onclick="pickTheme('dark')">🌙 Dark</button>
+            <button class="theme-nav-option" data-mode="auto"  onclick="pickTheme('auto')">🌗 Auto</button>
+        </div>
+        <a href="{{ path('app_logout') }}" class="nav-item logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+        </a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <div class="topbar-title">User Management</div>
+        <div class="topbar-right">
+            <button class="icon-btn" title="Notifications"><i class="fa-regular fa-bell"></i></button>
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=e53935&color=fff" class="user-avatar" alt="Admin">
+                <div>
+                    <div class="user-name">Administrator</div>
+                    <div class="user-role-label">Super Admin</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <div class="breadcrumb">
+            <a href="{{ path('app_admin_dashboard') }}">Dashboard</a> &rsaquo; <span>User Management</span>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon-wrap blue"><i class="fa-solid fa-users"></i></div>
+                <div class="stat-info"><label>Total Users</label><strong>{{ total }}</strong></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrap green"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="stat-info"><label>Active</label><strong>{{ active }}</strong></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrap red"><i class="fa-solid fa-ban"></i></div>
+                <div class="stat-info"><label>Banned</label><strong>{{ banned }}</strong></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrap yellow"><i class="fa-regular fa-clock"></i></div>
+                <div class="stat-info"><label>Pending</label><strong>{{ pending }}</strong></div>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <form method="GET" action="{{ path('app_admin_users') }}" id="filter-form">
+            <div class="toolbar">
+                <div class="search-wrap">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" name="search" id="search-input" class="search-input"
+                           placeholder="Search users by name, email..."
+                           value="{{ search }}" autocomplete="off">
+                </div>
+                <select name="role" class="filter-select" id="role-select">
+                    <option value="">All Roles</option>
+                    <option value="voyageur" {{ role == 'voyageur' ? 'selected' : '' }}>Voyageur</option>
+                    <option value="agent"    {{ role == 'agent'    ? 'selected' : '' }}>Agent</option>
+                    <option value="admin"    {{ role == 'admin'    ? 'selected' : '' }}>Admin</option>
+                </select>
+                <button type="submit" class="btn-refresh">
+                    <i class="fa-solid fa-rotate-right"></i> Refresh
+                </button>
+            </div>
+        </form>
+
+        <!-- Table -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <h3>All Users</h3>
+                <span class="user-count">{{ users|length }} result{{ users|length != 1 ? 's' : '' }}</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        {% set colors = ['#3b82f6','#e53935','#22c55e','#f59e0b','#9333ea','#06b6d4'] %}
+                        {% set color = colors[user.id % 6] %}
+                        <tr data-row
+                            data-name="{{ user.prenom|lower }} {{ user.nom|lower }}"
+                            data-email="{{ user.email|lower }}"
+                            data-role="{{ user.role|lower }}">
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-initials" style="background:{{ color }}">
+                                        {{ user.prenom|first|upper }}{{ user.nom|first|upper }}
+                                    </div>
+                                    <div class="user-cell-info">
+                                        <div class="name">{{ user.prenom }} {{ user.nom }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <span class="badge badge-{{ user.role|lower }}">
+                                    {{ user.role|upper }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge badge-{{ user.statut|lower }}">
+                                    {{ user.statut|upper }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if user.statut|lower == 'suspendu' %}
+                                <form class="action-form" method="POST" action="{{ path('app_admin_user_reactivate', {id: user.id}) }}">
+                                    <button class="btn-ban reactivate" type="submit">
+                                        <i class="fa-solid fa-rotate-left"></i> Reactivate
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form class="action-form" method="POST" action="{{ path('app_admin_user_ban', {id: user.id}) }}">
+                                    <button class="btn-ban ban" type="submit">
+                                        <i class="fa-solid fa-ban"></i> Ban
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr id="empty-row" class="empty-row">
+                            <td colspan="5"><i class="fa-regular fa-face-frown"></i> No users found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const ICONS = { auto: '🌗', light: '☀️', dark: '🌙' };
+
+    function syncThemeNav() {
+        const mode = localStorage.getItem('explora-theme') || 'auto';
+        const icon = document.getElementById('theme-nav-icon');
+        if (icon) icon.textContent = ICONS[mode];
+        document.querySelectorAll('.theme-nav-option').forEach(el => {
+            el.classList.toggle('active', el.dataset.mode === mode);
+        });
+    }
+
+    function toggleThemeMenu(e) {
+        e.preventDefault();
+        const menu = document.getElementById('theme-nav-menu');
+        menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function pickTheme(mode) {
+        localStorage.setItem('explora-theme', mode);
+        const h = new Date().getHours();
+        const resolved = mode === 'auto' ? ((h >= 7 && h < 19) ? 'light' : 'dark') : mode;
+        document.documentElement.setAttribute('data-theme', resolved);
+        syncThemeNav();
+        document.getElementById('theme-nav-menu').style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        syncThemeNav();
+
+        const searchInput = document.getElementById('search-input');
+        const roleSelect  = document.getElementById('role-select');
+        const counter     = document.querySelector('.user-count');
+
+        function filterRows() {
+            const q    = searchInput.value.toLowerCase().trim();
+            const role = roleSelect.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr[data-row]');
+            let visible = 0;
+
+            rows.forEach(row => {
+                const name  = (row.dataset.name  || '').toLowerCase();
+                const email = (row.dataset.email || '').toLowerCase();
+                const r     = (row.dataset.role  || '').toLowerCase();
+
+                const matchSearch = !q    || name.includes(q) || email.includes(q);
+                const matchRole   = !role || r === role;
+                const show = matchSearch && matchRole;
+
+                row.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+
+            const emptyRow = document.getElementById('empty-row');
+            if (emptyRow) emptyRow.style.display = visible === 0 ? '' : 'none';
+            if (counter) counter.textContent = visible + ' result' + (visible !== 1 ? 's' : '');
+        }
+
+        searchInput.addEventListener('input', filterRows);
+        roleSelect.addEventListener('change', filterRows);
+        filterRows();
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,286 @@
+{% extends 'base.html.twig' %}
+{% block title %}Modifier {{ activite.nom }} | Explora Agent{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary:    #1e3a5f;
+            --accent:     #f7941d;
+            --bg:         #f5f7fa;
+            --bg-card:    #ffffff;
+            --border:     #e0e6ed;
+            --muted:      #8492a6;
+            --sidebar-w:  255px;
+            --radius-sm:  8px;
+            --font:       'Plus Jakarta Sans', sans-serif;
+            --font-body:  'DM Sans', sans-serif;
+            --shadow-sm:  0 2px 8px rgba(0,0,0,.07);
+        }
+        body { font-family: var(--font-body); background: var(--bg); color: var(--primary); min-height: 100vh; display: flex; }
+        .sidebar { width: var(--sidebar-w); min-height: 100vh; background: #1e3a5f; display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; overflow-y: auto; }
+        .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 24px 20px 28px; border-bottom: 1px solid rgba(255,255,255,.08); }
+        .sidebar-nav { padding: 14px 10px; flex: 1; display: flex; flex-direction: column; }
+        .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; color: rgba(255,255,255,.32); text-transform: uppercase; padding: 14px 12px 4px; display: block; }
+        .nav-item { display: flex; align-items: center; gap: 11px; padding: 10px 14px; border-radius: var(--radius-sm); color: rgba(255,255,255,.68); font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all .18s; font-family: var(--font); }
+        .nav-item:hover { background: rgba(247,148,29,.15); color: #fff; }
+        .nav-item.active { background: rgba(247,148,29,.18); color: var(--accent); font-weight: 700; border-left: 3px solid var(--accent); padding-left: 11px; }
+        .nav-item i { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+        .nav-item-danger { color: rgba(231,76,60,.8) !important; }
+        .nav-item-danger:hover { background: rgba(231,76,60,.12) !important; color: #e74c3c !important; }
+        .nav-spacer { flex: 1; }
+        .nav-bottom { border-top: 1px solid rgba(255,255,255,.08); padding-top: 10px; margin-top: 10px; }
+        .main-content { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; background: var(--bg); display: flex; flex-direction: column; }
+        .topbar { height: 70px; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 36px; position: sticky; top: 0; z-index: 50; box-shadow: var(--shadow-sm); }
+        .topbar-title { font-family: var(--font); font-size: 22px; font-weight: 800; color: var(--primary); }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .user-profile { display: flex; align-items: center; gap: 10px; padding-left: 14px; border-left: 1px solid var(--border); cursor: pointer; }
+        .user-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+        .user-name { font-family: var(--font); font-weight: 700; font-size: 13.5px; color: var(--primary); }
+        .user-role { font-size: 11.5px; color: var(--muted); }
+        .content-area { flex: 1; padding: 30px 36px; overflow-y: auto; }
+        .breadcrumb { font-size: 13px; color: var(--muted); margin-bottom: 24px; font-family: var(--font); }
+        .breadcrumb span { color: var(--primary); font-weight: 700; }
+        @media (max-width: 768px) { :root { --sidebar-w: 0px; } .sidebar { transform: translateX(-100%); } .content-area { padding: 18px 14px; } }
+    </style>
+{% endblock %}
+
+{% block body %}
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div>{{ include('partials/explora_brand.html.twig', {admin: true, logoHeight: 30}) }}</div>
+    </div>
+    <nav class="sidebar-nav">
+        <span class="nav-section-label">Principal</span>
+        <a href="{{ path('agent_dashboard') }}" class="nav-item">
+            <i class="fas fa-home"></i> Accueil
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-users"></i> Clients
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-calendar-check"></i> Bookings
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-map-marked-alt"></i> Voyages
+        </a>
+        <span class="nav-section-label">Inventaire</span>
+        <a href="{{ path('agent_activite_index') }}" class="nav-item active">
+            <i class="fas fa-person-hiking"></i> Activités
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-train"></i> Transport
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-hotel"></i> Hôtels
+        </a>
+        <span class="nav-section-label">Rapports</span>
+        <a href="#" class="nav-item">
+            <i class="fas fa-chart-line"></i> Analytique
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-bullhorn"></i> Réclamations
+        </a>
+        <div class="nav-spacer"></div>
+        <div class="nav-bottom">
+            <span class="nav-section-label">Système</span>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog"></i> Paramètres
+            </a>
+            <a href="{{ path('app_logout') }}" class="nav-item nav-item-danger">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </a>
+        </div>
+    </nav>
+</aside>
+
+<div class="main-content">
+    <header class="topbar">
+        <div class="topbar-title">Modifier l'Activité</div>
+        <div class="topbar-right">
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name={{ agent.prenom }}+{{ agent.nom }}&background=f7941d&color=fff"
+                     alt="Agent Avatar" class="user-avatar">
+                <div>
+                    <div class="user-name">{{ agent.prenom }} {{ agent.nom }}</div>
+                    <div class="user-role">Agent Account</div>
+                </div>
+                <i class="fa-solid fa-chevron-down" style="color:#8492a6; font-size:11px; margin-left:4px;"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <div class="breadcrumb">Dashboard &gt; Activités &gt; <span>Modifier</span></div>
+
+        <div style="background:#252B3B;padding:16px 32px; border-radius: 12px 12px 0 0;
+                    display:flex;align-items:center;gap:14px;">
+            <div style="background:#ff8c42;border-radius:9px;padding:9px 12px;font-size:20px;">✏️</div>
+            <div>
+                <div style="font-size:18px;font-weight:bold;color:white;">
+                  Modifier : <em style="color:#f5a623;">{{ activite.nom }}</em>
+                </div>
+                <div style="font-size:11px;color:rgba(255,255,255,.5);">Modifiez les champs et enregistrez</div>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:10px;">
+                <a href="{{ path('agent_activite_show', {id: activite.idActivite}) }}"
+                   style="background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.2);
+                          border-radius:8px;padding:8px 16px;font-size:12px;font-weight:bold;text-decoration:none;">
+                  👁 Voir
+                </a>
+                <a href="{{ path('agent_activite_index') }}"
+                   style="background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.2);
+                          border-radius:8px;padding:8px 16px;font-size:12px;font-weight:bold;text-decoration:none;">
+                  ✕ Annuler
+                </a>
+            </div>
+        </div>
+
+        <div style="background:#ffffff; padding:28px 36px; border-radius: 0 0 12px 12px; box-shadow:0 3px 16px rgba(0,0,0,.08); border: 1px solid #e0e6f0;">
+
+          {% for msg in app.flashes('error') %}
+            <div style="background:#fde8e8;color:#c0392b;padding:12px 18px;
+                        border-left:4px solid #c0392b;border-radius:6px;margin-bottom:16px;">
+              ⚠ {{ msg }}
+            </div>
+          {% endfor %}
+
+          {# Aperçu image actuelle #}
+          {% if activite.image %}
+            <div style="background:white;border-radius:10px;padding:14px 18px;
+                        border:1px solid #e0e6ed;margin-bottom:18px;
+                        display:flex;align-items:center;gap:16px;">
+              {% set imagePath = activite.image starts with('/uploads/') or activite.image starts with('uploads/') ? activite.image : 'uploads/images/' ~ activite.image %}
+              <img src="{{ asset(imagePath) }}"
+                   alt="{{ activite.nom }}"
+                   style="width:80px;height:58px;object-fit:cover;border-radius:8px;">
+              <div>
+                <div style="font-size:11px;font-weight:bold;color:#667eea;margin-bottom:3px;">
+                  IMAGE ACTUELLE
+                </div>
+                <div style="font-size:11px;color:#a0aec0;">
+                  Laissez le champ vide pour la conserver
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
+          <div style="padding:10px 0;">
+
+            {{ form_start(form) }}
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+              <div style="grid-column:1/-1;">
+                {{ form_label(form.nom, 'Nom *', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.nom, {'attr': {'style': 'width:100%;padding:10px 14px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;box-sizing:border-box;'}}) }}
+                {{ form_errors(form.nom) }}
+              </div>
+
+              <div style="grid-column:1/-1;">
+                {{ form_label(form.description, 'Description *', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.description, {'attr': {'style': 'width:100%;padding:10px 14px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;min-height:90px;box-sizing:border-box;'}}) }}
+                {{ form_errors(form.description) }}
+              </div>
+
+              <div>
+                {{ form_label(form.categorie, 'Catégorie *', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.categorie, {'attr': {'style': 'width:100%;padding:10px 14px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;'}}) }}
+                {{ form_errors(form.categorie) }}
+              </div>
+
+              <div>
+                {{ form_label(form.type, 'Type', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.type, {'attr': {'style': 'width:100%;padding:10px 14px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;'}}) }}
+                {{ form_errors(form.type) }}
+              </div>
+
+              <div>
+                {{ form_label(form.ville, 'Ville *', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.ville, {'attr': {'style': 'width:100%;padding:10px 14px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;'}}) }}
+                {{ form_errors(form.ville) }}
+              </div>
+
+              <div>
+                {{ form_label(form.lieu, 'Lieu *', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.lieu, {'attr': {'style': 'width:100%;padding:10px 14px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;'}}) }}
+                {{ form_errors(form.lieu) }}
+              </div>
+
+              <div>
+                {{ form_label(form.prix, 'Prix (TND) *', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#27ae60;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.prix, {'attr': {'style': 'width:100%;padding:10px 14px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;'}}) }}
+                {{ form_errors(form.prix) }}
+              </div>
+
+              <div>
+                {{ form_label(form.duree, 'Durée (min) *', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.duree, {'attr': {'style': 'width:100%;padding:10px 14px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;'}}) }}
+                {{ form_errors(form.duree) }}
+              </div>
+
+              <div>
+                {{ form_label(form.nombrePlaces, 'Nombre de places *', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.nombrePlaces, {'attr': {'style': 'width:100%;padding:10px 14px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;'}}) }}
+                {{ form_errors(form.nombrePlaces) }}
+                <small style="color:#a0aec0;font-size:11px;">0 = activité complète</small>
+              </div>
+
+              <div>
+                {{ form_label(form.dateActivite, 'Date *', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.dateActivite, {'attr': {'style': 'width:100%;padding:10px 14px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;'}}) }}
+                {{ form_errors(form.dateActivite) }}
+              </div>
+
+              <div>
+                {{ form_label(form.heureDebut, 'Heure début *', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.heureDebut, {'attr': {'style': 'width:100%;padding:10px 14px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;'}}) }}
+                {{ form_errors(form.heureDebut) }}
+              </div>
+
+              <div>
+                {{ form_label(form.heureFin, 'Heure fin *', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.heureFin, {'attr': {'style': 'width:100%;padding:10px 14px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;'}}) }}
+                {{ form_errors(form.heureFin) }}
+                <small style="color:#a0aec0;font-size:11px;">⚠ Doit être après l'heure de début</small>
+              </div>
+
+              <div style="grid-column:1/-1;">
+                {{ form_label(form.imageFile, '📷 Nouvelle photo (optionnel)', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.imageFile) }}
+                {{ form_errors(form.imageFile) }}
+              </div>
+
+              <div style="grid-column:1/-1;">
+                {{ form_label(form.voyages, 'Voyages associés', {'label_attr': {'style': 'font-size:11px;font-weight:bold;color:#667eea;text-transform:uppercase;display:block;margin-bottom:6px;'}}) }}
+                <p style="font-size:11px;color:#a0aec0;margin:0 0 6px;">Ctrl + clic pour plusieurs</p>
+                {{ form_widget(form.voyages, {'attr': {'style': 'width:100%;padding:10px;border:1px solid #e0e6ed;border-radius:8px;font-size:13px;'}}) }}
+                {{ form_errors(form.voyages) }}
+              </div>
+
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:12px;
+                        margin-top:24px;padding-top:20px;border-top:1px solid #eef0f7;">
+              <a href="{{ path('agent_activite_index') }}"
+                 style="background:#f0f2f5;color:#7f8c8d;padding:11px 26px;
+                        border-radius:9px;text-decoration:none;font-weight:bold;font-size:13px;">
+                Annuler
+              </a>
+              <button type="submit"
+                      style="background:linear-gradient(to right,#667eea,#764ba2);color:white;
+                             border:none;border-radius:9px;padding:11px 28px;
+                             cursor:pointer;font-weight:bold;font-size:13px;">
+                ✦ Enregistrer les modifications
+              </button>
+            </div>
+
+            {{ form_end(form) }}
+          </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

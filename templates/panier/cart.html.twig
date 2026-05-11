@@ -1,0 +1,437 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Explora - Shopping Cart{% endblock %}
+
+{% block stylesheets %}
+<style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* ── Page header ── */
+    .cart-page-header {
+        background: white;
+        padding: 30px 50px;
+        border-bottom: 1px solid #eee;
+    }
+    .cart-page-header h1 { font-size: 32px; font-weight: bold; color: #1a3a5c; margin: 0; }
+    .cart-page-header .item-count { color: #6c757d; font-size: 14px; margin-top: 4px; }
+
+    /* ── Main layout ── */
+    .cart-layout {
+        display: flex;
+        gap: 30px;
+        padding: 30px 50px 40px;
+        align-items: flex-start;
+        flex: 1;
+        min-height: 60vh;
+    }
+
+    /* ── Cart Items ── */
+    .cart-items-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+
+    .cart-item-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.08);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+        position: relative;
+    }
+    .item-banner {
+        width: 100px;
+        height: 90px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .item-banner .type-icon { font-size: 32px; }
+    .item-banner .type-label { font-size: 11px; font-weight: bold; color: white; letter-spacing: 1px; margin-top: 4px; }
+
+    .banner-hebergement { background: linear-gradient(135deg, #11998e, #38ef7d); }
+    .banner-transport   { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .banner-voyage      { background: linear-gradient(135deg, #f7971e, #ffd200); }
+    .banner-activite    { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+    .banner-default     { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+    .item-info { flex: 1; }
+    .item-info h3 { font-size: 18px; font-weight: bold; color: #1a3a5c; margin-bottom: 6px; }
+    .item-meta { font-size: 13px; color: #6c757d; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .item-type-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 10px;
+        border-radius: 20px;
+        color: white;
+    }
+    .badge-hebergement { background: #11998e; }
+    .badge-transport   { background: #667eea; }
+    .badge-voyage      { background: #f7941d; }
+    .badge-activite    { background: #ff416c; }
+
+    .item-qty-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+    .btn-qty {
+        width: 34px; height: 34px; border: 2px solid #dee2e6;
+        border-radius: 50%; background: white; font-size: 18px;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        color: #1a3a5c; line-height: 1; transition: border-color .2s;
+    }
+    .btn-qty:hover { border-color: #1a3a5c; }
+    .qty-value { min-width: 24px; text-align: center; font-weight: bold; font-size: 15px; }
+    .price-per { font-size: 13px; color: #6c757d; margin-left: 8px; }
+    .item-price {
+        font-size: 20px; font-weight: bold; color: #f7941d;
+        margin-left: auto;
+    }
+    .btn-remove {
+        position: absolute; top: 14px; right: 14px;
+        background: none; border: none; font-size: 18px; cursor: pointer;
+        color: #aaa; transition: color .2s; line-height: 1;
+    }
+    .btn-remove:hover { color: #e74c3c; }
+
+    /* Continue Shopping */
+    .btn-continue {
+        background: white; color: #1a3a5c; border: 1.5px solid #dee2e6;
+        border-radius: 8px; padding: 10px 24px; font-size: 14px; cursor: pointer;
+        margin-top: 4px; text-decoration: none; display: inline-block;
+    }
+    .btn-continue:hover { background: #f0f2f5; }
+
+    /* ── Sidebar ── */
+    .sidebar { width: 380px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
+
+    .sidebar-card {
+        background: white; border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.08);
+        padding: 25px;
+    }
+    .sidebar-card h3 { font-size: 20px; font-weight: bold; color: #1a3a5c; margin-bottom: 16px; }
+    .sidebar-sep { border: none; border-top: 1px solid #f0f0f0; margin: 12px 0; }
+
+    .order-item-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+    .order-item-name { font-weight: bold; font-size: 14px; color: #1a3a5c; }
+    .order-item-price { font-weight: bold; font-size: 14px; color: #f7941d; }
+    .order-item-qty { font-size: 12px; color: #6c757d; }
+
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; }
+    .summary-row.total { margin-top: 4px; }
+    .summary-row .label { color: #333; }
+    .summary-row .value { font-weight: bold; color: #1a3a5c; }
+    .summary-row.total .label { font-size: 20px; font-weight: bold; }
+    .summary-row.total .value { font-size: 20px; font-weight: bold; color: #f7941d; }
+    .discount-row .label, .discount-row .value { color: #11998e; }
+
+    .btn-ai-recommendation {
+        display: block; width: 100%;
+        background: linear-gradient(to right, #667eea, #764ba2);
+        color: white; border: none; border-radius: 5px;
+        padding: 14px 20px; font-size: 14px; font-weight: bold;
+        cursor: pointer; text-align: center; margin-bottom: 10px;
+    }
+    .btn-checkout {
+        display: block; width: 100%;
+        background: #f7941d; color: white; border: none; border-radius: 5px;
+        padding: 14px 20px; font-size: 14px; font-weight: bold;
+        cursor: pointer; text-align: center; text-decoration: none;
+    }
+    .btn-checkout:hover { opacity: .9; }
+
+    /* Promo */
+    .promo-label { font-weight: bold; font-size: 14px; color: #1a3a5c; margin-bottom: 12px; }
+    .promo-row { display: flex; gap: 10px; }
+    .promo-row select {
+        flex: 1; border: 1px solid #dee2e6; border-radius: 6px;
+        padding: 8px 10px; font-size: 13px; background: white; cursor: pointer;
+        height: 40px;
+    }
+    .btn-apply {
+        background: #e9ecef; color: #1a3a5c; border: none; border-radius: 6px;
+        padding: 0 16px; font-size: 13px; cursor: pointer; height: 40px;
+    }
+    .promo-hint { font-size: 11px; color: #6c757d; margin-top: 8px; }
+    .promo-available { font-size: 12px; color: #11998e; margin-top: 8px; font-weight: bold; }
+
+    /* Payment logos */
+    .we-accept { font-weight: bold; font-size: 14px; color: #1a3a5c; margin-bottom: 12px; text-align: center; }
+    .payment-logos { display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap; }
+    .logo-visa     { font-weight: bold; color: #1a1f71; font-size: 15px; }
+    .logo-mc       { font-weight: bold; color: #eb001b; font-size: 15px; }
+    .logo-paypal   { font-weight: bold; color: #003087; font-size: 15px; }
+    .logo-amex     { font-weight: bold; color: #006fcf; font-size: 15px; }
+
+    /* AI Modal */
+    .ai-modal-overlay {
+        position: fixed; inset: 0;
+        background: rgba(15, 37, 64, 0.58);
+        display: none; align-items: center; justify-content: center;
+        z-index: 1300; padding: 20px;
+    }
+    .ai-modal-overlay.open { display: flex; }
+    .ai-modal {
+        width: min(760px, 100%); max-height: 84vh;
+        background: white; border-radius: 14px;
+        box-shadow: 0 22px 55px rgba(0,0,0,.28);
+        overflow: hidden; display: flex; flex-direction: column;
+    }
+    .ai-modal-head {
+        padding: 18px 22px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white; display: flex; align-items: center; justify-content: space-between;
+    }
+    .ai-modal-head h3 { font-size: 22px; margin: 0; }
+    .ai-close {
+        border: none; background: rgba(255,255,255,.2); color: white;
+        border-radius: 6px; font-size: 22px; width: 36px; height: 36px;
+        cursor: pointer; line-height: 1;
+    }
+    .ai-modal-body {
+        padding: 20px 22px; overflow: auto; white-space: pre-wrap;
+        line-height: 1.55; color: #2d3748; font-size: 14px;
+    }
+    .ai-loading { color: #667eea; font-weight: 700; text-align: center; padding: 24px 12px; }
+    .ai-error {
+        color: #c53030; background: #fff5f5; border: 1px solid #feb2b2;
+        border-radius: 8px; padding: 12px;
+    }
+
+    .cart-empty-state {
+        text-align: center; padding: 60px 20px; color: #6c757d;
+    }
+    .cart-empty-state .empty-icon { font-size: 64px; margin-bottom: 16px; }
+    .cart-empty-state h2 { color: #1a3a5c; margin-bottom: 8px; }
+    .cart-empty-state p { margin-bottom: 24px; }
+    .cart-empty-state .btn-browse {
+        display: inline-block; background: #f7941d; color: white;
+        padding: 12px 28px; border-radius: 8px; text-decoration: none;
+        font-weight: bold; font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+        .cart-layout { flex-direction: column; padding: 20px; }
+        .sidebar { width: 100%; }
+        .cart-page-header { padding: 20px; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+{# ── PAGE HEADER ── #}
+<div class="cart-page-header">
+    <h1>🛒 Shopping Cart</h1>
+    <p class="item-count">{{ cartItems|length }} item{{ cartItems|length != 1 ? 's' : '' }} in your cart</p>
+</div>
+
+{# ── Flash messages ── #}
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        {% if label == 'scratch_reward' %}
+            {# handled by JS #}
+        {% else %}
+        <div style="margin: 10px 50px; padding: 12px 20px; border-radius: 8px; font-weight: 600;
+            background: {{ label == 'success' ? '#d4edda' : (label == 'warning' ? '#fff3cd' : '#f8d7da') }};
+            color: {{ label == 'success' ? '#155724' : (label == 'warning' ? '#856404' : '#721c24') }};">
+            {{ message }}
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+{# ── MAIN CART CONTENT ── #}
+<div class="cart-layout">
+
+    {# Left col: cart items + continue shopping #}
+    <div class="cart-items-col">
+        {% if cartItems|length > 0 %}
+        <div id="cartItemsContainer">
+            {% for item in cartItems %}
+            <div class="cart-item-card" id="cart-item-{{ item.id }}">
+                <div class="item-banner banner-{{ item.typeProduit|lower }}">
+                    <span class="type-icon">{{ item.icon }}</span>
+                    <span class="type-label">{{ item.typeProduit }}</span>
+                </div>
+                <div class="item-info">
+                    <h3>{{ item.name }}</h3>
+                    <div class="item-meta">
+                        {% if item.location %}
+                        <span>📍 {{ item.location }}</span>
+                        {% endif %}
+                        <span class="item-type-badge badge-{{ item.typeProduit|lower }}">{{ item.typeProduit }}</span>
+                    </div>
+                    <div class="item-qty-row">
+                        <form action="{{ path('cart_decrease', {id: item.id}) }}" method="post" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('cart_qty') }}">
+                            <button type="submit" class="btn-qty">-</button>
+                        </form>
+                        <span class="qty-value">{{ item.quantity }}</span>
+                        <form action="{{ path('cart_increase', {id: item.id}) }}" method="post" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('cart_qty') }}">
+                            <button type="submit" class="btn-qty">+</button>
+                        </form>
+                        <span class="price-per">${{ item.pricePerPerson|number_format(2) }} / unit</span>
+                    </div>
+                </div>
+                <span class="item-price">${{ (item.pricePerPerson * item.quantity)|number_format(2) }}</span>
+                <form action="{{ path('cart_remove', {id: item.id}) }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('cart_remove') }}">
+                    <button type="submit" class="btn-remove" title="Remove">×</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="cart-empty-state">
+            <div class="empty-icon">🛒</div>
+            <h2>Your cart is empty</h2>
+            <p>Browse our hotels, transport, activities, and voyages to add items to your cart.</p>
+            <a href="{{ path('voyageur_index') }}" class="btn-browse">Browse Activities</a>
+        </div>
+        {% endif %}
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{{ path('app_hebergement_front') }}" class="btn-continue">🏨 Browse Hotels</a>
+            <a href="{{ path('user_transport') }}" class="btn-continue">✈ Browse Transport</a>
+            <a href="{{ path('voyageur_index') }}" class="btn-continue">🎯 Browse Activities</a>
+            <a href="{{ path('app_voyage_index') }}" class="btn-continue">🌍 Browse Voyages</a>
+        </div>
+    </div>
+
+    {# Right col: order summary + promo + payments #}
+    <div class="sidebar">
+
+        {# Order Summary #}
+        <div class="sidebar-card">
+            <h3>Order Summary</h3>
+            <hr class="sidebar-sep">
+
+            <div id="orderItemsContainer">
+                {% for item in cartItems %}
+                <div class="order-item-row">
+                    <div>
+                        <div class="order-item-name">{{ item.icon }} {{ item.name }}</div>
+                        <div class="order-item-qty">{{ item.quantity }} × ${{ item.pricePerPerson|number_format(2) }}</div>
+                    </div>
+                    <span class="order-item-price">${{ (item.pricePerPerson * item.quantity)|number_format(2) }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr class="sidebar-sep">
+
+            <div class="summary-row">
+                <span class="label">Subtotal</span>
+                <span class="value">${{ subtotal|number_format(2) }}</span>
+            </div>
+            <div class="summary-row">
+                <span class="label">Taxes (10%)</span>
+                <span class="value">${{ taxes|number_format(2) }}</span>
+            </div>
+            {% if discount > 0 %}
+            <div class="summary-row discount-row">
+                <span class="label">🎟 {{ promoCode }} ({{ discountPercent }}%)</span>
+                <span class="value">-${{ discount|number_format(2) }}</span>
+            </div>
+            {% endif %}
+
+            <hr class="sidebar-sep">
+
+            <div class="summary-row total">
+                <span class="label">Total</span>
+                <span class="value">${{ total|number_format(2) }}</span>
+            </div>
+
+            <button class="btn-ai-recommendation" onclick="handleAIRecommendation()">🤖 AI Recommendation</button>
+            <a href="{{ path('payment') }}" class="btn-checkout">Proceed to Checkout →</a>
+        </div>
+
+        {# Promo Code #}
+        <div class="sidebar-card">
+            <p class="promo-label">🎟 Promo Code</p>
+            <form action="{{ path('cart_apply_promo') }}" method="post">
+                <input type="hidden" name="_token" value="{{ csrf_token('apply_promo') }}">
+                <div class="promo-row">
+                    <select name="promo_code" id="promoCodeCombo">
+                        <option value="">Select a promo code</option>
+                        {% for promo in availablePromoCodes %}
+                            <option value="{{ promo.code }}" {{ selectedPromo == promo.code ? 'selected' }}>{{ promo.code }} ({{ promo.discount }}%)</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn-apply">Apply</button>
+                </div>
+            </form>
+            {% if availablePromoCodes|length > 0 %}
+                <p class="promo-available">✅ {{ availablePromoCodes|length }} promo code{{ availablePromoCodes|length > 1 ? 's' : '' }} available</p>
+            {% else %}
+                <p class="promo-hint">Complete a purchase to earn promo codes!</p>
+            {% endif %}
+        </div>
+
+        {# Accepted Payments #}
+        <div class="sidebar-card" style="text-align:center;">
+            <p class="we-accept">We Accept</p>
+            <div class="payment-logos">
+                <span class="logo-visa">VISA</span>
+                <span class="logo-mc">MasterCard</span>
+                <span class="logo-paypal">PayPal</span>
+                <span class="logo-amex">Amex</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── AI Modal ── #}
+<div class="ai-modal-overlay" id="aiModalOverlay" aria-hidden="true">
+    <div class="ai-modal" role="dialog" aria-modal="true">
+        <div class="ai-modal-head">
+            <h3>🤖 AI Travel Advisor</h3>
+            <button class="ai-close" id="aiModalClose" type="button">&times;</button>
+        </div>
+        <div class="ai-modal-body" id="aiModalBody">
+            <p class="ai-loading">Analyzing your cart...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+const aiModalOverlay = document.getElementById('aiModalOverlay');
+const aiModalClose = document.getElementById('aiModalClose');
+const aiModalBody = document.getElementById('aiModalBody');
+
+function handleAIRecommendation() {
+    openAiRecommendationModal();
+}
+
+async function openAiRecommendationModal() {
+    aiModalOverlay.classList.add('open');
+    aiModalBody.innerHTML = '<p class="ai-loading">🤖 Asking Gemini AI for recommendations...</p>';
+
+    try {
+        const response = await fetch('{{ path('cart_ai_recommendation') }}', { headers: { 'Accept': 'application/json' } });
+        const payload = await response.json();
+
+        if (payload.error) {
+            aiModalBody.innerHTML = '<div class="ai-error">' + payload.error + '</div>';
+        } else {
+            aiModalBody.textContent = payload.recommendation || 'No recommendation available.';
+        }
+    } catch (e) {
+        aiModalBody.innerHTML = '<div class="ai-error">Failed to get AI recommendations. Please try again.</div>';
+    }
+}
+
+if (aiModalClose) {
+    aiModalClose.addEventListener('click', () => aiModalOverlay.classList.remove('open'));
+}
+if (aiModalOverlay) {
+    aiModalOverlay.addEventListener('click', (e) => {
+        if (e.target === aiModalOverlay) aiModalOverlay.classList.remove('open');
+    });
+}
+</script>
+{% endblock %}

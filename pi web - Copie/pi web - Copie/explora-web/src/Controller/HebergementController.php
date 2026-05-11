@@ -1,0 +1,307 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Hebergement;
+use App\Form\HebergementType;
+use App\Repository\AvisRepository;
+use App\Repository\HebergementRepository;
+use App\Repository\ReservationRepository;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+
+#[Route('/hebergement')]
+final class HebergementController extends AbstractController
+{
+    #[Route(name: 'app_hebergement_index', methods: ['GET'])]
+    public function index(
+        Request $request,
+        HebergementRepository $hebergementRepository,
+        FormFactoryInterface $formFactory,
+        PaginatorInterface $paginator
+    ): Response {
+        $search = trim((string) $request->query->get('search', ''));
+        $selectedEditId = (int) $request->query->get('edit', 0);
+
+        return $this->renderDashboard(
+            $request,
+            $hebergementRepository,
+            $formFactory,
+            $paginator,
+            $search,
+            null,
+            false,
+            $selectedEditId > 0 ? $selectedEditId : null,
+            null
+        );
+    }
+
+    #[Route('/front', name: 'app_hebergement_front', methods: ['GET'])]
+    public function front(
+        Request $request,
+        HebergementRepository $hebergementRepository,
+        AvisRepository $avisRepository,
+        PaginatorInterface $paginator
+    ): Response {
+        $filters = [
+            'destination' => trim((string) $request->query->get('destination', '')),
+            'type' => trim((string) $request->query->get('type', '')),
+            'minPrice' => $request->query->get('minPrice'),
+            'maxPrice' => $request->query->get('maxPrice'),
+            'sort' => trim((string) $request->query->get('sort', '')),
+            'specialCouple' => $request->query->getBoolean('specialCouple'),
+            'under18Allowed' => $request->query->getBoolean('under18Allowed'),
+            'seaView' => $request->query->getBoolean('seaView'),
+        ];
+
+        $allHebergements = $hebergementRepository->findForFront($filters);
+
+        $pagination = $paginator->paginate(
+            $allHebergements,
+            max(1, (int) $request->query->get('page', 1)),
+            6
+        );
+
+        $hebergements = $pagination->getItems();
+
+        $hotelIds = array_map(
+            static fn (Hebergement $hebergement) => (int) $hebergement->getId(),
+            is_array($hebergements) ? $hebergements : iterator_to_array($hebergements)
+        );
+
+        $summaries = $avisRepository->getSummariesForHebergements($hotelIds);
+
+        return $this->render('hotels/index.html.twig', [
+            'hebergements' => $hebergements,
+            'pagination' => $pagination,
+            'filters' => $filters,
+            'hotelsCount' => $pagination->getTotalItemCount(),
+            'summaries' => $summaries,
+            'createAvisToken' => $this->container->get('security.csrf.token_manager')->getToken('create_avis')->getValue(),
+            'generateSummaryToken' => $this->container->get('security.csrf.token_manager')->getToken('generate_ai_summary')->getValue(),
+        ]);
+    }
+
+    #[Route('/new', name: 'app_hebergement_new', methods: ['GET', 'POST'])]
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        FormFactoryInterface $formFactory,
+        HebergementRepository $hebergementRepository,
+        PaginatorInterface $paginator
+    ): Response {
+        $hebergement = new Hebergement();
+
+        $form = $formFactory->createNamed('hebergement_new', HebergementType::class, $hebergement, [
+            'action' => $this->generateUrl('app_hebergement_new'),
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($hebergement);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_hebergement_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($form->isSubmitted()) {
+            return $this->renderDashboard(
+                $request,
+                $hebergementRepository,
+                $formFactory,
+                $paginator,
+                '',
+                $form,
+                true,
+                null,
+                null
+            );
+        }
+
+        return $this->redirectToRoute('app_hebergement_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}', name: 'app_hebergement_show', methods: ['GET'])]
+    public function show(Hebergement $hebergement): Response
+    {
+        return $this->render('hebergement/show.html.twig', [
+            'hebergement' => $hebergement,
+        ]);
+    }
+
+    #[Route('/{id}/edit', name: 'app_hebergement_edit', methods: ['GET', 'POST'])]
+    public function edit(
+        Request $request,
+        Hebergement $hebergement,
+        EntityManagerInterface $entityManager,
+        FormFactoryInterface $formFactory,
+        HebergementRepository $hebergementRepository,
+        PaginatorInterface $paginator
+    ): Response {
+        if ($request->isMethod('GET')) {
+            return $this->redirectToRoute('app_hebergement_index', [
+                'edit' => $hebergement->getId(),
+            ]);
+        }
+
+        $form = $formFactory->createNamed(
+            'hebergement_edit_' . $hebergement->getId(),
+            HebergementType::class,
+            $hebergement,
+            [
+                'action' => $this->generateUrl('app_hebergement_edit', ['id' => $hebergement->getId()]),
+                'method' => 'POST',
+            ]
+        );
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_hebergement_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($form->isSubmitted()) {
+            return $this->renderDashboard(
+                $request,
+                $hebergementRepository,
+                $formFactory,
+                $paginator,
+                '',
+                null,
+                false,
+                $hebergement->getId(),
+                $form
+            );
+        }
+
+        return $this->redirectToRoute('app_hebergement_index', [
+            'edit' => $hebergement->getId(),
+        ], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}', name: 'app_hebergement_delete', methods: ['POST'])]
+    public function delete(
+        Request $request,
+        Hebergement $hebergement,
+        EntityManagerInterface $entityManager,
+        ReservationRepository $reservationRepository
+    ): Response {
+        if (!$this->isCsrfTokenValid('delete' . $hebergement->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Requête de suppression invalide.');
+            return $this->redirectToRoute('app_hebergement_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $reservationsCount = $reservationRepository->count([
+            'hebergement' => $hebergement,
+        ]);
+
+        if ($reservationsCount > 0) {
+            $this->addFlash(
+                'error',
+                sprintf(
+                    'Impossible de supprimer cet hébergement, car il possède encore %d réservation(s) liée(s).',
+                    $reservationsCount
+                )
+            );
+
+            return $this->redirectToRoute('app_hebergement_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        try {
+            $entityManager->remove($hebergement);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Hébergement supprimé avec succès.');
+        } catch (ForeignKeyConstraintViolationException $e) {
+            $this->addFlash(
+                'error',
+                'Impossible de supprimer cet hébergement, car il possède encore des réservations liées.'
+            );
+        }
+
+        return $this->redirectToRoute('app_hebergement_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    private function renderDashboard(
+        Request $request,
+        HebergementRepository $hebergementRepository,
+        FormFactoryInterface $formFactory,
+        PaginatorInterface $paginator,
+        string $search = '',
+        ?FormInterface $newForm = null,
+        bool $openCreateModal = false,
+        ?int $selectedEditId = null,
+        ?FormInterface $invalidEditForm = null
+    ): Response {
+        $queryBuilder = $hebergementRepository->createQueryBuilder('h')
+            ->orderBy('h.id', 'DESC');
+
+        if ($search !== '') {
+            $queryBuilder
+                ->where('LOWER(h.nom) LIKE :q')
+                ->orWhere('LOWER(h.type) LIKE :q')
+                ->orWhere('LOWER(h.description) LIKE :q')
+                ->orWhere('LOWER(h.localisation) LIKE :q')
+                ->setParameter('q', '%' . strtolower($search) . '%');
+        }
+
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            max(1, (int) $request->query->get('page', 1)),
+            6
+        );
+
+        $hebergements = $pagination->getItems();
+
+        if ($newForm === null) {
+            $newHebergement = new Hebergement();
+            $newForm = $formFactory->createNamed('hebergement_new', HebergementType::class, $newHebergement, [
+                'action' => $this->generateUrl('app_hebergement_new'),
+                'method' => 'POST',
+            ]);
+        }
+
+        $editForms = [];
+        foreach ($hebergements as $item) {
+            if (
+                $invalidEditForm !== null
+                && $selectedEditId !== null
+                && $item->getId() === $selectedEditId
+            ) {
+                $editForms[$item->getId()] = $invalidEditForm->createView();
+                continue;
+            }
+
+            $editForms[$item->getId()] = $formFactory->createNamed(
+                'hebergement_edit_' . $item->getId(),
+                HebergementType::class,
+                $item,
+                [
+                    'action' => $this->generateUrl('app_hebergement_edit', ['id' => $item->getId()]),
+                    'method' => 'POST',
+                ]
+            )->createView();
+        }
+
+        return $this->render('hebergement/index.html.twig', [
+            'hebergements' => $hebergements,
+            'pagination' => $pagination,
+            'search' => $search,
+            'form' => $newForm->createView(),
+            'editForms' => $editForms,
+            'selectedEditId' => $selectedEditId,
+            'openCreateModal' => $openCreateModal,
+        ]);
+    }
+}

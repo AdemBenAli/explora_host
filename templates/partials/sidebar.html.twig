@@ -1,0 +1,87 @@
+{# 
+   partials/sidebar.html.twig
+   Match exact de l'Image 1 fournie par l'utilisateur
+#}
+
+<aside class="at-sidebar">
+    <div class="at-sidebar-logo">
+        {{ include('partials/explora_brand.html.twig', {admin: true, logoHeight: 30}) }}
+    </div>
+
+    {# SECTION PRINCIPAL #}
+    <div class="at-sidebar-section">PRINCIPAL</div>
+    
+    <a href="{{ path('admin_transport_index') }}" 
+       class="at-sidebar-item {{ active == 'accueil' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-home"></i> <span>Accueil</span>
+    </a>
+
+    <a href="#" class="at-sidebar-item {{ active == 'utilisateurs' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-users"></i> <span>Utilisateurs</span>
+    </a>
+
+    <a href="{{ path('admin_billet_index') }}" 
+       class="at-sidebar-item {{ active == 'billets' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-ticket-alt"></i> <span>Billets</span>
+    </a>
+
+    <a href="{{ path('admin_voyage_index') }}" class="at-sidebar-item {{ active == 'voyages' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-map-marked-alt"></i> <span>Voyages</span>
+    </a>
+
+    <a href="{{ path('admin_carts_dashboard') }}" 
+       class="at-sidebar-item {{ active == 'paniers' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-shopping-cart"></i> <span>Paniers</span>
+    </a>
+
+    <a href="{{ path('admin_payments_dashboard') }}" 
+       class="at-sidebar-item {{ active == 'paiements' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-credit-card"></i> <span>Paiements</span>
+    </a>
+
+    {# SECTION INVENTAIRE #}
+    <div class="at-sidebar-section">INVENTAIRE</div>
+
+    <a href="{{ path('admin_transport_index') }}" 
+       class="at-sidebar-item {{ active == 'transport' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-bus"></i> <span>Transport</span>
+    </a>
+
+    <a href="{{ path('app_hebergement_index') }}" 
+       class="at-sidebar-item {{ active == 'hotels' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-hotel"></i> <span>Hôtels</span>
+    </a>
+
+    <a href="{{ path('admin_agent_index') }}" 
+       class="at-sidebar-item {{ active == 'agents' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-user-tie"></i> <span>Agents</span>
+    </a>
+    {# SECTION RAPPORTS #}
+    <div class="at-sidebar-section">RAPPORTS</div>
+
+    <a href="#" class="at-sidebar-item {{ active == 'analytique' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-chart-line"></i> <span>Analytique</span>
+    </a>
+
+    <a href="#" class="at-sidebar-item {{ active == 'reclamations' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-bullhorn"></i> <span>Réclamations</span>
+    </a>
+
+    <a href="{{ path('admin_feedbacks_dashboard') }}" class="at-sidebar-item {{ active == 'feedbacks' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-comments"></i> <span>Feedbacks</span>
+    </a>
+
+    <div class="at-sidebar-spacer"></div>
+
+    {# SECTION SYSTÈME #}
+    <div class="at-sidebar-section">SYSTÈME</div>
+    
+    <a href="#" class="at-sidebar-item {{ active == 'parametres' ? 'at-sidebar-item--active' : '' }}">
+        <i class="fas fa-cog"></i> <span>Paramètres</span>
+    </a>
+
+    <a href="/logout" class="at-sidebar-item at-sidebar-item--logout">
+        <i class="fas fa-sign-out-alt"></i> <span>Déconnexion</span>
+    </a>
+
+</aside>

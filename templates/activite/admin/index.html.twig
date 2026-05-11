@@ -1,0 +1,140 @@
+{% extends 'base.html.twig' %}
+{% block title %}Activity Management | Explora Admin{% endblock %}
+
+{% block stylesheets %}
+    {% include 'partials/admin_styles.html.twig' %}
+    <style>
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .page-header h1 { font-size: 24px; font-weight: 700; color: var(--text-heading); }
+        .btn-add { background: var(--accent); color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.2s; }
+        .btn-add:hover { background: #4f46e5; transform: translateY(-2px); }
+        .filter-bar { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); display: flex; gap: 15px; margin-bottom: 24px; align-items: center; }
+        .filter-input { background: var(--bg-body); border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 8px; color: var(--text-heading); outline: none; flex: 1; }
+        .filter-select { background: var(--bg-body); border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 8px; color: var(--text-heading); cursor: pointer; }
+        .activity-img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {% set active_route = app.request.attributes.get('_route') %}
+    {% include 'partials/agent_sidebar.html.twig' with {'active_route': active_route} %}
+
+    <main class="main-content">
+        {% include 'partials/agent_topbar.html.twig' %}
+
+        <div class="content-area">
+            <div class="breadcrumb">Admin &gt; <span>Activités</span></div>
+
+            <div class="page-header">
+                <h1>🎯 Gestion des Activités</h1>
+                <a href="{{ path('activite_new') }}" class="btn-add"><i class="fa-solid fa-plus"></i> Nouvelle Activité</a>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon indigo"><i class="fa-solid fa-suitcase"></i></div>
+                    </div>
+                    <div class="stat-value">{{ activites|length }}</div>
+                    <div class="stat-label">Total Activités</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon blue"><i class="fa-solid fa-layer-group"></i></div>
+                    </div>
+                    <div class="stat-value">{{ nbCategories }}</div>
+                    <div class="stat-label">Catégories</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon green"><i class="fa-solid fa-location-dot"></i></div>
+                    </div>
+                    <div class="stat-value">{{ nbVilles }}</div>
+                    <div class="stat-label">Villes couvertes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon red"><i class="fa-solid fa-calendar-day"></i></div>
+                    </div>
+                    <div class="stat-value">{{ activites|length > 0 ? 'Actif' : 'Inactif' }}</div>
+                    <div class="stat-label">Statut Service</div>
+                </div>
+            </div>
+
+            <div class="filter-bar">
+                <i class="fa-solid fa-filter" style="color:var(--accent)"></i>
+                <input type="text" placeholder="Rechercher une activité..." class="filter-input">
+                <select class="filter-select">
+                    <option value="">Toutes les catégories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Activité</th>
+                            <th>Lieu</th>
+                            <th>Prix</th>
+                            <th>Places</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in activites %}
+                        <tr>
+                            <td>
+                                {% if a.image %}
+                                    {% set imagePath = a.image starts with('/uploads/') or a.image starts with('uploads/') ? a.image : 'uploads/images/' ~ a.image %}
+                                    <img src="{{ asset(imagePath) }}?v={{ date().timestamp }}" class="activity-img" alt="Photo" style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
+                                {% else %}
+                                    <div class="activity-img" style="background:var(--bg-body); display:grid; place-items:center">🎯</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="font-weight:600; color:var(--text-heading)">{{ a.nom }}</div>
+                                <div style="font-size:12px; color:var(--text-body)">{{ a.categorie }}</div>
+                            </td>
+                            <td>{{ a.ville }}, {{ a.lieu }}</td>
+                            <td><span style="color:var(--accent); font-weight:700">{{ a.prix|number_format(2) }} TND</span></td>
+                            <td>{{ a.nombrePlaces }}</td>
+                            <td>
+                                {% if a.disponible %}
+                                    <span class="badge badge-green">Disponible</span>
+                                {% else %}
+                                    <span class="badge badge-red">Complet</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display:flex; gap:8px">
+                                    <a href="{{ path('admin_activite_detail', {id: a.idActivite}) }}" class="icon-btn" title="Voir"><i class="fa-solid fa-eye"></i></a>
+                                    <a href="{{ path('activite_edit', {id: a.idActivite}) }}" class="icon-btn" title="Modifier"><i class="fa-solid fa-pen-to-square"></i></a>
+                                    <form method="post" action="{{ path('activite_delete', {id: a.idActivite}) }}" onsubmit="return confirm('Supprimer cette activité ?');" style="display:inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ a.idActivite) }}">
+                                        <button class="icon-btn" style="color:var(--red)"><i class="fa-solid fa-trash"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align:center; padding:40px; color:var(--text-body)">
+                                Aucune activité trouvée dans le catalogue.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    {% block javascripts %}
+        {% include 'partials/admin_scripts.html.twig' %}
+    {% endblock %}
+{% endblock %}

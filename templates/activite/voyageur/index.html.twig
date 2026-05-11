@@ -1,0 +1,1204 @@
+{% extends 'base.html.twig' %}
+{% block title %}Activités par Voyage | Explora{% endblock %}
+
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root{
+        --navy:#1a3a5c; --navy-dark:#0f2540;
+        --orange:#f7941d; --orange-dk:#e07800; --orange-lt:#fff3e0;
+        --white:#fff; --bg:#f4f7f6; --bg-card:#fff;
+        --gray-lt:#f8f9fa; --gray-md:#e9ecef; --gray:#8492a6;
+        --text:#212529; --text-m:#6c757d;
+        --text-heading:#1e293b; --text-body:#64748b;
+        --green:#28a745; --green-lt:#d4edda;
+        --red:#dc3545;
+        --r-sm:8px; --r-lg:16px;
+        --sh-sm:0 2px 8px rgba(0,0,0,.08);
+        --sh:0 4px 20px rgba(0,0,0,.10);
+        --tr:.22s ease;
+        --fd:'Plus Jakarta Sans',sans-serif;
+        --fb:'DM Sans',sans-serif;
+        --border-color:#e2e8f0; --border:#e2e8f0;
+        --gold:#f59e0b;
+        --sidebar-bg: #1e5faf; --sidebar-hover: #174b8e; --sidebar-active: #144078;
+        --bg-body: #f4f7f6;
+    }
+
+    [data-theme="dark"], body.dark-mode {
+        --bg:#0F172A; --bg-card:#1E293B; --bg-body: #0F172A;
+        --text:#F1F5F9; --text-m:#94A3B8; --text-heading:#F1F5F9; --text-body:#94A3B8;
+        --border-color:#334155; --border:#334155;
+        --gray-lt:#1e2d40; --gray-md:#2a3d52;
+        --white:#1E293B;
+    }
+
+    body{
+        font-family:var(--fb);
+        background:var(--bg-body);
+        color:var(--text);
+        display:flex;
+        flex-direction:column;
+        min-height:100vh;
+        transition: background var(--tr), color var(--tr);
+    }
+
+    /* ══════════════ NAVBAR ══════════════ */
+    .ut-navbar{
+        background:var(--bg-card);
+        box-shadow:var(--sh-sm);
+        position:sticky;
+        top:0;
+        z-index:200;
+        transition:background var(--tr);
+    }
+    .ut-navbar__inner{
+        max-width:1440px;
+        margin:0 auto;
+        padding:0 25px;
+        height:64px;
+        display:flex;
+        align-items:center;
+        gap:12px;
+    }
+    .ut-navbar__logo{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        text-decoration:none;
+        font-family:var(--fd);
+        font-weight:800;
+        font-size:20px;
+        color:var(--text-heading);
+        flex-shrink:0;
+    }
+    .logo-globe{
+        width:38px; height:38px;
+        border-radius:50%;
+        background:var(--navy);
+        display:flex; align-items:center; justify-content:center;
+        flex-shrink:0;
+    }
+    .logo-globe i{ color:#fff; font-size:16px; }
+    .logo-name em{ color:var(--orange); font-style:normal; }
+
+    /* Nav links */
+    .ut-navbar__links{
+        display:flex;
+        gap:4px;
+        margin-left:auto;
+    }
+    .ut-nav-link{
+        font-family:var(--fd);
+        font-weight:600;
+        font-size:13px;
+        color:var(--text-heading);
+        text-decoration:none;
+        padding:8px 14px;
+        border-radius:var(--r-sm);
+        transition:var(--tr);
+        white-space:nowrap;
+        position:relative;
+        padding-bottom:10px;
+    }
+    .ut-nav-link:hover{ color:var(--orange); }
+
+    .ut-nav-link--active{
+        color:var(--orange);
+    }
+    .ut-nav-link--active::after{
+        content:'';
+        position:absolute;
+        bottom:0;
+        left:14px;
+        right:14px;
+        height:3px;
+        background:var(--orange);
+        border-radius:3px 3px 0 0;
+    }
+
+    .ut-navbar__actions{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        margin-left:10px;
+    }
+    .ut-theme-btn{
+        background:var(--gray-lt);
+        border:none;
+        border-radius:50%;
+        width:40px; height:40px;
+        font-size:15px;
+        cursor:pointer;
+        display:flex; align-items:center; justify-content:center;
+        color:var(--text-heading);
+        transition:var(--tr);
+        flex-shrink:0;
+    }
+    .ut-theme-btn:hover{ background:var(--gray-md); transform:rotate(15deg); }
+
+    .ut-btn{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        font-family:var(--fd);
+        font-weight:700;
+        font-size:12px;
+        padding:9px 16px;
+        border-radius:25px;
+        border:none;
+        cursor:pointer;
+        text-decoration:none;
+        transition:var(--tr);
+        white-space:nowrap;
+    }
+    .ut-btn--primary{ background:var(--orange); color:#fff; box-shadow:0 4px 14px rgba(247,148,29,.35); }
+    .ut-btn--primary:hover{ background:var(--orange-dk); transform:translateY(-1px); }
+    .ut-btn--secondary{ background:transparent; color:var(--text-heading); border:1.5px solid var(--text-heading); }
+    .ut-btn--secondary:hover{ background:var(--text-heading); color:var(--bg-card); }
+    .ut-btn--sm{ padding:8px 14px; font-size:12px; }
+
+    /* ══════════════ USER DROPDOWN ══════════════ */
+    .user-profile-wrap{
+        position:relative;
+    }
+    .user-profile{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        cursor:pointer;
+        padding-left:14px;
+        border-left:1px solid var(--border-color);
+        padding:8px 10px 8px 14px;
+        border-radius:var(--r-sm);
+        transition:var(--tr);
+    }
+    .user-profile:hover{ background:var(--gray-lt); }
+    .user-avatar{
+        width:36px; height:36px;
+        border-radius:50%;
+        object-fit:cover;
+    }
+    .user-name{ font-weight:600; color:var(--text); font-size:13px; font-family:var(--fd); }
+    .user-role{ font-size:11px; color:#94a3b8; }
+    .user-dropdown-icon{ color:#94a3b8; font-size:11px; transition:transform .2s; }
+    .user-profile-wrap.open .user-dropdown-icon{ transform:rotate(180deg); }
+
+    .user-dropdown{
+        display:none;
+        position:absolute;
+        top:calc(100% + 8px);
+        right:0;
+        background:var(--bg-card);
+        border:1px solid var(--border-color);
+        border-radius:var(--r-lg);
+        box-shadow:var(--sh);
+        min-width:200px;
+        z-index:300;
+        overflow:hidden;
+        animation:dropIn .18s ease;
+    }
+    @keyframes dropIn{ from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+    .user-profile-wrap.open .user-dropdown{ display:block; }
+
+    .dropdown-header{
+        padding:14px 16px;
+        border-bottom:1px solid var(--border-color);
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+    .dropdown-header img{ width:38px; height:38px; border-radius:50%; object-fit:cover; }
+    .dropdown-header-name{ font-weight:700; font-size:13px; color:var(--text); font-family:var(--fd); }
+    .dropdown-header-role{ font-size:11px; color:#94a3b8; }
+
+    .dropdown-item{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        padding:11px 16px;
+        font-size:13px;
+        color:var(--text);
+        text-decoration:none;
+        font-family:var(--fd);
+        font-weight:500;
+        transition:var(--tr);
+        cursor:pointer;
+        background:none;
+        border:none;
+        width:100%;
+        text-align:left;
+    }
+    .dropdown-item i{ width:16px; color:var(--gray); font-size:13px; }
+    .dropdown-item:hover{ background:var(--gray-lt); color:var(--orange); }
+    .dropdown-item:hover i{ color:var(--orange); }
+    .dropdown-item--danger{ color:var(--red); }
+    .dropdown-item--danger i{ color:var(--red); }
+    .dropdown-item--danger:hover{ background:#fff5f5; color:#c0392b; }
+    .dropdown-divider{ height:1px; background:var(--border-color); margin:4px 0; }
+
+    /* ══════════════ LAYOUT ══════════════ */
+    .page-body{
+        display:flex;
+        flex:1;
+        min-height:0;
+        height:calc(100vh - 64px);
+    }
+
+    .main-content{
+        flex:1;
+        display:flex;
+        flex-direction:column;
+        overflow:hidden;
+        background:var(--bg-body);
+    }
+    .content-area{
+        flex:1;
+        padding:28px 30px;
+        overflow-y:auto;
+        display:flex;
+        flex-direction:column;
+        max-width: 1440px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* ── CONTENT AREA SPECIFICS ── */
+    .explora-breadcrumb { font-size: 13px; color: #94a3b8; padding: 0 0 16px; }
+    .explora-breadcrumb span { color: var(--text-heading); font-weight: 600; }
+
+    .content-topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 24px; background: var(--bg-card);
+        border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px;
+        flex-shrink: 0; box-shadow: var(--sh-sm);
+    }
+    .explora-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 9px 16px; border-radius: 8px; font-size: 13px;
+        font-weight: 600; cursor: pointer; text-decoration: none;
+        border: none; font-family: 'Inter', sans-serif; transition: all 0.2s;
+    }
+    .explora-btn--back { background: var(--bg-body); color: var(--text-heading); border: 1px solid var(--border); }
+    .explora-btn--back:hover { background: var(--border); }
+    .explora-btn--ai { background: #7c3aed; color: white; }
+    .explora-btn--ai:hover { background: #6d28d9; }
+    .explora-btn--planning { background: #f59e0b; color: white; }
+    .explora-btn--planning:hover { background: #d97706; }
+
+    /* ── TWO-COLUMN LAYOUT ── */
+    .activites-layout-single {
+        flex: 1; display: flex; overflow: hidden;
+        background: var(--bg-card); border-radius: 12px;
+        border: 1px solid var(--border); box-shadow: var(--sh-sm);
+    }
+
+    /* ── RIGHT PANEL: Activités ── */
+    .activites-panel {
+        flex: 1; overflow-y: auto; padding: 20px 24px;
+        display: flex; flex-direction: column; gap: 0;
+    }
+    .activites-panel__header {
+        display: flex; align-items: flex-start; justify-content: space-between;
+        margin-bottom: 16px;
+    }
+    .activites-panel__title {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 16px; font-weight: 700; color: var(--text-heading);
+    }
+    .activites-panel__sub { font-size: 12px; color: var(--text-body); margin-top: 2px; }
+
+    .date-group { margin-bottom: 28px; }
+    .date-group__header {
+        display: flex; align-items: center; gap: 14px;
+        margin-bottom: 14px;
+    }
+    .date-badge {
+        background: var(--sidebar-bg); color: white;
+        border-radius: 10px; padding: 8px 12px;
+        text-align: center; min-width: 58px; flex-shrink: 0;
+    }
+    .date-badge__day { font-size: 22px; font-weight: 800; line-height: 1; }
+    .date-badge__month { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; }
+    .date-badge__year { font-size: 10px; opacity: 0.7; }
+    .date-group__weekday { font-size: 16px; font-weight: 700; color: var(--text-heading); }
+    .date-group__count { font-size: 12px; color: var(--text-body); }
+
+    .activite-item {
+        background: var(--bg-card); border-radius: 14px;
+        border: 1px solid var(--border); overflow: hidden;
+        margin-bottom: 12px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex; flex-direction: column;
+    }
+    .activite-item:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30,95,175,0.12); }
+    .activite-item__top { display: flex; gap: 0; }
+    .activite-item__img {
+        width: 120px; height: 120px; object-fit: cover;
+        flex-shrink: 0; display: block;
+    }
+    .activite-item__img-placeholder {
+        width: 120px; height: 120px; background: var(--sidebar-bg);
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .activite-item__img-placeholder i { font-size: 28px; color: rgba(255,255,255,0.5); }
+    .activite-item__body { flex: 1; padding: 14px 16px; display: flex; flex-direction: column; justify-content: space-between; }
+    .activite-item__badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+    .activite-item__badge { padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .activite-item__badge--cat { background: #e0f2fe; color: #0369a1; }
+    .activite-item__badge--matin { background: #fef9c3; color: #854d0e; }
+    .activite-item__badge--am { background: #dbeafe; color: #1e40af; }
+    .activite-item__badge--soir { background: #ede9fe; color: #5b21b6; }
+    .activite-item__title { font-weight: 700; font-size: 15px; color: var(--text-heading); margin-bottom: 4px; }
+    .activite-item__meta { font-size: 12px; color: var(--text-body); display: flex; flex-direction: column; gap: 2px; }
+    .activite-item__actions { display: flex; border-top: 1px solid var(--border); }
+    .activite-item__action {
+        flex: 1; text-align: center; padding: 10px;
+        font-size: 12px; font-weight: 600; cursor: pointer;
+        border: none; background: transparent; font-family: 'Inter', sans-serif;
+        text-decoration: none; transition: background 0.15s;
+    }
+    .activite-item__action--detail { color: var(--sidebar-bg); border-right: 1px solid var(--border); }
+    .activite-item__action--detail:hover { background: var(--gray-lt); }
+    .activite-item__action--planning { color: #16a34a; }
+    .activite-item__action--planning:hover { background: #f0fdf4; }
+
+    .empty-state { text-align: center; padding: 80px 20px; }
+    .empty-state i { font-size: 56px; color: #cbd5e1; margin-bottom: 16px; display: block; }
+    .empty-state p { font-size: 14px; color: var(--text-body); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,0.5); z-index: 1000;
+    }
+    .modal-box {
+        display: none; position: fixed; top: 50%; left: 50%;
+        transform: translate(-50%,-50%);
+        width: min(460px, 95vw); background: var(--bg-card);
+        border-radius: 16px; z-index: 1001; overflow: hidden;
+        border: 1px solid var(--border);
+    }
+    .modal-header {
+        background: #1e293b; padding: 16px 24px;
+        display: flex; align-items: center; gap: 12px;
+    }
+    .modal-header__icon {
+        background: #f59e0b; border-radius: 9px;
+        padding: 8px 11px; font-size: 16px; color: white;
+    }
+    .activite-item__action--planning:disabled,
+    .activite-item__action--planning.is-added {
+        background: var(--bg-body);
+        color: var(--text-m);
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* ── VOYAGE SIDEBAR ── */
+    .voyages-sidebar {
+        width: 260px; flex-shrink: 0;
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        background: var(--bg-card);
+        display: flex; flex-direction: column;
+    }
+    .voyages-sidebar__header {
+        padding: 16px 18px 10px;
+        border-bottom: 1px solid var(--border);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700; font-size: 13px;
+        color: var(--text-heading);
+        display: flex; align-items: center; gap: 8px;
+        flex-shrink: 0;
+    }
+    .voyages-sidebar__header i { color: var(--sidebar-bg); }
+    .voyage-filter-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 18px; cursor: pointer;
+        border-bottom: 1px solid var(--border);
+        transition: background .15s;
+        font-size: 13px; font-weight: 500;
+        color: var(--text-heading);
+        text-decoration: none;
+        background: none; border-left: 3px solid transparent;
+    }
+    .voyage-filter-item:hover { background: var(--gray-lt); }
+    .voyage-filter-item.active {
+        background: rgba(30,95,175,.07);
+        border-left-color: var(--sidebar-bg);
+        color: var(--sidebar-bg); font-weight: 700;
+    }
+    .voyage-filter-item .vfi-icon {
+        width: 34px; height: 34px; border-radius: 8px;
+        background: var(--sidebar-bg); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px; flex-shrink: 0;
+    }
+    .voyage-filter-item.active .vfi-icon { background: var(--orange); }
+    .vfi-info { flex: 1; min-width: 0; }
+    .vfi-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .vfi-dates { font-size: 11px; color: var(--text-body); margin-top: 1px; }
+    .vfi-badge {
+        background: var(--sidebar-bg); color: #fff;
+        border-radius: 50%; width: 20px; height: 20px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 10px; font-weight: 700; flex-shrink: 0;
+    }
+    .voyage-filter-item.active .vfi-badge { background: var(--orange); }
+    .modal-header__title { font-size: 16px; font-weight: 700; color: white; }
+    .modal-header__sub { font-size: 11px; color: rgba(255,255,255,0.6); }
+    .modal-close {
+        margin-left: auto; background: rgba(255,255,255,0.1); color: white;
+        border: none; border-radius: 8px; padding: 6px 14px; cursor: pointer; font-size: 16px;
+    }
+    .modal-body { padding: 24px; }
+    .modal-info {
+        background: var(--bg-body); border-radius: 12px;
+        padding: 16px; margin-bottom: 16px; border: 1px solid var(--border);
+    }
+    .modal-info__places { color: #16a34a; font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+    .modal-info__prix { color: #2563eb; font-size: 12px; }
+    .modal-label { font-size: 11px; font-weight: 700; color: var(--sidebar-bg); text-transform: uppercase; letter-spacing: 0.5px; }
+    .modal-input {
+        width: 100%; padding: 12px; border: 1px solid var(--border);
+        border-radius: 9px; font-size: 16px; font-weight: 700;
+        margin: 6px 0 16px; font-family: 'Inter', sans-serif;
+        background: var(--bg-card); color: var(--text-heading);
+    }
+    .modal-total {
+        text-align: center; font-size: 20px; font-weight: 700; color: #16a34a;
+        background: #dcfce7; border-radius: 10px; padding: 12px; margin-bottom: 16px;
+    }
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-actions .explora-btn { flex: 1; justify-content: center; }
+    .modal-actions .explora-btn--cancel { background: var(--bg-body); color: var(--text-body); border: 1px solid var(--border); }
+    .modal-actions .explora-btn--confirm { background: #16a34a; color: white; flex: 2; }
+    .modal-actions .explora-btn--confirm:hover { background: #15803d; }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- ══════════════ NAVBAR ══════════════ -->
+<nav class="ut-navbar">
+    <div class="ut-navbar__inner">
+
+        <!-- Logo -->
+        <a href="#" class="ut-navbar__logo">
+            {{ include('partials/explora_brand.html.twig', {admin: false, logoHeight: 52}) }}
+        </a>
+
+        <!-- Nav links -->
+        <div class="ut-navbar__links">
+            <a href="{{ path('app_home') }}" class="ut-nav-link">{{ 'nav.home'|trans|default('Accueil') }}</a>
+            <a href="{{ path('voyages') }}" class="ut-nav-link">{{ 'nav.voyages'|trans|default('Voyages') }}</a>
+            <a href="{{ path('user_transport') }}" class="ut-nav-link">{{ 'nav.transport'|trans|default('Transport') }}</a>
+            <a href="{{ path('app_hebergement_front') }}" class="ut-nav-link">{{ 'nav.hotels'|trans|default('Hôtels') }}</a>
+            <a href="{{ path('voyageur_index') }}" class="ut-nav-link ut-nav-link--active">Activités</a>
+        </div>
+
+        <!-- Actions -->
+        <div class="ut-navbar__actions">
+            <button class="ut-theme-btn" id="btnThemeGlobal" title="Mode nuit / jour">
+                <i class="fas fa-moon" id="themeIconGlobal"></i>
+            </button>
+            <button type="button" class="ut-btn ut-btn--secondary ut-btn--sm"
+                    style="color:#059669;border-color:#059669;background:rgba(5,150,105,.07)">
+                🌿 <span>{{ ecoScore.pointsActuels ?? 0 }}</span> PTS
+            </button>
+            <button type="button" class="ut-btn ut-btn--secondary ut-btn--sm">
+                <i class="fas fa-cloud-sun"></i> Météo
+            </button>
+            <a href="#" class="ut-btn ut-btn--secondary ut-btn--sm">
+                <i class="fas fa-map-marked-alt"></i> Carte
+            </a>
+            <a href="{{ path('user_transport_flight_map') }}" class="ut-btn ut-btn--secondary ut-btn--sm">
+                <i class="fas fa-plane-departure"></i> Carte Vols
+            </a>
+            <a href="{{ path('app_reservation_history') }}" class="ut-btn ut-btn--primary">
+                <i class="fas fa-ticket-alt"></i> Mes Réservations
+            </a>
+
+            <!-- User dropdown -->
+            <div class="user-profile-wrap" id="userWrap">
+                <div class="user-profile" id="userToggle">
+                    <img src="https://ui-avatars.com/api/?name={{ voyageur.prenom|default('Louay') }}+{{ voyageur.nom|default('Ouali') }}&background=1e293b&color=fff"
+                         alt="Avatar" class="user-avatar">
+                    <div>
+                        <div class="user-name">{{ voyageur.prenom|default('Louay') }} {{ voyageur.nom|default('Ouali') }}</div>
+                        <div class="user-role">Voyageur</div>
+                    </div>
+                    <i class="fas fa-chevron-down user-dropdown-icon"></i>
+                </div>
+
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-header">
+                        <img src="https://ui-avatars.com/api/?name={{ voyageur.prenom|default('Louay') }}+{{ voyageur.nom|default('Ouali') }}&background=1e293b&color=fff" alt="Avatar">
+                        <div>
+                            <div class="dropdown-header-name">{{ voyageur.prenom|default('Louay') }} {{ voyageur.nom|default('Ouali') }}</div>
+                            <div class="dropdown-header-role">Voyageur</div>
+                        </div>
+                    </div>
+                    <a href="#" class="dropdown-item">
+                        <i class="fas fa-user"></i> Mon profil
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fas fa-cog"></i> Paramètres
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ path('app_logout') }}" class="dropdown-item dropdown-item--danger">
+                        <i class="fas fa-sign-out-alt"></i> Se déconnecter
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+<!-- ══════════════ PAGE BODY ══════════════ -->
+<div class="page-body">
+    <main class="main-content">
+        <div class="content-area">
+
+            <div class="explora-breadcrumb">
+                Dashboard &gt; <span>Activités</span>
+            </div>
+
+            {# Flash messages #}
+            {% for msg in app.flashes('success') %}
+                <div style="background:#dcfce7;color:#15803d;padding:10px 18px;border-left:4px solid #16a34a;margin-bottom:12px;border-radius:8px;font-size:14px;">
+                    <i class="fa-solid fa-circle-check"></i> {{ msg }}
+                </div>
+            {% endfor %}
+            {% for msg in app.flashes('error') %}
+                <div style="background:#fee2e2;color:#dc2626;padding:10px 18px;border-left:4px solid #dc2626;margin-bottom:12px;border-radius:8px;font-size:14px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> {{ msg }}
+                </div>
+            {% endfor %}
+
+            {# Top action bar #}
+            <div class="content-topbar">
+                <a href="{{ path('app_home') }}" class="explora-btn explora-btn--back">
+                    <i class="fa-solid fa-arrow-left"></i> Retour
+                </a>
+                
+                <div style="display:flex;align-items:center;gap:15px;background:var(--bg-body);border-radius:30px;padding:5px 15px;border:1px solid var(--border);">
+                    <i class="fa-solid fa-magnifying-glass" style="color:var(--text-m);"></i>
+                    <input type="text" id="searchInput" placeholder="Rechercher une activité..." oninput="filterActivites(this.value)" style="border:none;background:transparent;outline:none;font-size:14px;color:var(--text-heading);font-family:'Inter',sans-serif;width:220px;">
+                </div>
+
+                <div style="display:flex;gap:10px;">
+                    <a href="{{ path('voyageur_recommandation') }}" class="explora-btn explora-btn--ai">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Recommandations IA
+                    </a>
+                    <a href="{{ path('voyageur_planning') }}" class="explora-btn explora-btn--planning">
+                        <i class="fa-regular fa-calendar"></i> Voir mon planning
+                    </a>
+                </div>
+            </div>
+
+            {# ── TWO-COLUMN LAYOUT ── #}
+            <div class="activites-layout-single">
+
+                {# ── LEFT: Mes Voyages sidebar ── #}
+                <div class="voyages-sidebar">
+                    <div class="voyages-sidebar__header">
+                        <i class="fa-solid fa-suitcase-rolling"></i> Filtrer par voyage
+                    </div>
+                    {# All voyages item #}
+                    <div class="voyage-filter-item active" id="vfAll"
+                         onclick="filterByVoyage(null, this)">
+                        <div class="vfi-icon"><i class="fa-solid fa-globe"></i></div>
+                        <div class="vfi-info">
+                            <div class="vfi-name">Tous les voyages</div>
+                            <div class="vfi-dates">{{ activites|length }} activités</div>
+                        </div>
+                    </div>
+
+                    {% for voyage in voyages %}
+                        {% set vActivites = voyage.activites %}
+                        <div class="voyage-filter-item"
+                             onclick="filterByVoyage({{ voyage.idVoyage }}, this)">
+                            <div class="vfi-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                            <div class="vfi-info">
+                                <div class="vfi-name" title="{{ voyage.nom }}">{{ voyage.nom }}</div>
+                                <div class="vfi-dates">
+                                    {% if voyage.dateDepart %}
+                                        {{ voyage.dateDepart|date('d/m/y') }}
+                                        {% if voyage.dateRetour %} → {{ voyage.dateRetour|date('d/m/y') }}{% endif %}
+                                    {% else %}
+                                        {{ voyage.destination }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if vActivites|length > 0 %}
+                                <div class="vfi-badge">{{ vActivites|length }}</div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div style="padding:20px 18px;font-size:13px;color:var(--text-body);text-align:center;">
+                            <i class="fa-solid fa-info-circle" style="display:block;font-size:24px;margin-bottom:8px;color:#cbd5e1;"></i>
+                            Aucun voyage disponible
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {# ── RIGHT: Activités ── #}
+                <div class="activites-panel">
+                    <div class="activites-panel__header">
+                        <div>
+                            <div class="activites-panel__title">
+                                <i class="fa-solid fa-bullseye" style="color:var(--sidebar-bg);"></i>
+                                Activités
+                            </div>
+                            <div class="activites-panel__sub">Cliquez sur 👁 Détails &amp; Avis pour consulter et noter</div>
+                        </div>
+                    </div>
+
+                    {% if activites is empty %}
+                        <div class="empty-state">
+                            <i class="fa-regular fa-map"></i>
+                            <p>Aucune activité disponible pour le moment.</p>
+                        </div>
+                    {% else %}
+                        {# Group activites by date, sorted ascending #}
+                        {% set activitesByDate = {} %}
+                        {% set noDateActivites = [] %}
+
+                        {% for activite in activites %}
+                            {% if activite.dateActivite %}
+                                {% set dateKey = activite.dateActivite|date('Y-m-d') %}
+                                {% if activitesByDate[dateKey] is not defined %}
+                                    {% set activitesByDate = activitesByDate|merge({(dateKey): []}) %}
+                                {% endif %}
+                                {% set activitesByDate = activitesByDate|merge({(dateKey): activitesByDate[dateKey]|merge([activite])}) %}
+                            {% else %}
+                                {% set noDateActivites = noDateActivites|merge([activite]) %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {# Sort keys ascending #}
+                        {% set sortedDates = activitesByDate|keys|sort %}
+
+                        {% for dateKey in sortedDates %}
+                            {% set group = activitesByDate[dateKey] %}
+                            <div class="date-group" data-date-group="{{ dateKey }}">
+                                <div class="date-group__header">
+                                    <div class="date-badge">
+                                        <div class="date-badge__day">{{ dateKey|date('d') }}</div>
+                                        <div class="date-badge__month">{{ dateKey|date('M')|upper }}</div>
+                                        <div class="date-badge__year">{{ dateKey|date('Y') }}</div>
+                                    </div>
+                                    <div class="date-group__meta">
+                                        <div class="date-group__weekday">{{ dateKey|date('l') }}</div>
+                                        <div class="date-group__count">{{ group|length }} activité{{ group|length > 1 ? 's' : '' }}</div>
+                                    </div>
+                                    {# Time-of-day badge for first activity #}
+                                    {% if group[0].heureDebut %}
+                                        {% set h = group[0].heureDebut.format('H')|number_format %}
+                                        {% if h >= 6 and h < 12 %}
+                                            <span style="margin-left:auto;background:#fef9c3;color:#854d0e;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">🌅 Matin</span>
+                                        {% elseif h >= 12 and h < 18 %}
+                                            <span style="margin-left:auto;background:#dbeafe;color:#1e40af;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">☀️ Après-midi</span>
+                                        {% else %}
+                                            <span style="margin-left:auto;background:#ede9fe;color:#5b21b6;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">🌙 Soir</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+
+                                {% for activite in group %}
+                                <div class="activite-item"
+                                     data-activite-id="{{ activite.idActivite }}"
+                                     data-nom="{{ activite.nom|lower }}">
+                                    <div class="activite-item__top">
+                                        {% if activite.image %}
+                                            {% set imagePath = activite.image starts with('/uploads/') or activite.image starts with('uploads/') ? activite.image : 'uploads/images/' ~ activite.image %}
+                                            <img src="{{ asset(imagePath) }}"
+                                                 alt="{{ activite.nom }}" class="activite-item__img">
+                                        {% else %}
+                                            <div class="activite-item__img-placeholder">
+                                                <i class="fa-solid fa-map-location-dot"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="activite-item__body">
+                                            <div>
+                                                <div class="activite-item__badges">
+                                                    <span class="activite-item__badge activite-item__badge--cat">{{ activite.categorie }}</span>
+                                                    {% if activite.heureDebut %}
+                                                        {% set h = activite.heureDebut.format('H')|number_format %}
+                                                        {% if h >= 6 and h < 12 %}
+                                                            <span class="activite-item__badge activite-item__badge--matin">Matin</span>
+                                                        {% elseif h >= 12 and h < 18 %}
+                                                            <span class="activite-item__badge activite-item__badge--am">Après-midi</span>
+                                                        {% else %}
+                                                            <span class="activite-item__badge activite-item__badge--soir">Soir</span>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </div>
+                                                <div class="activite-item__title">{{ activite.nom }}</div>
+                                                <div class="activite-item__meta">
+                                                    <span><i class="fa-solid fa-location-dot" style="font-size:10px;"></i> {{ activite.ville }} · {{ activite.lieu }}</span>
+                                                    {% if activite.heureDebut %}
+                                                        <span>
+                                                            <i class="fa-regular fa-clock" style="font-size:10px;"></i>
+                                                            {{ activite.heureDebut|date('H:i') }}
+                                                            {% if activite.heureFin %} – {{ activite.heureFin|date('H:i') }}{% endif %}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                {# ── BADGE METEO ── #}
+                                                {% set today = "now"|date("Y-m-d") %}
+                                                {% set maxDate = "+5 days"|date("Y-m-d") %}
+                                                {% if activite.dateActivite and activite.dateActivite|date("Y-m-d") >= today and activite.dateActivite|date("Y-m-d") <= maxDate %}
+                                                    <div style="margin-top:6px;">
+                                                        <span class="meteo-badge" data-meteo-id="{{ activite.idActivite }}"
+                                                              style="display:inline-block; background:#e8f4fd; color:#2980b9; border-radius:20px; padding:3px 10px; font-size:11px; font-weight:bold; cursor:help;">
+                                                            ⏳ Météo...
+                                                        </span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+                                                <span style="color:#16a34a;font-weight:700;font-size:15px;">{{ activite.prix|number_format(2,'.') }} TND</span>
+                                                <span style="color:#2563eb;font-size:11px;font-weight:600;">
+                                                    <i class="fa-solid fa-users" style="font-size:10px;"></i>
+                                                    <span class="activite-places-count">{{ activite.nombrePlaces }} places</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="activite-item__actions">
+                                        <a href="{{ path('voyageur_activite_detail', {'id': activite.idActivite}) }}"
+                                           class="activite-item__action activite-item__action--detail">
+                                            <i class="fa-regular fa-eye" style="font-size:12px;"></i> Détails &amp; Avis
+                                        </a>
+                                        <button onclick="openPlanningModal(
+                                            {{ activite.idActivite }},
+                                            '{{ activite.nom|e('html_attr') }}',
+                                            {{ activite.nombrePlaces }},
+                                            {{ activite.prix }},
+                                            '{{ activite.dateActivite ? activite.dateActivite|date('Y-m-d') : '' }}',
+                                            '{{ activite.heureDebut ? activite.heureDebut|date('H:i') : '' }}',
+                                            '{{ activite.heureFin ? activite.heureFin|date('H:i') : '' }}',
+                                            this,
+                                            this.closest('.activite-item').querySelector('.activite-places-count')
+                                        )" class="activite-item__action activite-item__action--planning{% if activite.idActivite in activitesEnPlanning %} is-added{% endif %}"
+                                        {% if activite.nombrePlaces <= 0 or activite.idActivite in activitesEnPlanning %}disabled{% endif %}>
+                                            {% if activite.idActivite in activitesEnPlanning %}
+                                                <i class="fa-solid fa-check" style="font-size:12px;"></i> Ajouté au Planning
+                                            {% else %}
+                                                <i class="fa-solid fa-plus" style="font-size:12px;"></i> Ajouter au Planning
+                                            {% endif %}
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+
+                        {# Activities without a date #}
+                        {% if noDateActivites|length > 0 %}
+                            <div class="date-group" data-date-group="no-date">
+                                <div class="date-group__header">
+                                    <div class="date-badge" style="background:#64748b;">
+                                        <div class="date-badge__day" style="font-size:16px;">—</div>
+                                        <div class="date-badge__month">DATE</div>
+                                    </div>
+                                    <div class="date-group__meta">
+                                        <div class="date-group__weekday">Sans date</div>
+                                        <div class="date-group__count">{{ noDateActivites|length }} activité{{ noDateActivites|length > 1 ? 's' : '' }}</div>
+                                    </div>
+                                </div>
+                                {% for activite in noDateActivites %}
+                                <div class="activite-item"
+                                     data-activite-id="{{ activite.idActivite }}"
+                                     data-nom="{{ activite.nom|lower }}">
+                                    <div class="activite-item__top">
+                                        {% if activite.image %}
+                                            {% set imagePath = activite.image starts with('/uploads/') or activite.image starts with('uploads/') ? activite.image : 'uploads/images/' ~ activite.image %}
+                                            <img src="{{ asset(imagePath) }}"
+                                                 alt="{{ activite.nom }}" class="activite-item__img">
+                                        {% else %}
+                                            <div class="activite-item__img-placeholder">
+                                                <i class="fa-solid fa-map-location-dot"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="activite-item__body">
+                                            <div>
+                                                <div class="activite-item__badges">
+                                                    <span class="activite-item__badge activite-item__badge--cat">{{ activite.categorie }}</span>
+                                                </div>
+                                                <div class="activite-item__title">{{ activite.nom }}</div>
+                                                <div class="activite-item__meta">
+                                                    <span><i class="fa-solid fa-location-dot" style="font-size:10px;"></i> {{ activite.ville }} · {{ activite.lieu }}</span>
+                                                </div>
+                                            </div>
+                                            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+                                                <span style="color:#16a34a;font-weight:700;font-size:15px;">{{ activite.prix|number_format(2,'.') }} TND</span>
+                                                <span style="color:#2563eb;font-size:11px;font-weight:600;">
+                                                    <i class="fa-solid fa-users" style="font-size:10px;"></i> {{ activite.nombrePlaces }} places
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="activite-item__actions">
+                                        <a href="{{ path('voyageur_activite_detail', {'id': activite.idActivite}) }}"
+                                           class="activite-item__action activite-item__action--detail">
+                                            <i class="fa-regular fa-eye" style="font-size:12px;"></i> Détails &amp; Avis
+                                        </a>
+                                        <button onclick="openPlanningModal(
+                                            {{ activite.idActivite }},
+                                            '{{ activite.nom|e('html_attr') }}',
+                                            {{ activite.nombrePlaces }},
+                                            {{ activite.prix }},
+                                            '',
+                                            '{{ activite.heureDebut ? activite.heureDebut|date('H:i') : '' }}',
+                                            '{{ activite.heureFin ? activite.heureFin|date('H:i') : '' }}',
+                                            this,
+                                            this.closest('.activite-item').querySelector('.activite-places-count')
+                                        )" class="activite-item__action activite-item__action--planning{% if activite.idActivite in activitesEnPlanning %} is-added{% endif %}"
+                                        {% if activite.nombrePlaces <= 0 or activite.idActivite in activitesEnPlanning %}disabled{% endif %}>
+                                            {% if activite.idActivite in activitesEnPlanning %}
+                                                <i class="fa-solid fa-check" style="font-size:12px;"></i> Ajouté au Planning
+                                            {% else %}
+                                                <i class="fa-solid fa-plus" style="font-size:12px;"></i> Ajouter au Planning
+                                            {% endif %}
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>{# .activites-panel #}
+            </div>{# .activites-layout-single #}
+        </div>{# .content-area #}
+    </main>
+</div>
+
+{# ══ MODAL PLANNING ══ #}
+<div class="modal-overlay" id="planningOverlay" onclick="closePlanningModal()"></div>
+<div class="modal-box" id="planningModal">
+    <div class="modal-header">
+        <div class="modal-header__icon"><i class="fa-solid fa-ticket"></i></div>
+        <div>
+            <div class="modal-header__title" id="modalNom"></div>
+            <div class="modal-header__sub">Réserver des places</div>
+        </div>
+        <button class="modal-close" onclick="closePlanningModal()">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <form id="planningForm" method="post">
+        <input type="hidden" name="_token" id="modalToken">
+        <div class="modal-info">
+            <div class="modal-info__places" id="modalPlaces"></div>
+            <div class="modal-info__prix" id="modalPrix"></div>
+        </div>
+        <div class="modal-label">Nombre de places</div>
+        <input type="number" name="nombrePlaces" id="modalNombrePlaces"
+               class="modal-input" min="1" value="1" oninput="updateTotal()">
+        <div class="modal-total" id="modalTotal">Total : 0.00 TND</div>
+        <input type="hidden" name="date" id="modalDate">
+        <input type="hidden" name="heureDebut" id="modalHeureDebut">
+        <input type="hidden" name="heureFin" id="modalHeureFin">
+        <div class="modal-actions">
+            <button type="button" onclick="closePlanningModal()"
+                    class="explora-btn modal-actions explora-btn--cancel">Annuler</button>
+            <button type="submit" class="explora-btn modal-actions explora-btn--confirm">
+                <i class="fa-solid fa-check"></i> Confirmer la réservation
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// ── FETCH METEO ASYNCHRONE ──
+document.addEventListener('DOMContentLoaded', function() {
+    const meteoBadges = document.querySelectorAll('.meteo-badge');
+    
+    meteoBadges.forEach(badge => {
+        const id = badge.dataset.meteoId;
+        if (!id) return;
+        
+        fetch(`{{ path('voyageur_meteo', {'id': 'ID_PLACEHOLDER'}) }}`.replace('ID_PLACEHOLDER', id))
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    badge.innerHTML = '📅 Météo indisponible';
+                    badge.style.background = '#f2f3f4';
+                    badge.style.color = '#95a5a6';
+                } else {
+                    badge.innerHTML = data.displayString;
+                    badge.title = `💧 Humidité : ${data.humidity}%\n💨 Vent : ${data.windSpeed} km/h`;
+                    
+                    // Couleurs selon température (comme en JavaFX)
+                    if (data.temp >= 30) {
+                        badge.style.background = '#fdebd0';
+                        badge.style.color = '#e67e22';
+                    } else if (data.temp >= 20) {
+                        badge.style.background = '#d5f5e3';
+                        badge.style.color = '#27ae60';
+                    } else if (data.temp >= 10) {
+                        badge.style.background = '#d6eaf8';
+                        badge.style.color = '#2980b9';
+                    } else {
+                        badge.style.background = '#ebdef0';
+                        badge.style.color = '#8e44ad';
+                    }
+                }
+            })
+            .catch(err => {
+                badge.innerHTML = '📅 Météo indisponible';
+                badge.style.background = '#f2f3f4';
+                badge.style.color = '#95a5a6';
+            });
+    });
+});
+
+// ── THEME GLOBAL ───────────────────────────────────────────────────────
+const btnTheme = document.getElementById('btnThemeGlobal');
+const iconTheme = document.getElementById('themeIconGlobal');
+let darkTheme = localStorage.getItem('explora-dark') === '1';
+
+function applyTheme() {
+    document.documentElement.setAttribute('data-theme', darkTheme ? 'dark' : 'light');
+    if (darkTheme) { 
+        document.body.classList.add('dark-mode'); 
+    } else { 
+        document.body.classList.remove('dark-mode'); 
+    }
+    if (iconTheme) iconTheme.className = darkTheme ? 'fas fa-sun' : 'fas fa-moon';
+}
+
+applyTheme();
+
+if (btnTheme) {
+    btnTheme.addEventListener('click', () => {
+        darkTheme = !darkTheme;
+        localStorage.setItem('explora-dark', darkTheme ? '1' : '0');
+        applyTheme();
+    });
+}
+
+// User dropdown toggle
+const userWrap = document.getElementById('userWrap');
+const userToggle = document.getElementById('userToggle');
+if (userToggle) {
+    userToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userWrap.classList.toggle('open');
+    });
+    document.addEventListener('click', () => {
+        if(userWrap) userWrap.classList.remove('open');
+    });
+}
+
+// ── PLANNING ADDED STATE (persisted in localStorage) ────────────────────
+const VOYAGEUR_ID = {{ voyageur.id|default(0) }};
+const STORAGE_KEY = 'explora_added_activities_' + VOYAGEUR_ID;
+
+function getAddedSet() {
+    try {
+        return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
+    } catch { return new Set(); }
+}
+function saveAddedSet(set) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
+}
+function markAsAdded(activiteId) {
+    const set = getAddedSet();
+    set.add(String(activiteId));
+    saveAddedSet(set);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const added = getAddedSet();
+    document.querySelectorAll('.activite-item').forEach(card => {
+        const btn = card.querySelector('.activite-item__action--planning');
+        const activiteId = card.dataset.activiteId;
+        if (btn && activiteId && added.has(String(activiteId))) {
+            disablePlanningBtn(btn);
+        }
+    });
+});
+
+function disablePlanningBtn(btn) {
+    btn.disabled = true;
+    btn.classList.add('is-added');
+    btn.innerHTML = '<i class="fa-solid fa-check" style="font-size:12px;"></i> Ajouté au Planning';
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────────
+let _prixUnitaire = 0;
+let _currentActiviteId = null;
+let _currentBtn = null;
+let _currentPlacesEl = null;
+let _currentPlacesCount = 0;
+
+function openPlanningModal(id, nom, places, prix, date, heureDebut, heureFin, btn, placesEl) {
+    _prixUnitaire      = prix;
+    _currentActiviteId = id;
+    _currentBtn        = btn;
+    _currentPlacesEl   = placesEl;
+    _currentPlacesCount = places;
+
+    document.getElementById('modalNom').textContent = nom;
+    document.getElementById('modalPlaces').innerHTML =
+        '<i class="fa-solid fa-circle-check" style="font-size:12px;"></i> ' + places + ' places disponibles';
+    document.getElementById('modalPrix').innerHTML =
+        '<i class="fa-solid fa-coins" style="font-size:12px;"></i> ' + prix + ' TND / personne';
+    document.getElementById('modalNombrePlaces').max   = places;
+    document.getElementById('modalNombrePlaces').value = 1;
+    document.getElementById('modalDate').value         = date;
+    document.getElementById('modalHeureDebut').value   = heureDebut;
+    document.getElementById('modalHeureFin').value     = heureFin;
+    document.getElementById('planningForm').action     = '/voyageur/planning/ajouter/' + id;
+    updateTotal();
+    document.getElementById('planningOverlay').style.display = 'block';
+    document.getElementById('planningModal').style.display   = 'block';
+}
+
+function closePlanningModal() {
+    document.getElementById('planningOverlay').style.display = 'none';
+    document.getElementById('planningModal').style.display   = 'none';
+}
+
+function updateTotal() {
+    const n = parseInt(document.getElementById('modalNombrePlaces').value) || 1;
+    document.getElementById('modalTotal').textContent =
+        'Total : ' + (n * _prixUnitaire).toFixed(2) + ' TND';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('planningForm').addEventListener('submit', function (e) {
+        if (!_currentActiviteId) return;
+
+        const nbReserved = parseInt(document.getElementById('modalNombrePlaces').value) || 1;
+        markAsAdded(_currentActiviteId);
+        if (_currentBtn) disablePlanningBtn(_currentBtn);
+
+        if (_currentPlacesEl) {
+            const newCount = _currentPlacesCount - nbReserved;
+            _currentPlacesEl.textContent = newCount + ' place' + (newCount !== 1 ? 's' : '');
+        }
+
+        // ── Add to cart via AJAX ──────────────────────────────────────────
+        const cartData = new FormData();
+        cartData.append('activite_id', _currentActiviteId);
+        cartData.append('nombrePlaces', nbReserved);
+
+        fetch('{{ path('cart_add_activite') }}', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: cartData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                // Update floating cart badge
+                const badge = document.getElementById('floatingCartBadge');
+                if (badge) {
+                    badge.textContent = data.count;
+                    badge.setAttribute('data-count', data.count);
+                    badge.style.display = '';
+                }
+                // Show a toast notification
+                showCartToast('🛒 «\u00a0' + data.nom + '\u00a0» ajouté au panier !');
+            }
+        })
+        .catch(() => {});
+        // form submits normally → planning is also saved
+    });
+});
+
+function showCartToast(msg) {
+    const toast = document.createElement('div');
+    toast.textContent = msg;
+    Object.assign(toast.style, {
+        position: 'fixed', bottom: '170px', right: '24px', zIndex: '99999',
+        background: '#16a34a', color: '#fff', padding: '12px 20px',
+        borderRadius: '12px', fontSize: '13px', fontWeight: '700',
+        boxShadow: '0 4px 20px rgba(0,0,0,.2)',
+        transition: 'opacity .4s ease', opacity: '1'
+    });
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; }, 2800);
+    setTimeout(() => toast.remove(), 3200);
+}
+
+// ── FILTERS ──────────────────────────────────────────────────────────
+
+function filterActivites(search) {
+    document.querySelectorAll('.activite-item').forEach(card => {
+        card.style.display = card.dataset.nom.includes(search.toLowerCase()) ? '' : 'none';
+    });
+    document.querySelectorAll('.date-group').forEach(group => {
+        const visible = [...group.querySelectorAll('.activite-item')].some(c => c.style.display !== 'none');
+        group.style.display = visible ? '' : 'none';
+    });
+}
+
+// ── VOYAGE FILTER ──────────────────────────────────────────────────────
+// Build voyage→activities map from Twig
+const voyageActivityMap = {
+{% for voyage in voyages %}
+    {{ voyage.idVoyage }}: [{% for act in voyage.activites %}{{ act.idActivite }}{% if not loop.last %},{% endif %}{% endfor %}]{% if not loop.last %},{% endif %}
+{% endfor %}
+};
+
+let _activeVoyageId = null;
+
+function filterByVoyage(voyageId, el) {
+    // Update active state in sidebar
+    document.querySelectorAll('.voyage-filter-item').forEach(item => item.classList.remove('active'));
+    if (el) el.classList.add('active');
+    _activeVoyageId = voyageId;
+
+    const activityIds = voyageId !== null ? voyageActivityMap[voyageId] : null;
+
+    document.querySelectorAll('.activite-item').forEach(card => {
+        if (!activityIds) {
+            card.style.display = '';
+        } else {
+            const id = parseInt(card.dataset.activiteId);
+            card.style.display = activityIds.includes(id) ? '' : 'none';
+        }
+    });
+
+    // Hide empty date groups
+    document.querySelectorAll('.date-group').forEach(group => {
+        const visible = [...group.querySelectorAll('.activite-item')].some(c => c.style.display !== 'none');
+        group.style.display = visible ? '' : 'none';
+    });
+
+    // Show empty state if nothing visible
+    const anyVisible = [...document.querySelectorAll('.activite-item')].some(c => c.style.display !== 'none');
+    let emptyNotice = document.getElementById('voyageEmptyState');
+    if (!anyVisible) {
+        if (!emptyNotice) {
+            emptyNotice = document.createElement('div');
+            emptyNotice.id = 'voyageEmptyState';
+            emptyNotice.className = 'empty-state';
+            emptyNotice.innerHTML = '<i class="fa-regular fa-map"></i><p>Aucune activité pour ce voyage.</p>';
+            document.querySelector('.activites-panel').appendChild(emptyNotice);
+        }
+        emptyNotice.style.display = '';
+    } else {
+        if (emptyNotice) emptyNotice.style.display = 'none';
+    }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlanningModal(); });
+</script>
+{% endblock %}

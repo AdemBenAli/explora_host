@@ -1,0 +1,118 @@
+{{ form_start(form, {'attr': {'class': 'hebergement-form admin-hebergement-modal-form'}}) }}
+
+{% set currentLat = form.latitude.vars.value %}
+{% set currentLng = form.longitude.vars.value %}
+{% set pickerQuery = '' %}
+
+{% if currentLat is not empty and currentLng is not empty %}
+    {% set pickerQuery = '?lat=' ~ currentLat ~ '&lng=' ~ currentLng %}
+{% endif %}
+
+<div class="admin-modal-form-layout">
+    <div class="admin-modal-form-left">
+
+        <div class="form-group">
+            {{ form_label(form.nom) }}
+            {{ form_widget(form.nom) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.type) }}
+            {{ form_widget(form.type) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.description) }}
+            {{ form_widget(form.description) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.prixParNuit) }}
+            {{ form_widget(form.prixParNuit) }}
+        </div>
+
+        <div class="form-options-title">Options</div>
+
+        <div class="form-check-group admin-modal-check-group">
+            <div class="form-check-item">
+                {{ form_widget(form.specialCouple) }}
+                {{ form_label(form.specialCouple) }}
+            </div>
+
+            <div class="form-check-item">
+                {{ form_widget(form.under18Allowed) }}
+                {{ form_label(form.under18Allowed) }}
+            </div>
+
+            <div class="form-check-item">
+                {{ form_widget(form.seaView) }}
+                {{ form_label(form.seaView) }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.localisation) }}
+            {{ form_widget(form.localisation, {'attr': {'class': 'js-localisation-input'}}) }}
+        </div>
+
+        <div class="admin-modal-coords-row">
+            <div class="form-group">
+                {{ form_label(form.latitude) }}
+                {{ form_widget(form.latitude, {'attr': {'class': 'js-latitude-input'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.longitude) }}
+                {{ form_widget(form.longitude, {'attr': {'class': 'js-longitude-input'}}) }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.imageFile) }}
+
+            <div class="custom-file-row">
+                {{ form_widget(form.imageFile, {'attr': {'class': 'custom-file-input', 'accept': 'image/*'}}) }}
+                <span class="custom-file-name">Aucun fichier choisi</span>
+                <label for="{{ form.imageFile.vars.id }}" class="btn-browse">Parcourir</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.capacite) }}
+            {{ form_widget(form.capacite) }}
+        </div>
+    </div>
+
+    <div class="admin-modal-form-right">
+        <div class="admin-modal-map-title">Choisir l'emplacement (clique sur la map)</div>
+
+        <div class="admin-modal-map-placeholder">
+            <iframe
+                src="{{ asset('map/leaflet_picker.html') }}{{ pickerQuery }}"
+                class="js-map-picker-frame"
+                style="width: 100%; height: 100%; border: 0; display: block; border-radius: 10px;"
+                loading="lazy"
+            ></iframe>
+        </div>
+
+        <div class="admin-modal-map-hint js-map-hint">
+            Astuce: clique une fois pour mettre le marqueur. Tu peux recliquer pour le déplacer.
+        </div>
+    </div>
+</div>
+
+<div class="admin-modal-form-actions">
+    <button
+        type="button"
+        class="btn-admin-outline"
+        onclick="{{ close_function|default('closeAccommodationModal()') }}"
+    >
+        Cancel
+    </button>
+
+    <button type="submit" class="btn-admin-primary admin-modal-save-btn">
+        {{ button_label|default('Save') }}
+    </button>
+</div>
+
+{{ form_end(form) }}

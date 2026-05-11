@@ -1,0 +1,245 @@
+{% extends 'base.html.twig' %}
+{% block title %}Modération des Avis | Explora Admin{% endblock %}
+
+{% block stylesheets %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#0f1117; --surface:#181c27; --surface2:#1e2438; --border:rgba(255,255,255,0.07);
+    --accent:#ff8c42; --accent2:#667eea; --text:#e8edf5; --muted:#6b7a90;
+    --green:#10b981; --red:#ef4444;
+    --font-head:'Syne',sans-serif; --font-body:'DM Sans',sans-serif;
+  }
+  body { font-family:var(--font-body); background:var(--bg); color:var(--text); min-height:100vh; }
+  .shell { display:flex; min-height:100vh; }
+  .sidebar { width:240px; min-height:100vh; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; }
+  .main { margin-left:240px; flex:1; display:flex; flex-direction:column; }
+  .sb-logo { padding:28px 24px 22px; border-bottom:1px solid var(--border); }
+  .sb-logo-inner { display:flex; align-items:center; gap:10px; }
+  .sb-logo-icon { width:36px; height:36px; background:var(--accent); border-radius:10px; display:grid; place-items:center; font-size:18px; }
+  .sb-logo-text { font-family:var(--font-head); font-size:18px; font-weight:800; color:#fff; }
+  .sb-logo-sub  { font-size:10px; color:var(--muted); }
+  .sb-section { padding:22px 16px 6px; font-size:10px; font-weight:700; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; }
+  .sb-item { display:flex; align-items:center; gap:11px; padding:10px 16px; margin:2px 8px; border-radius:10px; color:rgba(255,255,255,.55); font-size:13px; text-decoration:none; transition:all .18s; }
+  .sb-item:hover { background:rgba(255,255,255,.06); color:#fff; }
+  .sb-item.active { background:rgba(102,126,234,.18); color:#fff; font-weight:600; border-left:3px solid var(--accent2); padding-left:13px; }
+  .sb-icon { font-size:15px; width:20px; text-align:center; }
+  .sb-spacer { flex:1; }
+  .sb-bottom { border-top:1px solid var(--border); padding:12px 8px; }
+
+  .topbar { height:64px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 32px; gap:16px; position:sticky; top:0; z-index:50; }
+  .topbar-title h1 { font-family:var(--font-head); font-size:20px; font-weight:700; color:#fff; }
+  .topbar-title p  { font-size:12px; color:var(--muted); }
+  .topbar-spacer { flex:1; }
+  .badge-count { background:rgba(102,126,234,.15); color:var(--accent2); border:1px solid rgba(102,126,234,.25); padding:5px 16px; border-radius:20px; font-size:13px; font-weight:700; }
+  .btn { display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:all .18s; text-decoration:none; font-family:var(--font-body); }
+  .btn-primary { background:var(--accent); color:#fff; }
+  .btn-primary:hover { background:#ff7a28; }
+  .btn-sm { padding:6px 12px; font-size:12px; border-radius:7px; }
+
+  /* ── Toolbar ── */
+  .toolbar { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 32px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .search-wrap { display:flex; align-items:center; gap:9px; background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:8px 14px; min-width:260px; }
+  .search-wrap input { background:none; border:none; outline:none; color:var(--text); font-size:13px; font-family:var(--font-body); width:100%; }
+  .search-wrap input::placeholder { color:var(--muted); }
+  .filter-select { background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:9px; padding:8px 12px; font-size:12px; font-family:var(--font-body); cursor:pointer; outline:none; }
+  .filter-select option { background:#1a1f2e; }
+
+  .content { padding:28px 32px; flex:1; }
+
+  /* ── Group header ── */
+  .group-header { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 18px; margin-bottom:12px; }
+  .group-act-name { font-family:var(--font-head); font-size:14px; font-weight:700; color:#fff; }
+  .group-badge { background:var(--accent2); color:#fff; border-radius:20px; padding:2px 10px; font-size:11px; font-weight:700; }
+  .group-spacer { flex:1; }
+  .group-avg { color:#f59e0b; font-weight:700; font-size:13px; }
+
+  /* ── Avis card ── */
+  .avis-group { margin-bottom:28px; }
+  .avis-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 20px; margin-bottom:8px; border-left:4px solid; display:flex; flex-direction:column; gap:10px; transition:background .15s; }
+  .avis-card:hover { background:rgba(255,255,255,.02); }
+  .avis-card.good   { border-left-color:var(--green); }
+  .avis-card.medium { border-left-color:#f59e0b; }
+  .avis-card.bad    { border-left-color:var(--red); }
+  .avis-header { display:flex; align-items:center; gap:12px; }
+  .avis-avatar { width:36px; height:36px; min-width:36px; border-radius:50%; background:rgba(102,126,234,.2); color:var(--accent2); font-weight:800; font-size:15px; display:grid; place-items:center; }
+  .avis-meta strong { font-size:13px; font-weight:700; color:#fff; display:block; }
+  .avis-meta span   { font-size:11px; color:var(--muted); }
+  .avis-stars { margin-left:auto; color:#f59e0b; font-size:15px; letter-spacing:1px; }
+  .avis-del-btn { background:rgba(239,68,68,.10); color:var(--red); border:1px solid rgba(239,68,68,.2); border-radius:8px; padding:6px 14px; font-size:12px; font-weight:700; cursor:pointer; transition:all .18s; font-family:var(--font-body); }
+  .avis-del-btn:hover { background:rgba(239,68,68,.2); }
+  .avis-comment { font-size:13px; color:rgba(232,237,245,.7); line-height:1.65; padding-left:48px; }
+
+  /* ── Empty ── */
+  .empty-state { text-align:center; padding:80px 20px; }
+  .empty-state .ei { font-size:52px; margin-bottom:14px; opacity:.35; }
+  .empty-state p { color:var(--muted); font-size:14px; }
+
+  /* ── Flash ── */
+  .flash { padding:12px 18px; border-radius:9px; margin-bottom:20px; font-size:13px; font-weight:500; }
+  .flash-success { background:rgba(16,185,129,.12); color:#34d399; border:1px solid rgba(16,185,129,.25); }
+  .flash-error   { background:rgba(239,68,68,.10); color:#f87171; border:1px solid rgba(239,68,68,.2); }
+
+  @media (max-width:768px) { .sidebar{display:none;} .main{margin-left:0;} .content{padding:16px;} }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-inner">
+        <div class="sb-logo-icon">✈</div>
+        <div>
+          <div class="sb-logo-text">Explora</div>
+          <div class="sb-logo-sub">Administration</div>
+        </div>
+      </div>
+    </div>
+    <div class="sb-section">Principal</div>
+    <a href="{{ path('admin_dashboard') }}" class="sb-item"><span class="sb-icon">📊</span> Dashboard</a>
+    <div class="sb-section">Gestion</div>
+    <a href="#" class="sb-item"><span class="sb-icon">👥</span> Agents</a>
+    <a href="{{ path('admin_activite_index') }}" class="sb-item"><span class="sb-icon">🎯</span> Activités</a>
+    <a href="#" class="sb-item"><span class="sb-icon">✈️</span> Voyages</a>
+    <div class="sb-section">Rapports</div>
+    <a href="{{ path('admin_avis_index') }}" class="sb-item active"><span class="sb-icon">💬</span> Avis</a>
+    <div class="sb-spacer"></div>
+    <div class="sb-bottom">
+      <a href="#" class="sb-item" style="color:rgba(220,80,80,.85);"><span class="sb-icon">🚪</span> Déconnexion</a>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-title">
+        <h1>🛡️ Modération des Avis</h1>
+        <p>Consultez et supprimez les avis inappropriés</p>
+      </div>
+      <div class="topbar-spacer"></div>
+      <span id="totalBadge" class="badge-count">{{ avisParActivite|reduce((carry, list) => carry + list|length, 0) }} avis</span>
+      <a href="{{ path('admin_avis_index') }}" class="btn btn-primary btn-sm">🔄 Actualiser</a>
+    </div>
+
+    <!-- Toolbar filtres -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span style="color:var(--accent2);font-size:14px;">🔍</span>
+        <input type="text" id="searchInput" placeholder="Voyageur ou commentaire…" oninput="filterAvis()">
+      </div>
+      <select class="filter-select" id="activiteFilter" onchange="filterAvis()">
+        <option value="">Toutes les activités</option>
+        {% for activiteNom, liste in avisParActivite %}
+          <option value="{{ activiteNom }}">{{ activiteNom }}</option>
+        {% endfor %}
+      </select>
+      <select class="filter-select" id="noteFilter" onchange="filterAvis()">
+        <option value="">Toutes les notes</option>
+        <option value="1">⭐ 1</option>
+        <option value="2">⭐⭐ 2</option>
+        <option value="3">⭐⭐⭐ 3</option>
+        <option value="4">⭐⭐⭐⭐ 4</option>
+        <option value="5">⭐⭐⭐⭐⭐ 5</option>
+      </select>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      {% for msg in app.flashes('success') %}
+        <div class="flash flash-success">✔ {{ msg }}</div>
+      {% endfor %}
+      {% for msg in app.flashes('error') %}
+        <div class="flash flash-error">⚠ {{ msg }}</div>
+      {% endfor %}
+
+      {% set totalAvis = 0 %}
+      {% for liste in avisParActivite %}{% set totalAvis = totalAvis + liste|length %}{% endfor %}
+
+      {% if totalAvis == 0 %}
+        <div class="empty-state">
+          <div class="ei">💬</div>
+          <p>Aucun avis trouvé.</p>
+        </div>
+      {% else %}
+
+        {% for activiteNom, liste in avisParActivite %}
+          {% set moy = 0 %}
+          {% for av in liste %}{% set moy = moy + av.note %}{% endfor %}
+          {% set moy = liste|length > 0 ? (moy / liste|length) : 0 %}
+
+          <div class="avis-group" data-activite="{{ activiteNom }}">
+
+            <div class="group-header">
+              <span style="font-size:16px;">🎯</span>
+              <span class="group-act-name">{{ activiteNom }}</span>
+              <span class="group-badge">{{ liste|length }} avis</span>
+              <div class="group-spacer"></div>
+              <span class="group-avg">{{ moy|number_format(1) }} ★</span>
+            </div>
+
+            {% for av in liste %}
+              {% set cls = av.note >= 4 ? 'good' : (av.note == 3 ? 'medium' : 'bad') %}
+              <div class="avis-card {{ cls }}"
+                   data-nom="{{ av.nomVoyageur|lower }}"
+                   data-commentaire="{{ av.commentaire|lower }}"
+                   data-note="{{ av.note }}">
+                <div class="avis-header">
+                  <div class="avis-avatar">{{ av.nomVoyageur|slice(0,1)|upper }}</div>
+                  <div class="avis-meta">
+                    <strong>{{ av.nomVoyageur }}</strong>
+                    <span>{{ av.dateAvis|date('d MMM Y', locale='fr') }}</span>
+                  </div>
+                  <div class="avis-stars">{{ av.etoiles }}</div>
+                  <form method="post" action="{{ path('admin_avis_supprimer', {'id': av.idAvis}) }}"
+
+                        onsubmit="return confirm('Supprimer l\'avis de « {{ av.nomVoyageur }} » ?');" style="margin-left:10px;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_avis_' ~ av.idAvis) }}">
+                    <button type="submit" class="avis-del-btn">🗑️ Supprimer</button>
+                  </form>
+                </div>
+                <div class="avis-comment">{{ av.commentaire }}</div>
+              </div>
+            {% endfor %}
+
+          </div>
+        {% endfor %}
+
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<script>
+function filterAvis() {
+  const search   = document.getElementById('searchInput').value.toLowerCase();
+  const actFilt  = document.getElementById('activiteFilter').value;
+  const noteFilt = document.getElementById('noteFilter').value;
+  let visible = 0;
+
+  document.querySelectorAll('.avis-group').forEach(group => {
+    const groupAct = group.dataset.activite;
+    const matchGroup = !actFilt || groupAct === actFilt;
+
+    let groupVisible = 0;
+    group.querySelectorAll('.avis-card').forEach(card => {
+      const matchSearch = !search || card.dataset.nom.includes(search) || card.dataset.commentaire.includes(search);
+      const matchNote   = !noteFilt || card.dataset.note === noteFilt;
+      const show = matchGroup && matchSearch && matchNote;
+      card.style.display = show ? '' : 'none';
+      if (show) groupVisible++;
+    });
+
+    group.style.display = groupVisible > 0 ? '' : 'none';
+    visible += groupVisible;
+  });
+
+  document.getElementById('totalBadge').textContent = visible + ' avis';
+}
+</script>
+{% endblock %}

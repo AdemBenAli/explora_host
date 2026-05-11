@@ -1,0 +1,2638 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hotels | Explora{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.css">
+    <style>
+        .front-pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 28px 0 8px;
+        }
+
+        .front-pagination-wrapper nav {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .front-pagination-wrapper ul.pagination {
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 10px !important;
+            flex-wrap: wrap !important;
+        }
+
+        .front-pagination-wrapper ul.pagination li.page-item {
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .front-pagination-wrapper ul.pagination li.page-item .page-link {
+            min-width: 48px !important;
+            height: 48px !important;
+            padding: 0 16px !important;
+            border-radius: 999px !important;
+            border: 2px solid #d7dde5 !important;
+            background: #ffffff !important;
+            color: #1a3a5c !important;
+            font-size: 15px !important;
+            font-weight: 800 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-decoration: none !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+            transition: 0.2s ease !important;
+        }
+
+        .front-pagination-wrapper ul.pagination li.page-item .page-link:hover {
+            background: rgba(247, 148, 29, 0.10) !important;
+            border-color: #f7941d !important;
+            color: #f7941d !important;
+        }
+
+        .front-pagination-wrapper ul.pagination li.page-item.active .page-link {
+            background: #f7941d !important;
+            border-color: #f7941d !important;
+            color: #ffffff !important;
+            box-shadow: 0 8px 18px rgba(247, 148, 29, 0.24) !important;
+        }
+
+        .front-pagination-wrapper ul.pagination li.page-item.disabled .page-link {
+            opacity: 0.45 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+            background: #f4f6f9 !important;
+            color: #98a3af !important;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="front-hotels-shell" id="frontHotelsPage">
+
+    <header class="front-navbar">
+        <div class="front-navbar-inner">
+            <a href="{{ path('app_hebergement_front') }}" class="front-brand">
+                <img src="{{ asset('images/Explora.png') }}" alt="Explora" class="front-brand-logo">
+            </a>
+
+            <nav class="front-center-nav">
+                <a href="#" class="front-nav-pill">Home</a>
+                <a href="#" class="front-nav-pill">Voyages</a>
+                <a href="{{ path('user_transport') }}" class="front-nav-pill">Transport</a>
+                <a href="{{ path('app_hebergement_front') }}" class="front-nav-pill front-nav-pill-active">Hotels</a>
+            </nav>
+
+            <div class="front-right-nav">
+                <a href="{{ path('app_hebergement_index') }}" class="front-outline-pill">Dashboard</a>
+                <a href="{{ path('app_reservation_history') }}" class="front-outline-pill">History</a>
+                <a href="#" class="front-accent-pill">Profile</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="front-hero-hotels">
+        <div class="front-hero-content">
+            <h1>Find Your Perfect Stay</h1>
+            <p>From cozy boutique hotels to luxury resorts</p>
+        </div>
+    </section>
+
+    <section class="front-search-card-wrap">
+        <div class="front-search-card">
+            <form method="get" action="{{ path('app_hebergement_front') }}" class="front-search-form" autocomplete="off">
+                <div class="front-search-main">
+                    <div class="front-search-field front-search-field-large" style="position: relative;">
+                        <label for="destination">Destination (Country)</label>
+                        <input
+                            type="text"
+                            id="destination"
+                            name="destination"
+                            value="{{ filters.destination }}"
+                            placeholder="Where are you going?"
+                            autocomplete="off"
+                        >
+
+                        <div
+                            id="countrySuggestions"
+                            style="
+                                display:none;
+                                position:absolute;
+                                top:100%;
+                                left:0;
+                                right:0;
+                                margin-top:10px;
+                                background:#ffffff;
+                                border:1px solid #d9dfe6;
+                                border-radius:18px;
+                                box-shadow:0 18px 36px rgba(0,0,0,0.14);
+                                z-index:999999;
+                                max-height:420px;
+                                overflow-y:auto;
+                                padding:10px 0;
+                            "
+                        ></div>
+                    </div>
+
+                    <div class="front-search-field">
+                        <label for="type">Accommodation Type</label>
+                        <select id="type" name="type">
+                            <option value="">Select type</option>
+                            <option value="hotel" {{ filters.type == 'hotel' ? 'selected' : '' }}>Hotel</option>
+                            <option value="hostel" {{ filters.type == 'hostel' ? 'selected' : '' }}>Hostel</option>
+                            <option value="motel" {{ filters.type == 'motel' ? 'selected' : '' }}>Motel</option>
+                            <option value="maison" {{ filters.type == 'maison' ? 'selected' : '' }}>Maison</option>
+                            <option value="appartement" {{ filters.type == 'appartement' ? 'selected' : '' }}>Appartement</option>
+                        </select>
+                    </div>
+
+                    <div class="front-search-actions">
+                        <button type="submit" class="front-btn-primary">Search</button>
+                        <a href="{{ path('app_hebergement_front') }}" class="front-btn-outline">Reset</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="front-hotels-page">
+
+        <aside class="front-filters-card">
+            <h2>Filters</h2>
+            <div class="front-divider"></div>
+
+            <form method="get" action="{{ path('app_hebergement_front') }}" class="front-filters-form">
+                <input type="hidden" name="destination" value="{{ filters.destination }}">
+                <input type="hidden" name="type" value="{{ filters.type }}">
+
+                <div class="front-filter-group">
+                    <label for="minPrice">Min price</label>
+                    <input type="number" id="minPrice" name="minPrice" value="{{ filters.minPrice }}">
+                </div>
+
+                <div class="front-filter-group">
+                    <label for="maxPrice">Max price</label>
+                    <input type="number" id="maxPrice" name="maxPrice" value="{{ filters.maxPrice }}">
+                </div>
+
+                <div class="front-filter-group">
+                    <label for="sort">Select order</label>
+                    <select id="sort" name="sort">
+                        <option value="price_asc" {{ filters.sort == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                        <option value="price_desc" {{ filters.sort == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                        <option value="name_asc" {{ filters.sort == 'name_asc' ? 'selected' : '' }}>Name: A to Z</option>
+                        <option value="name_desc" {{ filters.sort == 'name_desc' ? 'selected' : '' }}>Name: Z to A</option>
+                    </select>
+                </div>
+
+                <label class="front-checkbox-line">
+                    <input type="checkbox" name="specialCouple" value="1" {{ filters.specialCouple ? 'checked' : '' }}>
+                    <span>Special Couple</span>
+                </label>
+
+                <label class="front-checkbox-line">
+                    <input type="checkbox" name="under18Allowed" value="1" {{ filters.under18Allowed ? 'checked' : '' }}>
+                    <span>-18 years allowed</span>
+                </label>
+
+                <label class="front-checkbox-line">
+                    <input type="checkbox" name="seaView" value="1" {{ filters.seaView ? 'checked' : '' }}>
+                    <span>Sea view</span>
+                </label>
+
+                <button type="submit" class="front-btn-primary front-filter-submit">
+                    Apply Filters
+                </button>
+            </form>
+        </aside>
+
+        <div class="front-hotels-results">
+
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div
+                        style="
+                            margin-bottom: 18px;
+                            padding: 14px 16px;
+                            border-radius: 14px;
+                            font-weight: 700;
+                            background: {{ label == 'success' ? '#e9f8ee' : '#fdeceb' }};
+                            color: {{ label == 'success' ? '#1f7a39' : '#b42318' }};
+                            border: 1px solid {{ label == 'success' ? '#b7e4c7' : '#f5c2c7' }};
+                        "
+                    >
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            <h2>Hotels found <span>({{ hotelsCount }})</span></h2>
+
+            <div class="front-hotels-list">
+                {% for h in hebergements %}
+                    {% set hotelSummary = summaries[h.id] ?? {
+                        avg5: (h.noteMoyenne ?? 0),
+                        count: 0,
+                        score10: ((h.noteMoyenne ?? 0) / 5 * 10),
+                        starsRounded: ((h.noteMoyenne ?? 0)|round(0, 'common'))
+                    } %}
+                    {% set avg5 = hotelSummary.avg5 ?? 0 %}
+                    {% set score10 = hotelSummary.score10 ?? 0 %}
+                    {% set stars = hotelSummary.starsRounded ?? 0 %}
+                    {% set countAvis = hotelSummary.count ?? 0 %}
+                    {% if h.image %}
+                        {% if h.image starts with 'http://' or h.image starts with 'https://' %}
+                            {% set imageSrc = h.image %}
+                        {% elseif h.image starts with '/uploads/' %}
+                            {% set imageSrc = asset(h.image|slice(1)) %}
+                        {% elseif h.image starts with 'uploads/' %}
+                            {% set imageSrc = asset(h.image) %}
+                        {% else %}
+                            {% set imageSrc = asset('uploads/hebergements/' ~ h.image) %}
+                        {% endif %}
+                    {% else %}
+                        {% set imageSrc = 'https://images.unsplash.com/photo-1566073771259-6a8506099945' %}
+                    {% endif %}
+
+                    <article class="front-hotel-card" data-hotel-card="{{ h.id }}">
+                        <div class="front-hotel-image-wrap">
+                            <img src="{{ imageSrc }}" alt="{{ h.nom }}" class="front-hotel-image front-hotel-image-clickable" data-panorama-open="true" data-panorama-src="{{ imageSrc }}" data-panorama-title="{{ h.nom|e('html_attr') }}">
+                        </div>
+
+                        <div class="front-hotel-content">
+                            <div class="front-hotel-main">
+                                <h3>{{ h.nom }}</h3>
+
+                                <div class="front-hotel-location">
+                                    {{ h.localisation ?: 'Unknown location' }}
+                                    {% if h.pays %}/ {{ h.pays }}{% endif %}
+                                </div>
+
+                                <div class="front-hotel-description">
+                                    {{ h.description ?: 'A comfortable stay designed for your next trip.' }}
+                                </div>
+
+                                <div class="front-hotel-price">
+                                    ${{ h.prixParNuit is not null ? h.prixParNuit|number_format(1, '.', '') : '0.0' }}
+                                </div>
+
+                                <div class="front-hotel-price-sub">per night</div>
+
+                                <div class="front-hotel-stars-line">
+                                    <div class="front-stars" data-summary-stars="{{ h.id }}">
+                                        {% for i in 1..5 %}
+                                            <span class="{{ i <= stars ? 'front-star-filled' : 'front-star-empty' }}">★</span>
+                                        {% endfor %}
+                                    </div>
+
+                                    <span class="front-review-text" data-summary-text="{{ h.id }}">
+                                        {% if countAvis > 0 %}
+                                            {{ score10|number_format(1, '.', '') }} / 10 • {{ countAvis }} review{{ countAvis > 1 ? 's' : '' }}
+                                        {% else %}
+                                            No reviews yet
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="front-hotel-tags">
+                                    {% if h.specialCouple %}
+                                        <span class="front-tag">Special Couple</span>
+                                    {% endif %}
+                                    {% if h.under18Allowed %}
+                                        <span class="front-tag">-18 allowed</span>
+                                    {% endif %}
+                                    {% if h.seaView %}
+                                        <span class="front-tag">Sea view</span>
+                                    {% endif %}
+                                    {% if h.capacite %}
+                                        <span class="front-tag">Capacity: {{ h.capacite }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="front-hotel-actions">
+                                <button
+                                    type="button"
+                                    class="front-btn-outline action-pill js-open-add-review"
+                                    data-hotel-id="{{ h.id }}"
+                                    data-hotel-name="{{ h.nom|e('html_attr') }}"
+                                >
+                                    Add a review
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="front-btn-outline action-pill js-open-view-reviews"
+                                    data-hotel-id="{{ h.id }}"
+                                    data-hotel-name="{{ h.nom|e('html_attr') }}"
+                                >
+                                    View all reviews
+                                </button>
+
+                               <button
+    type="button"
+    class="front-btn-outline action-pill front-btn-map js-open-map"
+    data-hotel-name="{{ h.nom|e('html_attr') }}"
+    data-hotel-lat="{{ h.latitude is not null ? h.latitude : '' }}"
+    data-hotel-lng="{{ h.longitude is not null ? h.longitude : '' }}"
+    data-hotel-price="{{ h.prixParNuit is not null ? h.prixParNuit|number_format(1, '.', '') : '0.0' }}"
+>
+    Map
+</button>
+
+                                <button
+                                    type="button"
+                                    class="front-btn-primary action-pill js-open-booking"
+                                    data-hotel-id="{{ h.id }}"
+                                    data-hotel-name="{{ h.nom|e('html_attr') }}"
+                                    data-hotel-price="{{ h.prixParNuit is not null ? h.prixParNuit|number_format(1, '.', '') : '0.0' }}"
+                                >
+                                    Book Now
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                {% else %}
+                    <div class="front-empty-state">
+                        No hotels match your current filters.
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if pagination is defined and pagination.pageCount > 1 %}
+                <div class="front-pagination-wrapper">
+                    {{ knp_pagination_render(pagination) }}
+                </div>
+            {% endif %}
+        </div>
+
+    </section>
+</div>
+
+<div
+    id="mapModal"
+    aria-hidden="true"
+    style="
+        display:none;
+        position:fixed;
+        top:0;
+        left:0;
+        right:0;
+        bottom:0;
+        width:100vw;
+        height:100vh;
+        background:rgba(25, 33, 45, 0.28);
+        backdrop-filter:blur(8px);
+        -webkit-backdrop-filter:blur(8px);
+        z-index:999999;
+        align-items:center;
+        justify-content:center;
+        padding:24px;
+    "
+>
+    <div
+        id="mapModalCard"
+        style="
+            width:100%;
+            max-width:1040px;
+            max-height:94vh;
+            overflow:hidden;
+            background:#ffffff;
+            border-radius:28px;
+            box-shadow:0 30px 70px rgba(0,0,0,0.24);
+            position:relative;
+        "
+        onclick="event.stopPropagation();"
+    >
+        <div
+            style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:16px;
+                padding:22px 24px 16px;
+                border-bottom:1px solid #e6edf5;
+            "
+        >
+            <div>
+                <div style="font-size:14px;font-weight:800;color:#f7941d;letter-spacing:0.05em;text-transform:uppercase;">Map</div>
+                <h2 id="mapHotelTitle" style="margin:6px 0 0;color:#1a3a5c;font-size:26px;font-weight:900;">Hotel</h2>
+            </div>
+
+            <button
+                type="button"
+                id="mapCloseTopBtn"
+                style="
+                    border:none;
+                    background:transparent;
+                    font-size:32px;
+                    line-height:1;
+                    cursor:pointer;
+                    color:#1a3a5c;
+                "
+            >×</button>
+        </div>
+
+        <div style="padding:18px 24px 24px;">
+            <iframe
+                id="mapFrame"
+                src="{{ asset('map/leaflet_map.html') }}"
+                style="
+                    width:100%;
+                    height:620px;
+                    border:none;
+                    border-radius:22px;
+                    background:#eef2f7;
+                    display:block;
+                "
+                loading="lazy"
+            ></iframe>
+        </div>
+    </div>
+</div>
+
+<div
+    id="bookingModal"
+    aria-hidden="true"
+    style="
+        display:none;
+        position:fixed;
+        top:0;
+        left:0;
+        right:0;
+        bottom:0;
+        width:100vw;
+        height:100vh;
+        background:rgba(25, 33, 45, 0.28);
+        backdrop-filter:blur(8px);
+        -webkit-backdrop-filter:blur(8px);
+        z-index:999999;
+        align-items:center;
+        justify-content:center;
+        padding:24px;
+    "
+>
+    <div
+        id="bookingModalCard"
+        style="
+            width:100%;
+            max-width:620px;
+            max-height:90vh;
+            overflow-y:auto;
+            background:#ffffff;
+            border-radius:24px;
+            box-shadow:0 26px 60px rgba(0,0,0,0.22);
+            padding:24px 24px 22px;
+            position:relative;
+        "
+        onclick="event.stopPropagation();"
+    >
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:10px;">
+            <h2 style="margin:0;color:#1a3a5c;font-size:22px;font-weight:800;">Book Now</h2>
+            <button
+                type="button"
+                id="bookingCloseTopBtn"
+                style="
+                    border:none;
+                    background:transparent;
+                    font-size:28px;
+                    line-height:1;
+                    cursor:pointer;
+                    color:#1a3a5c;
+                "
+            >×</button>
+        </div>
+
+        <p
+            id="bookingHotelName"
+            style="
+                margin:0 0 18px;
+                color:#868e96;
+                font-size:16px;
+                padding-bottom:14px;
+                border-bottom:1px solid #dfe5ec;
+            "
+        >Hotel: -</p>
+
+        <form
+            id="bookingForm"
+            method="post"
+            action="{{ path('app_reservation_create') }}"
+        >
+            <input type="hidden" name="_token" value="{{ csrf_token('create_reservation') }}">
+            <input type="hidden" name="hotelId" id="bookingHotelId">
+            <input type="hidden" name="basePrice" id="bookingBasePrice">
+
+            <label for="bookingFullName" style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Full name</label>
+            <input
+                id="bookingFullName"
+                name="nomClient"
+                type="text"
+                placeholder="Your name"
+                required
+                style="width:100%;height:44px;margin-bottom:14px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+            >
+
+            <label for="bookingEmail" style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Email</label>
+            <input
+                id="bookingEmail"
+                name="emailClient"
+                type="email"
+                placeholder="your@email.com (optional)"
+                style="width:100%;height:44px;margin-bottom:14px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+            >
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+                <div>
+                    <label for="bookingCheckin" style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Check-in</label>
+                    <input
+                        id="bookingCheckin"
+                        name="dateCheckin"
+                        type="date"
+                        required
+                        style="width:100%;height:44px;margin-bottom:14px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                    >
+                </div>
+                <div>
+                    <label for="bookingCheckout" style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Check-out</label>
+                    <input
+                        id="bookingCheckout"
+                        name="dateCheckout"
+                        type="date"
+                        required
+                        style="width:100%;height:44px;margin-bottom:14px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                    >
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+                <div>
+                    <label for="bookingRooms" style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Rooms</label>
+                    <input
+                        id="bookingRooms"
+                        name="roomsCount"
+                        type="number"
+                        min="1"
+                        value="1"
+                        required
+                        style="width:100%;height:44px;margin-bottom:14px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                    >
+                </div>
+                <div>
+                    <label for="bookingOccupancy" style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Occupancy</label>
+                    <select
+                        id="bookingOccupancy"
+                        name="occupancy"
+                        style="width:100%;height:44px;margin-bottom:14px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                    >
+                        <option value="SINGLE">Single</option>
+                        <option value="DOUBLE" selected>Double</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:end;">
+                <div>
+                    <label for="bookingGuests" style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Guests</label>
+                    <input
+                        id="bookingGuests"
+                        name="guestsCount"
+                        type="number"
+                        min="1"
+                        value="1"
+                        required
+                        style="width:100%;height:44px;margin-bottom:14px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                    >
+                </div>
+
+                <div style="display:flex;align-items:center;gap:10px;padding-bottom:14px;">
+                    <button
+                        type="button"
+                        id="bookingDetailsBtn"
+                        style="
+                            height:40px;
+                            padding:0 16px;
+                            border-radius:999px;
+                            border:2px solid #c7d3df;
+                            background:#f6f9fc;
+                            color:#1a3a5c;
+                            font-size:14px;
+                            font-weight:700;
+                            cursor:pointer;
+                        "
+                    >Details</button>
+                    <span id="bookingFilledText" style="color:#868e96;font-size:14px;">0/1 filled</span>
+                </div>
+
+                <div>
+                    <label for="bookingRoomType" style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Room type</label>
+                    <select
+                        id="bookingRoomType"
+                        name="roomType"
+                        style="width:100%;height:44px;margin-bottom:14px;border:1px solid #cfd7e2;border-radius:10px;padding:0 14px;font-size:14px;background:#ffffff;"
+                    >
+                        <option value="Standard" selected>Standard</option>
+                        <option value="Deluxe">Deluxe</option>
+                        <option value="Suite">Suite</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="guestDetailsSection" style="display:none;margin-top:6px;margin-bottom:12px;">
+                <div style="margin-bottom:10px;color:#1a3a5c;font-size:15px;font-weight:800;">Guest details</div>
+                <div id="guestDetailsContainer"></div>
+            </div>
+
+            <div style="margin-top:8px;padding-top:10px;">
+                <h3 style="margin:0 0 12px;color:#1a3a5c;font-size:18px;font-weight:800;">Price details</h3>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:8px;color:#6f7f90;font-size:15px;">
+                    <span>Nights:</span>
+                    <strong id="bookingNights" style="color:#1a3a5c;">0</strong>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:8px;color:#6f7f90;font-size:15px;">
+                    <span>Room summary:</span>
+                    <strong id="bookingRoomSummary" style="color:#1a3a5c;">1 room × Standard</strong>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:8px;color:#6f7f90;font-size:15px;">
+                    <span>Base subtotal:</span>
+                    <strong id="bookingSubtotal" style="color:#1a3a5c;">$0.0</strong>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:8px;color:#6f7f90;font-size:15px;">
+                    <span>Room type surcharge:</span>
+                    <strong id="bookingRoomSurcharge" style="color:#1a3a5c;">$0.0</strong>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:8px;color:#6f7f90;font-size:15px;">
+                    <span>Weekend surcharge:</span>
+                    <strong id="bookingWeekendSurcharge" style="color:#1a3a5c;">$0.0</strong>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:8px;color:#6f7f90;font-size:15px;">
+                    <span>Long-stay discount:</span>
+                    <strong id="bookingDiscount" style="color:#1a3a5c;">-$0.0</strong>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:18px;margin-top:12px;padding-top:12px;border-top:1px solid #dfe5ec;color:#f7941d;font-size:16px;font-weight:800;">
+                    <span>Total:</span>
+                    <strong id="bookingTotal" style="color:#f7941d;">$0.0</strong>
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:14px;margin-top:20px;flex-wrap:wrap;">
+                <button type="button" class="front-btn-outline booking-modal-cancel" id="bookingCancelBtn">Cancel</button>
+                <button type="submit" class="front-btn-primary booking-modal-confirm">Confirm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div
+    id="addReviewModal"
+    aria-hidden="true"
+    style="
+        display:none;
+        position:fixed;
+        top:0;
+        left:0;
+        right:0;
+        bottom:0;
+        width:100vw;
+        height:100vh;
+        background:rgba(25, 33, 45, 0.28);
+        backdrop-filter:blur(8px);
+        -webkit-backdrop-filter:blur(8px);
+        z-index:1000000;
+        align-items:center;
+        justify-content:center;
+        padding:24px;
+    "
+>
+    <div
+        id="addReviewModalCard"
+        style="
+            width:100%;
+            max-width:720px;
+            max-height:92vh;
+            overflow:hidden;
+            background:#ffffff;
+            border-radius:28px;
+            box-shadow:0 30px 70px rgba(0,0,0,0.24);
+            position:relative;
+        "
+        onclick="event.stopPropagation();"
+    >
+        <div
+            style="
+                padding:28px 28px 24px;
+                background:linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+                overflow-y:auto;
+            "
+        >
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:12px;">
+                <div>
+                    <div style="font-size:14px;font-weight:800;color:#f7941d;letter-spacing:0.05em;text-transform:uppercase;">Add a review</div>
+                    <h2 id="addReviewHotelTitle" style="margin:6px 0 0;color:#1a3a5c;font-size:28px;font-weight:900;">Hotel</h2>
+                </div>
+
+                <button
+                    type="button"
+                    id="addReviewCloseTopBtn"
+                    style="
+                        border:none;
+                        background:transparent;
+                        font-size:32px;
+                        line-height:1;
+                        cursor:pointer;
+                        color:#1a3a5c;
+                    "
+                >×</button>
+            </div>
+
+            <p style="margin:0 0 20px;color:#7b8794;font-size:15px;line-height:1.65;">
+                Share your experience. The stars are filled automatically from your comment.
+            </p>
+
+            <div
+                id="addReviewAlert"
+                style="
+                    display:none;
+                    margin-bottom:16px;
+                    padding:13px 16px;
+                    border-radius:14px;
+                    font-size:14px;
+                    font-weight:700;
+                "
+            ></div>
+
+            <form id="addReviewForm" style="display:block;">
+                <input type="hidden" id="reviewCsrfToken" value="{{ createAvisToken }}">
+                <input type="hidden" id="reviewSummaryCsrfToken" value="{{ generateSummaryToken }}">
+                <input type="hidden" id="addReviewHotelId" value="">
+
+                <div style="margin-bottom:16px;">
+                    <label for="addReviewAuthor" style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Name</label>
+                    <input
+                        id="addReviewAuthor"
+                        type="text"
+                        placeholder="Guest"
+                        style="
+                            width:100%;
+                            height:46px;
+                            border:1px solid #d5deea;
+                            border-radius:14px;
+                            padding:0 14px;
+                            font-size:14px;
+                            color:#16324f;
+                            outline:none;
+                        "
+                    >
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <label for="addReviewComment" style="display:block;margin-bottom:8px;color:#1a3a5c;font-size:14px;font-weight:800;">Comment</label>
+                    <textarea
+                        id="addReviewComment"
+                        rows="7"
+                        placeholder="Write your experience here..."
+                        style="
+                            width:100%;
+                            border:1px solid #d5deea;
+                            border-radius:18px;
+                            padding:14px 16px;
+                            font-size:14px;
+                            color:#16324f;
+                            outline:none;
+                            resize:none;
+                            line-height:1.6;
+                        "
+                    ></textarea>
+                </div>
+
+                <div
+                    style="
+                        display:flex;
+                        align-items:center;
+                        justify-content:space-between;
+                        gap:18px;
+                        flex-wrap:wrap;
+                        margin-bottom:20px;
+                        padding:14px 16px;
+                        border-radius:18px;
+                        background:#f7faff;
+                        border:1px solid #e3ebf5;
+                    "
+                >
+                    <div>
+                        <div style="font-size:13px;font-weight:800;color:#7f8fa1;text-transform:uppercase;letter-spacing:0.05em;">Automatic rating</div>
+                        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
+                            <div id="addReviewAutoStars" style="display:flex;gap:4px;font-size:28px;line-height:1;">
+                                <span class="review-auto-star review-auto-star-empty">★</span>
+                                <span class="review-auto-star review-auto-star-empty">★</span>
+                                <span class="review-auto-star review-auto-star-empty">★</span>
+                                <span class="review-auto-star review-auto-star-empty">★</span>
+                                <span class="review-auto-star review-auto-star-empty">★</span>
+                            </div>
+                            <strong id="addReviewAutoText" style="font-size:16px;color:#1a3a5c;">Auto: 0/5</strong>
+                        </div>
+                    </div>
+
+                    <div id="addReviewPredictStatus" style="font-size:13px;color:#8d99a8;font-weight:700;">Type a comment to predict stars</div>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;gap:14px;flex-wrap:wrap;">
+                    <button
+                        type="button"
+                        id="addReviewCancelBtn"
+                        class="front-btn-outline"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="addReviewSubmitBtn"
+                        class="front-btn-primary"
+                    >
+                        Save review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div
+    id="viewReviewsModal"
+    aria-hidden="true"
+    style="
+        display:none;
+        position:fixed;
+        top:0;
+        left:0;
+        right:0;
+        bottom:0;
+        width:100vw;
+        height:100vh;
+        background:rgba(25, 33, 45, 0.28);
+        backdrop-filter:blur(8px);
+        -webkit-backdrop-filter:blur(8px);
+        z-index:1000000;
+        align-items:center;
+        justify-content:center;
+        padding:24px;
+    "
+>
+    <div
+        id="viewReviewsModalCard"
+        style="
+            width:100%;
+            max-width:980px;
+            max-height:92vh;
+            overflow:hidden;
+            background:#ffffff;
+            border-radius:28px;
+            box-shadow:0 30px 70px rgba(0,0,0,0.24);
+            position:relative;
+        "
+        onclick="event.stopPropagation();"
+    >
+        <div
+            style="
+                display:grid;
+                grid-template-columns: minmax(0, 1.04fr) minmax(360px, 0.96fr);
+                min-height:680px;
+                max-height:94vh;
+            "
+        >
+            <div
+                style="
+                    padding:28px 28px 28px;
+                    background:linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+                    border-right:1px solid #e7edf3;
+                    overflow:hidden;
+                    display:flex;
+                    flex-direction:column;
+                    min-height:0;
+                "
+            >
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:12px;">
+                    <div>
+                        <div style="font-size:14px;font-weight:800;color:#f7941d;letter-spacing:0.05em;text-transform:uppercase;">Hotel reviews</div>
+                        <h2 id="viewReviewsHotelTitle" style="margin:6px 0 0;color:#1a3a5c;font-size:28px;font-weight:900;">Hotel</h2>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="viewReviewsCloseTopBtn"
+                        style="
+                            border:none;
+                            background:transparent;
+                            font-size:32px;
+                            line-height:1;
+                            cursor:pointer;
+                            color:#1a3a5c;
+                        "
+                    >×</button>
+                </div>
+
+                <div
+                    id="viewReviewsAlert"
+                    style="
+                        display:none;
+                        margin-bottom:16px;
+                        padding:13px 16px;
+                        border-radius:14px;
+                        font-size:14px;
+                        font-weight:700;
+                    "
+                ></div>
+
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+                    <h3 style="margin:0;color:#1a3a5c;font-size:21px;font-weight:900;">Reviews</h3>
+                    <div id="viewReviewsListMeta" style="color:#8b97a6;font-size:14px;font-weight:700;">0 review</div>
+                </div>
+
+                <div
+                    id="viewReviewsList"
+                    style="
+                        display:flex;
+                        flex-direction:column;
+                        gap:14px;
+                        flex:1 1 auto;
+                        min-height:0;
+                        max-height:470px;
+                        overflow-y:auto;
+                        padding-right:8px;
+                        padding-bottom:6px;
+                    "
+                >
+                    <div style="padding:18px;border:1px dashed #d6e0ea;border-radius:18px;color:#7b8794;background:#fcfdff;">
+                        No reviews yet for this hotel.
+                    </div>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;gap:14px;flex-wrap:wrap;margin-top:18px;padding-top:8px;flex-shrink:0;">
+                    <button
+                        type="button"
+                        id="viewReviewsCloseBtn"
+                        class="front-btn-outline"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+
+            <div
+                style="
+                    padding:28px 24px 28px;
+                    background:
+                        radial-gradient(circle at top right, rgba(247, 148, 29, 0.20), transparent 42%),
+                        linear-gradient(180deg, #1d4165 0%, #17314e 100%);
+                    color:#ffffff;
+                    overflow:hidden;
+                    display:flex;
+                    flex-direction:column;
+                    min-height:0;
+                "
+            >
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
+                    <div>
+                        <div style="font-size:14px;font-weight:800;opacity:0.84;letter-spacing:0.05em;text-transform:uppercase;">AI Summary</div>
+                        <h3 style="margin:6px 0 0;font-size:24px;font-weight:900;color:#ffffff;">Review insights</h3>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="generateAiSummaryBtn"
+                        style="
+                            min-width:132px;
+                            height:46px;
+                            padding:0 20px;
+                            border:none;
+                            border-radius:999px;
+                            background:#f7941d;
+                            color:#ffffff;
+                            font-size:14px;
+                            font-weight:800;
+                            cursor:pointer;
+                            box-shadow:0 14px 28px rgba(247,148,29,0.28);
+                        "
+                    >
+                        Generate
+                    </button>
+                </div>
+
+                <div
+                    style="
+                        display:grid;
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
+                        gap:14px;
+                        margin-bottom:18px;
+                    "
+                >
+                    <div
+                        style="
+                            background:rgba(255,255,255,0.12);
+                            border:1px solid rgba(255,255,255,0.14);
+                            border-radius:20px;
+                            padding:16px 18px;
+                            backdrop-filter:blur(10px);
+                            -webkit-backdrop-filter:blur(10px);
+                        "
+                    >
+                        <div style="font-size:13px;font-weight:800;opacity:0.82;text-transform:uppercase;">Average</div>
+                        <div id="viewReviewsSummaryScore" style="margin-top:10px;font-size:30px;font-weight:900;">0.0 / 10</div>
+                    </div>
+
+                    <div
+                        style="
+                            background:rgba(255,255,255,0.12);
+                            border:1px solid rgba(255,255,255,0.14);
+                            border-radius:20px;
+                            padding:16px 18px;
+                            backdrop-filter:blur(10px);
+                            -webkit-backdrop-filter:blur(10px);
+                        "
+                    >
+                        <div style="font-size:13px;font-weight:800;opacity:0.82;text-transform:uppercase;">Reviews</div>
+                        <div id="viewReviewsSummaryCount" style="margin-top:10px;font-size:30px;font-weight:900;">0</div>
+                    </div>
+                </div>
+
+                <div
+                    id="aiSummaryBox"
+                    style="
+                        min-height:420px;
+                        max-height:calc(94vh - 250px);
+                        overflow-y:auto;
+                        overflow-x:hidden;
+                        padding:22px 20px;
+                        border-radius:24px;
+                        background:rgba(255,255,255,0.10);
+                        border:1px solid rgba(255,255,255,0.14);
+                        box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
+                        white-space:pre-line;
+                        overflow-wrap:anywhere;
+                        word-break:break-word;
+                        line-height:1.75;
+                        font-size:15px;
+                        color:#eef4fb;
+                    "
+                >
+Click “Generate” to build the AI summary from the existing reviews.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.review-auto-star-filled {
+    color: #f7941d;
+    text-shadow: 0 6px 14px rgba(247, 148, 29, 0.28);
+}
+.review-auto-star-empty {
+    color: #d1dae5;
+}
+.review-list-card {
+    padding: 16px 16px 15px;
+    border-radius: 18px;
+    border: 1px solid #e3ebf2;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(18, 44, 72, 0.06);
+}
+.review-list-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+.review-list-author {
+    font-size: 15px;
+    font-weight: 800;
+    color: #1a3a5c;
+}
+.review-list-date {
+    font-size: 12px;
+    font-weight: 700;
+    color: #91a0b1;
+}
+.review-list-stars {
+    display: flex;
+    gap: 3px;
+    font-size: 17px;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+.review-list-comment {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #445b73;
+    white-space: pre-line;
+}
+</style>
+
+
+<div class="front-panorama-modal-overlay" id="frontPanoramaModal" aria-hidden="true" style="display:none;">
+    <div class="front-panorama-modal-card" role="dialog" aria-modal="true" aria-labelledby="frontPanoramaTitle">
+        <div class="front-panorama-modal-header">
+            <div>
+                <div class="front-panorama-modal-kicker">Panorama</div>
+                <h2 id="frontPanoramaTitle">Panorama Viewer</h2>
+            </div>
+            <button type="button" class="front-panorama-modal-close" id="frontPanoramaCloseBtn" aria-label="Close panorama">×</button>
+        </div>
+
+        <div class="front-panorama-modal-body">
+            <div class="front-panorama-loading" id="frontPanoramaLoading">Loading image...</div>
+            <div class="front-panorama-notice" id="frontPanoramaNotice" style="display:none;"></div>
+
+            <div class="front-panorama-stage" id="frontPanoramaStage" style="display:none;">
+                <div class="front-panorama-viewer-wrap" id="frontPanoramaViewerWrap" style="display:none;">
+                    <iframe
+                        class="front-panorama-viewer-frame"
+                        id="frontPanoramaViewerFrame"
+                        title="Panorama viewer"
+                        loading="lazy"
+                        referrerpolicy="no-referrer"
+                    ></iframe>
+                </div>
+                <div class="front-panorama-fallback-wrap" id="frontPanoramaFallbackWrap" style="display:none;">
+                    <img src="" alt="" class="front-panorama-fallback-image" id="frontPanoramaFallbackImage">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+    const panoramaModal = document.getElementById('frontPanoramaModal');
+    const panoramaCloseBtn = document.getElementById('frontPanoramaCloseBtn');
+    const panoramaTitle = document.getElementById('frontPanoramaTitle');
+    const panoramaLoading = document.getElementById('frontPanoramaLoading');
+    const panoramaNotice = document.getElementById('frontPanoramaNotice');
+    const panoramaStage = document.getElementById('frontPanoramaStage');
+    const panoramaViewerWrap = document.getElementById('frontPanoramaViewerWrap');
+    const panoramaViewerFrame = document.getElementById('frontPanoramaViewerFrame');
+    const panoramaFallbackWrap = document.getElementById('frontPanoramaFallbackWrap');
+    const panoramaFallbackImage = document.getElementById('frontPanoramaFallbackImage');
+
+    if (!panoramaModal || !panoramaCloseBtn || !panoramaTitle || !panoramaLoading || !panoramaNotice || !panoramaStage || !panoramaViewerWrap || !panoramaViewerFrame || !panoramaFallbackWrap || !panoramaFallbackImage) {
+        return;
+    }
+
+    function resetPanoramaModal() {
+        panoramaViewerFrame.removeAttribute('srcdoc');
+        panoramaViewerWrap.style.display = 'none';
+        panoramaFallbackWrap.style.display = 'none';
+        panoramaStage.style.display = 'none';
+        panoramaNotice.style.display = 'none';
+        panoramaNotice.textContent = '';
+        panoramaLoading.style.display = 'flex';
+        panoramaLoading.textContent = 'Loading image...';
+        panoramaFallbackImage.removeAttribute('src');
+        panoramaFallbackImage.setAttribute('alt', '');
+    }
+
+    window.openPanoramaModal = function openPanoramaModal() {
+        panoramaModal.style.display = 'flex';
+        panoramaModal.classList.add('active');
+        panoramaModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+    };
+
+    window.closePanoramaModal = function closePanoramaModal() {
+        panoramaModal.classList.remove('active');
+        panoramaModal.style.display = 'none';
+        panoramaModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+        resetPanoramaModal();
+    };
+
+    function shouldUsePanoramaViewer(src, width, height) {
+        const safeSrc = String(src || '').toLowerCase();
+        const ratio = height > 0 ? (width / height) : 0;
+        return ratio >= 1.8 || /(?:360|pano|panorama|equirectangular)/.test(safeSrc);
+    }
+
+    function showFallbackImage(src, title, message) {
+        panoramaLoading.style.display = 'none';
+        panoramaStage.style.display = 'block';
+        panoramaFallbackWrap.style.display = 'flex';
+        panoramaViewerWrap.style.display = 'none';
+        panoramaFallbackImage.src = src;
+        panoramaFallbackImage.alt = title || 'Panorama image';
+        panoramaNotice.textContent = message || '';
+        panoramaNotice.style.display = message ? 'block' : 'none';
+    }
+
+    function buildPanoramaSrcdoc(src, title) {
+        const safeSrc = JSON.stringify(src);
+        const safeTitle = JSON.stringify(title || 'Panorama Viewer');
+
+        return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${JSON.parse(safeTitle)}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.css">
+<style>
+html, body { margin:0; width:100%; height:100%; background:#eef2f7; overflow:hidden; }
+#panorama { width:100%; height:100%; }
+#fallback {
+    display:none;
+    width:100%;
+    height:100%;
+    align-items:center;
+    justify-content:center;
+    background:#eef2f7;
+}
+#fallback img {
+    width:100%;
+    height:100%;
+    object-fit:contain;
+}
+</style>
+</head>
+<body>
+<div id="panorama"></div>
+<div id="fallback"><img src=${safeSrc} alt=${safeTitle}></div>
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.js"><\/script>
+<script>
+(function () {
+    var loaded = false;
+    function showFallback() {
+        if (loaded) return;
+        document.getElementById('panorama').style.display = 'none';
+        document.getElementById('fallback').style.display = 'flex';
+    }
+
+    try {
+        var viewer = pannellum.viewer('panorama', {
+            type: 'equirectangular',
+            panorama: ${safeSrc},
+            autoLoad: true,
+            showControls: true,
+            showZoomCtrl: true,
+            mouseZoom: true,
+            draggable: true,
+            hfov: 110,
+            minHfov: 40,
+            maxHfov: 140
+        });
+
+        viewer.on('load', function () {
+            loaded = true;
+            try { viewer.resize(); } catch (e) {}
+        });
+
+        viewer.on('error', showFallback);
+        viewer.on('sceneerror', showFallback);
+        setTimeout(function () {
+            if (!loaded) showFallback();
+        }, 1800);
+    } catch (e) {
+        showFallback();
+    }
+})();
+<\/script>
+</body>
+</html>`;
+    }
+
+    function showPanoramaViewer(src, title) {
+        panoramaLoading.style.display = 'none';
+        panoramaStage.style.display = 'block';
+        panoramaFallbackWrap.style.display = 'none';
+        panoramaViewerWrap.style.display = 'block';
+        panoramaNotice.textContent = 'Drag to rotate. Use the mouse wheel or touchpad to zoom.';
+        panoramaNotice.style.display = 'block';
+        panoramaViewerFrame.srcdoc = buildPanoramaSrcdoc(src, title);
+    }
+
+    function preloadAndOpenPanorama(src, title) {
+        if (!src) {
+            return;
+        }
+
+        resetPanoramaModal();
+        panoramaTitle.textContent = title || 'Panorama Viewer';
+        window.openPanoramaModal();
+
+        const probe = new Image();
+        probe.decoding = 'async';
+
+        probe.onload = function () {
+            const width = probe.naturalWidth || 0;
+            const height = probe.naturalHeight || 0;
+
+            if (shouldUsePanoramaViewer(src, width, height)) {
+                showPanoramaViewer(src, title);
+            } else {
+                showFallbackImage(
+                    src,
+                    title,
+                    'This image is not a real panoramic 360 photo. It is shown enlarged for a clearer view.'
+                );
+            }
+        };
+
+        probe.onerror = function () {
+            panoramaLoading.textContent = 'Unable to load this image.';
+            panoramaNotice.textContent = 'The image file path is invalid or the file does not exist.';
+            panoramaNotice.style.display = 'block';
+        };
+
+        probe.src = src;
+    }
+
+    document.addEventListener('click', function (event) {
+        const imageNode = event.target.closest('[data-panorama-open="true"]');
+        if (!imageNode) {
+            return;
+        }
+
+        event.preventDefault();
+        preloadAndOpenPanorama(
+            imageNode.getAttribute('data-panorama-src'),
+            imageNode.getAttribute('data-panorama-title') || 'Panorama Viewer'
+        );
+    });
+
+    panoramaCloseBtn.addEventListener('click', function () {
+        window.closePanoramaModal();
+    });
+
+    panoramaModal.addEventListener('click', function (event) {
+        if (event.target === panoramaModal) {
+            window.closePanoramaModal();
+        }
+    });
+
+    const destinationInput = document.getElementById('destination');
+    const countrySuggestions = document.getElementById('countrySuggestions');
+
+    if (destinationInput && countrySuggestions) {
+        const countries = [
+            'Afghanistan',
+            'Afrique du Sud',
+            'Albanie',
+            'Algérie',
+            'Allemagne',
+            'Andorre',
+            'Angola',
+            'Antigua-et-Barbuda',
+            'Arabie saoudite',
+            'Argentine',
+            'Arménie',
+            'Australie',
+            'Autriche',
+            'Azerbaïdjan',
+            'Bahamas',
+            'Bahreïn',
+            'Bangladesh',
+            'Barbade',
+            'Belgique',
+            'Belize',
+            'Bénin',
+            'Bhoutan',
+            'Biélorussie',
+            'Birmanie',
+            'Bolivie',
+            'Bosnie-Herzégovine',
+            'Botswana',
+            'Brésil',
+            'Brunei',
+            'Bulgarie',
+            'Burkina Faso',
+            'Burundi',
+            'Cambodge',
+            'Cameroun',
+            'Canada',
+            'Cap-Vert',
+            'Chili',
+            'Chine',
+            'Chypre',
+            'Colombie',
+            'Comores',
+            'Congo-Brazzaville',
+            'Congo-Kinshasa',
+            'Corée du Nord',
+            'Corée du Sud',
+            'Costa Rica',
+            'Côte d’Ivoire',
+            'Croatie',
+            'Cuba',
+            'Danemark',
+            'Djibouti',
+            'Dominique',
+            'Égypte',
+            'Émirats arabes unis',
+            'Équateur',
+            'Érythrée',
+            'Espagne',
+            'Estonie',
+            'Eswatini',
+            'États-Unis',
+            'Éthiopie',
+            'Fidji',
+            'Finlande',
+            'France',
+            'Gabon',
+            'Gambie',
+            'Géorgie',
+            'Ghana',
+            'Grèce',
+            'Grenade',
+            'Guatemala',
+            'Guinée',
+            'Guinée-Bissau',
+            'Guinée équatoriale',
+            'Guyana',
+            'Haïti',
+            'Honduras',
+            'Hongrie',
+            'Îles Marshall',
+            'Îles Salomon',
+            'Inde',
+            'Indonésie',
+            'Irak',
+            'Iran',
+            'Irlande',
+            'Islande',
+            'Israël',
+            'Italie',
+            'Jamaïque',
+            'Japon',
+            'Jordanie',
+            'Kazakhstan',
+            'Kenya',
+            'Kirghizistan',
+            'Kiribati',
+            'Koweït',
+            'Laos',
+            'Lesotho',
+            'Lettonie',
+            'Liban',
+            'Liberia',
+            'Libye',
+            'Liechtenstein',
+            'Lituanie',
+            'Luxembourg',
+            'Macédoine du Nord',
+            'Madagascar',
+            'Malaisie',
+            'Malawi',
+            'Maldives',
+            'Mali',
+            'Malte',
+            'Maroc',
+            'Maurice',
+            'Mauritanie',
+            'Mexique',
+            'Micronésie',
+            'Moldavie',
+            'Monaco',
+            'Mongolie',
+            'Monténégro',
+            'Mozambique',
+            'Namibie',
+            'Nauru',
+            'Népal',
+            'Nicaragua',
+            'Niger',
+            'Nigeria',
+            'Norvège',
+            'Nouvelle-Zélande',
+            'Oman',
+            'Ouganda',
+            'Ouzbékistan',
+            'Pakistan',
+            'Palaos',
+            'Palestine',
+            'Panama',
+            'Papouasie-Nouvelle-Guinée',
+            'Paraguay',
+            'Pays-Bas',
+            'Pérou',
+            'Philippines',
+            'Pologne',
+            'Portugal',
+            'Qatar',
+            'République centrafricaine',
+            'République dominicaine',
+            'République tchèque',
+            'Roumanie',
+            'Royaume-Uni',
+            'Russie',
+            'Rwanda',
+            'Saint-Christophe-et-Niévès',
+            'Saint-Marin',
+            'Saint-Vincent-et-les-Grenadines',
+            'Sainte-Lucie',
+            'Salvador',
+            'Samoa',
+            'Sao Tomé-et-Principe',
+            'Sénégal',
+            'Serbie',
+            'Seychelles',
+            'Sierra Leone',
+            'Singapour',
+            'Slovaquie',
+            'Slovénie',
+            'Somalie',
+            'Soudan',
+            'Soudan du Sud',
+            'Sri Lanka',
+            'Suède',
+            'Suisse',
+            'Suriname',
+            'Syrie',
+            'Tadjikistan',
+            'Tanzanie',
+            'Tchad',
+            'Thaïlande',
+            'Timor oriental',
+            'Togo',
+            'Tonga',
+            'Trinité-et-Tobago',
+            'Tunisie',
+            'Turkménistan',
+            'Turquie',
+            'Tuvalu',
+            'Ukraine',
+            'Uruguay',
+            'Vanuatu',
+            'Vatican',
+            'Venezuela',
+            'Viêt Nam',
+            'Yémen',
+            'Zambie',
+            'Zimbabwe'
+        ];
+
+        let activeIndex = -1;
+        let currentSuggestions = [];
+
+        function normalizeText(value) {
+            return value
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[’']/g, '')
+                .trim();
+        }
+
+        function hideCountrySuggestions() {
+            countrySuggestions.style.display = 'none';
+            countrySuggestions.innerHTML = '';
+            activeIndex = -1;
+            currentSuggestions = [];
+        }
+
+        function highlightActiveItem() {
+            const buttons = countrySuggestions.querySelectorAll('.country-suggestion-item');
+
+            buttons.forEach(function (button, index) {
+                if (index === activeIndex) {
+                    button.style.background = '#f4f7fb';
+                    button.style.color = '#f7941d';
+                } else {
+                    button.style.background = '#ffffff';
+                    button.style.color = '#1a3a5c';
+                }
+            });
+        }
+
+        function selectSuggestion(country) {
+            destinationInput.value = country;
+            hideCountrySuggestions();
+            destinationInput.focus();
+        }
+
+        function showCountrySuggestions(items) {
+            countrySuggestions.innerHTML = '';
+
+            if (!items.length) {
+                hideCountrySuggestions();
+                return;
+            }
+
+            currentSuggestions = items;
+            activeIndex = -1;
+
+            items.forEach(function (country) {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'country-suggestion-item';
+                item.textContent = country;
+                item.style.display = 'block';
+                item.style.width = '100%';
+                item.style.padding = '16px 24px';
+                item.style.border = 'none';
+                item.style.background = '#ffffff';
+                item.style.textAlign = 'left';
+                item.style.cursor = 'pointer';
+                item.style.color = '#1a3a5c';
+                item.style.fontSize = '16px';
+                item.style.fontWeight = '700';
+                item.style.transition = '0.15s ease';
+
+                item.addEventListener('mouseenter', function () {
+                    item.style.background = '#f8f9fb';
+                });
+
+                item.addEventListener('mouseleave', function () {
+                    item.style.background = '#ffffff';
+                });
+
+                item.addEventListener('click', function () {
+                    selectSuggestion(country);
+                });
+
+                countrySuggestions.appendChild(item);
+            });
+
+            countrySuggestions.style.display = 'block';
+        }
+
+        function updateCountrySuggestions() {
+            const rawValue = destinationInput.value || '';
+            const normalizedValue = normalizeText(rawValue);
+
+            let startsWithMatches = [];
+            let includesMatches = [];
+
+            if (normalizedValue === '') {
+                startsWithMatches = countries.slice();
+            } else {
+                countries.forEach(function (country) {
+                    const normalizedCountry = normalizeText(country);
+
+                    if (normalizedCountry.startsWith(normalizedValue)) {
+                        startsWithMatches.push(country);
+                    } else if (normalizedCountry.includes(normalizedValue)) {
+                        includesMatches.push(country);
+                    }
+                });
+            }
+
+            const finalMatches = startsWithMatches.concat(includesMatches).slice(0, 10);
+            showCountrySuggestions(finalMatches);
+        }
+
+        destinationInput.addEventListener('focus', function () {
+            updateCountrySuggestions();
+        });
+
+        destinationInput.addEventListener('input', function () {
+            updateCountrySuggestions();
+        });
+
+        destinationInput.addEventListener('keydown', function (event) {
+            if (countrySuggestions.style.display !== 'block' || currentSuggestions.length === 0) {
+                return;
+            }
+
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                activeIndex = (activeIndex + 1) % currentSuggestions.length;
+                highlightActiveItem();
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                activeIndex = (activeIndex - 1 + currentSuggestions.length) % currentSuggestions.length;
+                highlightActiveItem();
+            } else if (event.key === 'Enter') {
+                if (activeIndex >= 0 && currentSuggestions[activeIndex]) {
+                    event.preventDefault();
+                    selectSuggestion(currentSuggestions[activeIndex]);
+                }
+            } else if (event.key === 'Escape') {
+                hideCountrySuggestions();
+            }
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!destinationInput.contains(event.target) && !countrySuggestions.contains(event.target)) {
+                hideCountrySuggestions();
+            }
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const mapModal = document.getElementById('mapModal');
+    const mapFrame = document.getElementById('mapFrame');
+    const mapCloseTopBtn = document.getElementById('mapCloseTopBtn');
+    const mapHotelTitle = document.getElementById('mapHotelTitle');
+    const mapButtons = document.querySelectorAll('.js-open-map');
+    const page = document.getElementById('frontHotelsPage');
+
+    if (!mapModal || !mapFrame || !mapButtons.length || !page) {
+        return;
+    }
+
+    function blurPage() {
+        page.classList.add('page-blurred');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function unblurPage() {
+        page.classList.remove('page-blurred');
+        document.body.style.overflow = '';
+    }
+
+    function openMapModal(hotelName, lat, lng, price) {
+        const numLat = parseFloat(lat);
+        const numLng = parseFloat(lng);
+
+        if (
+            Number.isNaN(numLat) ||
+            Number.isNaN(numLng) ||
+            (numLat === 0 && numLng === 0)
+        ) {
+            alert('Aucune localisation définie pour cet hébergement.');
+            return;
+        }
+
+        mapHotelTitle.textContent = hotelName || 'Hotel';
+
+        const src =
+            "{{ asset('map/leaflet_map.html') }}" +
+            '?lat=' + encodeURIComponent(numLat) +
+            '&lng=' + encodeURIComponent(numLng) +
+            '&name=' + encodeURIComponent(hotelName || 'Hotel') +
+            '&price=' + encodeURIComponent(price || '');
+
+        mapFrame.src = src;
+        mapModal.style.display = 'flex';
+        mapModal.setAttribute('aria-hidden', 'false');
+        blurPage();
+    }
+
+    function closeMapModal() {
+        mapModal.style.display = 'none';
+        mapModal.setAttribute('aria-hidden', 'true');
+        mapFrame.src = "{{ asset('map/leaflet_map.html') }}";
+        unblurPage();
+    }
+
+    mapButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            openMapModal(
+                this.dataset.hotelName,
+                this.dataset.hotelLat,
+                this.dataset.hotelLng,
+                this.dataset.hotelPrice
+            );
+        });
+    });
+
+    mapCloseTopBtn.addEventListener('click', closeMapModal);
+
+    mapModal.addEventListener('click', function (event) {
+        if (event.target === mapModal) {
+            closeMapModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && mapModal.style.display === 'flex') {
+            closeMapModal();
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('bookingModal');
+    const page = document.getElementById('frontHotelsPage');
+
+    const bookingHotelId = document.getElementById('bookingHotelId');
+    const bookingHotelName = document.getElementById('bookingHotelName');
+    const bookingBasePrice = document.getElementById('bookingBasePrice');
+
+    const bookingCheckin = document.getElementById('bookingCheckin');
+    const bookingCheckout = document.getElementById('bookingCheckout');
+    const bookingRooms = document.getElementById('bookingRooms');
+    const bookingOccupancy = document.getElementById('bookingOccupancy');
+    const bookingGuests = document.getElementById('bookingGuests');
+    const bookingRoomType = document.getElementById('bookingRoomType');
+
+    const bookingDetailsBtn = document.getElementById('bookingDetailsBtn');
+    const bookingCancelBtn = document.getElementById('bookingCancelBtn');
+    const bookingCloseTopBtn = document.getElementById('bookingCloseTopBtn');
+    const guestDetailsSection = document.getElementById('guestDetailsSection');
+    const guestDetailsContainer = document.getElementById('guestDetailsContainer');
+    const bookingFilledText = document.getElementById('bookingFilledText');
+
+    const bookingNights = document.getElementById('bookingNights');
+    const bookingRoomSummary = document.getElementById('bookingRoomSummary');
+    const bookingSubtotal = document.getElementById('bookingSubtotal');
+    const bookingRoomSurcharge = document.getElementById('bookingRoomSurcharge');
+    const bookingWeekendSurcharge = document.getElementById('bookingWeekendSurcharge');
+    const bookingDiscount = document.getElementById('bookingDiscount');
+    const bookingTotal = document.getElementById('bookingTotal');
+
+    const openButtons = document.querySelectorAll('.js-open-booking');
+
+    if (!modal || !page || openButtons.length === 0) {
+        return;
+    }
+
+    function formatMoney(value) {
+        return '$' + Number(value).toFixed(1);
+    }
+
+    function formatPercent(value) {
+        return Math.round(value * 100) + '%';
+    }
+
+    function getRoomMultiplier(roomType) {
+        if (roomType === 'Deluxe') {
+            return 1.15;
+        }
+        if (roomType === 'Suite') {
+            return 1.30;
+        }
+        return 1.00;
+    }
+
+    function parseDate(value) {
+        if (!value) {
+            return null;
+        }
+
+        const parts = value.split('-');
+        if (parts.length !== 3) {
+            return null;
+        }
+
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+
+    function diffDays(start, end) {
+        const oneDay = 1000 * 60 * 60 * 24;
+        return Math.round((end - start) / oneDay);
+    }
+
+    function countWeekendNights(start, end) {
+        let count = 0;
+        let current = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+
+        while (current < end) {
+            const day = current.getDay();
+            if (day === 5 || day === 6) {
+                count++;
+            }
+            current.setDate(current.getDate() + 1);
+        }
+
+        return count;
+    }
+
+    function todayString() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+
+        return year + '-' + month + '-' + day;
+    }
+
+    function enforceReservationDates() {
+        const today = todayString();
+
+        bookingCheckin.min = today;
+
+        if (!bookingCheckin.value || bookingCheckin.value < today) {
+            bookingCheckin.value = today;
+        }
+
+        bookingCheckout.min = bookingCheckin.value || today;
+
+        if (bookingCheckout.value && bookingCheckout.value <= bookingCheckin.value) {
+            const checkinDate = parseDate(bookingCheckin.value);
+            if (checkinDate) {
+                checkinDate.setDate(checkinDate.getDate() + 1);
+                const year = checkinDate.getFullYear();
+                const month = String(checkinDate.getMonth() + 1).padStart(2, '0');
+                const day = String(checkinDate.getDate()).padStart(2, '0');
+                bookingCheckout.value = year + '-' + month + '-' + day;
+            }
+        }
+    }
+
+    function updateFilledText() {
+        const nameInputs = guestDetailsContainer.querySelectorAll('input[name="guestNames[]"]');
+        let filled = 0;
+
+        nameInputs.forEach(function (input) {
+            if (input.value.trim() !== '') {
+                filled++;
+            }
+        });
+
+        bookingFilledText.textContent = filled + '/' + nameInputs.length + ' filled';
+    }
+
+    function generateGuestFields() {
+        const guests = Math.max(1, parseInt(bookingGuests.value || '1', 10));
+
+        guestDetailsContainer.innerHTML = '';
+
+        for (let i = 0; i < guests; i++) {
+            const row = document.createElement('div');
+            row.style.display = 'grid';
+            row.style.gridTemplateColumns = '1fr 200px';
+            row.style.gap = '12px';
+            row.style.marginBottom = '10px';
+
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.name = 'guestNames[]';
+            nameInput.placeholder = 'Guest ' + (i + 1) + ' full name';
+            nameInput.style.width = '100%';
+            nameInput.style.height = '44px';
+            nameInput.style.border = '1px solid #cfd7e2';
+            nameInput.style.borderRadius = '10px';
+            nameInput.style.padding = '0 14px';
+            nameInput.style.fontSize = '14px';
+            nameInput.addEventListener('input', updateFilledText);
+
+            const birthInput = document.createElement('input');
+            birthInput.type = 'date';
+            birthInput.name = 'guestBirthDates[]';
+            birthInput.placeholder = 'Birth date';
+            birthInput.title = 'Birth date';
+            birthInput.max = todayString();
+            birthInput.style.width = '100%';
+            birthInput.style.height = '44px';
+            birthInput.style.border = '1px solid #cfd7e2';
+            birthInput.style.borderRadius = '10px';
+            birthInput.style.padding = '0 14px';
+            birthInput.style.fontSize = '14px';
+            birthInput.style.color = '#6c757d';
+
+            row.appendChild(nameInput);
+            row.appendChild(birthInput);
+            guestDetailsContainer.appendChild(row);
+        }
+
+        updateFilledText();
+    }
+
+    function updateGuestsCapacity() {
+        const rooms = Math.max(1, parseInt(bookingRooms.value || '1', 10));
+        const occupancy = bookingOccupancy.value;
+        const perRoom = occupancy === 'SINGLE' ? 1 : 2;
+        const maxGuests = rooms * perRoom;
+
+        bookingGuests.max = String(maxGuests);
+
+        if (parseInt(bookingGuests.value || '1', 10) > maxGuests) {
+            bookingGuests.value = maxGuests;
+        }
+
+        if (parseInt(bookingGuests.value || '1', 10) < 1) {
+            bookingGuests.value = 1;
+        }
+
+        generateGuestFields();
+    }
+
+    function updatePriceDetails() {
+        const basePrice = parseFloat(bookingBasePrice.value || '0');
+        const checkin = parseDate(bookingCheckin.value);
+        const checkout = parseDate(bookingCheckout.value);
+        const rooms = Math.max(1, parseInt(bookingRooms.value || '1', 10));
+        const guests = Math.max(1, parseInt(bookingGuests.value || '1', 10));
+        const occupancy = bookingOccupancy.value || 'DOUBLE';
+        const roomType = bookingRoomType.value || 'Standard';
+        const multiplier = getRoomMultiplier(roomType);
+
+        let nights = 0;
+        let baseSubtotal = 0;
+        let roomTypeSurcharge = 0;
+        let weekendSurcharge = 0;
+        let discount = 0;
+        let total = 0;
+        let discountRate = 0;
+        let discountLabel = '';
+
+        if (checkin && checkout && checkout > checkin) {
+            nights = diffDays(checkin, checkout);
+
+            const baseWithoutMultiplier = basePrice * nights * rooms;
+            baseSubtotal = baseWithoutMultiplier * multiplier;
+            roomTypeSurcharge = baseSubtotal - baseWithoutMultiplier;
+
+            const weekendCount = countWeekendNights(checkin, checkout);
+            weekendSurcharge = weekendCount * (basePrice * multiplier * 0.15 * rooms);
+
+            if (nights >= 10) {
+                discountRate = 0.20;
+                discountLabel = ' (10+ nights)';
+            } else if (nights >= 5) {
+                discountRate = 0.10;
+                discountLabel = ' (5+ nights)';
+            }
+
+            discount = (baseSubtotal + weekendSurcharge) * discountRate;
+            total = (baseSubtotal + weekendSurcharge) - discount;
+        }
+
+        bookingNights.textContent = String(nights);
+
+        const roomSummaryParts = [];
+        roomSummaryParts.push(roomType);
+        roomSummaryParts.push(occupancy === 'SINGLE' ? 'Single' : 'Double');
+        roomSummaryParts.push(rooms + ' room' + (rooms > 1 ? 's' : ''));
+        roomSummaryParts.push(guests + ' guest' + (guests > 1 ? 's' : ''));
+
+        bookingRoomSummary.textContent = roomSummaryParts.join(' • ');
+
+        bookingSubtotal.textContent = formatMoney(baseSubtotal);
+
+        if (roomTypeSurcharge > 0) {
+            bookingRoomSurcharge.textContent = '+ ' + formatMoney(roomTypeSurcharge) + ' (' + formatPercent(multiplier - 1) + ')';
+        } else {
+            bookingRoomSurcharge.textContent = formatMoney(0);
+        }
+
+        if (weekendSurcharge > 0) {
+            bookingWeekendSurcharge.textContent = '+ ' + formatMoney(weekendSurcharge);
+        } else {
+            bookingWeekendSurcharge.textContent = formatMoney(0);
+        }
+
+        if (discount > 0) {
+            bookingDiscount.textContent = '- ' + formatMoney(discount) + ' (' + formatPercent(discountRate) + ')' + discountLabel;
+        } else {
+            bookingDiscount.textContent = '- ' + formatMoney(0);
+        }
+
+        bookingTotal.textContent = formatMoney(total);
+    }
+
+    function openBookingModal(hotelId, hotelName, pricePerNight) {
+        bookingHotelId.value = hotelId;
+        bookingHotelName.textContent = 'Hotel: ' + hotelName;
+        bookingBasePrice.value = pricePerNight;
+
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        page.style.filter = 'blur(6px)';
+        page.style.pointerEvents = 'none';
+        page.style.userSelect = 'none';
+
+        enforceReservationDates();
+        updateGuestsCapacity();
+        updatePriceDetails();
+    }
+
+    function closeBookingModal() {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        page.style.filter = '';
+        page.style.pointerEvents = '';
+        page.style.userSelect = '';
+    }
+
+    openButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            openBookingModal(
+                this.dataset.hotelId,
+                this.dataset.hotelName,
+                this.dataset.hotelPrice
+            );
+        });
+    });
+
+    bookingDetailsBtn.addEventListener('click', function () {
+        const isHidden = guestDetailsSection.style.display === 'none' || guestDetailsSection.style.display === '';
+        guestDetailsSection.style.display = isHidden ? 'block' : 'none';
+        if (isHidden) {
+            generateGuestFields();
+        }
+    });
+
+    bookingCancelBtn.addEventListener('click', closeBookingModal);
+    bookingCloseTopBtn.addEventListener('click', closeBookingModal);
+
+    bookingRooms.addEventListener('input', function () {
+        updateGuestsCapacity();
+        updatePriceDetails();
+    });
+
+    bookingOccupancy.addEventListener('change', function () {
+        updateGuestsCapacity();
+        updatePriceDetails();
+    });
+
+    bookingGuests.addEventListener('input', function () {
+        updateGuestsCapacity();
+        updatePriceDetails();
+    });
+
+    bookingRoomType.addEventListener('change', updatePriceDetails);
+
+    bookingCheckin.addEventListener('change', function () {
+        enforceReservationDates();
+        updatePriceDetails();
+    });
+
+    bookingCheckout.addEventListener('change', function () {
+        enforceReservationDates();
+        updatePriceDetails();
+    });
+
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            closeBookingModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && modal.style.display === 'flex') {
+            closeBookingModal();
+        }
+    });
+
+    document.getElementById('bookingForm').addEventListener('submit', function (event) {
+        enforceReservationDates();
+
+        if (bookingCheckout.value <= bookingCheckin.value) {
+            event.preventDefault();
+            alert('Check-out must be after check-in.');
+            return;
+        }
+
+        if (bookingCheckin.value < todayString()) {
+            event.preventDefault();
+            alert('You cannot reserve a past date.');
+        }
+    });
+
+    closeBookingModal();
+    enforceReservationDates();
+    generateGuestFields();
+    updatePriceDetails();
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const page = document.getElementById('frontHotelsPage');
+
+    const addReviewModal = document.getElementById('addReviewModal');
+    const openAddReviewButtons = document.querySelectorAll('.js-open-add-review');
+    const addReviewCloseTopBtn = document.getElementById('addReviewCloseTopBtn');
+    const addReviewCancelBtn = document.getElementById('addReviewCancelBtn');
+    const addReviewHotelTitle = document.getElementById('addReviewHotelTitle');
+    const addReviewHotelId = document.getElementById('addReviewHotelId');
+    const addReviewAuthor = document.getElementById('addReviewAuthor');
+    const addReviewComment = document.getElementById('addReviewComment');
+    const addReviewAutoStars = document.getElementById('addReviewAutoStars');
+    const addReviewAutoText = document.getElementById('addReviewAutoText');
+    const addReviewPredictStatus = document.getElementById('addReviewPredictStatus');
+    const addReviewForm = document.getElementById('addReviewForm');
+    const addReviewAlert = document.getElementById('addReviewAlert');
+    const reviewCsrfToken = document.getElementById('reviewCsrfToken');
+
+    const viewReviewsModal = document.getElementById('viewReviewsModal');
+    const openViewReviewsButtons = document.querySelectorAll('.js-open-view-reviews');
+    const viewReviewsCloseTopBtn = document.getElementById('viewReviewsCloseTopBtn');
+    const viewReviewsCloseBtn = document.getElementById('viewReviewsCloseBtn');
+    const viewReviewsHotelTitle = document.getElementById('viewReviewsHotelTitle');
+    const viewReviewsAlert = document.getElementById('viewReviewsAlert');
+    const viewReviewsList = document.getElementById('viewReviewsList');
+    const viewReviewsListMeta = document.getElementById('viewReviewsListMeta');
+    const viewReviewsSummaryScore = document.getElementById('viewReviewsSummaryScore');
+    const viewReviewsSummaryCount = document.getElementById('viewReviewsSummaryCount');
+    const aiSummaryBox = document.getElementById('aiSummaryBox');
+    const generateAiSummaryBtn = document.getElementById('generateAiSummaryBtn');
+    const reviewSummaryCsrfToken = document.getElementById('reviewSummaryCsrfToken');
+
+    if (!page) {
+        return;
+    }
+
+    let currentHotelId = null;
+    let predictTimer = null;
+    let currentPredictedStars = 0;
+
+    function blurPage() {
+        document.body.style.overflow = 'hidden';
+        page.style.filter = 'blur(6px)';
+        page.style.pointerEvents = 'none';
+        page.style.userSelect = 'none';
+    }
+
+    function unblurPage() {
+        document.body.style.overflow = '';
+        page.style.filter = '';
+        page.style.pointerEvents = '';
+        page.style.userSelect = '';
+    }
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function showAlert(element, message, type) {
+        element.style.display = 'block';
+        element.textContent = message;
+
+        if (type === 'success') {
+            element.style.background = '#e9f8ee';
+            element.style.color = '#1f7a39';
+            element.style.border = '1px solid #b7e4c7';
+        } else {
+            element.style.background = '#fdeceb';
+            element.style.color = '#b42318';
+            element.style.border = '1px solid #f5c2c7';
+        }
+    }
+
+    function hideAlert(element) {
+        element.style.display = 'none';
+        element.textContent = '';
+    }
+
+    function setAutoStars(stars) {
+        currentPredictedStars = Number(stars) || 0;
+
+        const starNodes = addReviewAutoStars.querySelectorAll('span');
+        starNodes.forEach(function (node, index) {
+            if ((index + 1) <= currentPredictedStars) {
+                node.className = 'review-auto-star review-auto-star-filled';
+            } else {
+                node.className = 'review-auto-star review-auto-star-empty';
+            }
+        });
+
+        addReviewAutoText.textContent = 'Auto: ' + currentPredictedStars + '/5';
+    }
+
+    function renderReviewStars(note) {
+        let html = '';
+        const stars = Number(note) || 0;
+
+        for (let i = 1; i <= 5; i++) {
+            html += '<span style="color:' + (i <= stars ? '#f7941d' : '#d1dae5') + ';">★</span>';
+        }
+
+        return html;
+    }
+
+    function renderReviewList(reviews) {
+        if (!reviews || !reviews.length) {
+            viewReviewsList.innerHTML = `
+                <div style="padding:18px;border:1px dashed #d6e0ea;border-radius:18px;color:#7b8794;background:#fcfdff;">
+                    No reviews yet for this hotel.
+                </div>
+            `;
+            viewReviewsListMeta.textContent = '0 review';
+            return;
+        }
+
+        viewReviewsListMeta.textContent = reviews.length + ' review' + (reviews.length > 1 ? 's' : '');
+
+        viewReviewsList.innerHTML = reviews.map(function (review) {
+            return `
+                <div class="review-list-card">
+                    <div class="review-list-top">
+                        <div class="review-list-author">${escapeHtml(review.author || 'Guest')}</div>
+                        <div class="review-list-date">${escapeHtml(review.dateAvis || '')}</div>
+                    </div>
+                    <div class="review-list-stars">${renderReviewStars(review.note)}</div>
+                    <div class="review-list-comment">${escapeHtml(review.commentaire || '')}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function setSummary(summary) {
+        const score10 = Number(summary && summary.score10 ? summary.score10 : 0);
+        const count = Number(summary && summary.count ? summary.count : 0);
+
+        viewReviewsSummaryScore.textContent = score10.toFixed(1) + ' / 10';
+        viewReviewsSummaryCount.textContent = String(count);
+    }
+
+    function updateHotelCardSummary(hotelId, summary) {
+        const textNode = document.querySelector('[data-summary-text="' + hotelId + '"]');
+        const starsNode = document.querySelector('[data-summary-stars="' + hotelId + '"]');
+
+        if (!textNode || !starsNode || !summary) {
+            return;
+        }
+
+        const score10 = Number(summary.score10 || 0);
+        const count = Number(summary.count || 0);
+        const starsRounded = Number(summary.starsRounded || 0);
+
+        if (count > 0) {
+            textNode.textContent = score10.toFixed(1) + ' / 10 • ' + count + ' review' + (count > 1 ? 's' : '');
+        } else {
+            textNode.textContent = 'No reviews yet';
+        }
+
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+            starsHtml += '<span class="' + (i <= starsRounded ? 'front-star-filled' : 'front-star-empty') + '">★</span>';
+        }
+        starsNode.innerHTML = starsHtml;
+    }
+
+    async function fetchHotelReviews(hotelId) {
+        const response = await fetch('/avis/hebergement/' + hotelId, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Unable to load reviews.');
+        }
+
+        return data;
+    }
+
+    async function loadHotelReviews(hotelId) {
+        viewReviewsList.innerHTML = `
+            <div style="padding:18px;border:1px dashed #d6e0ea;border-radius:18px;color:#7b8794;background:#fcfdff;">
+                Loading reviews...
+            </div>
+        `;
+        aiSummaryBox.textContent = 'Click “Generate” to build the AI summary from the existing reviews.';
+        setSummary({ score10: 0, count: 0 });
+
+        const data = await fetchHotelReviews(hotelId);
+
+        renderReviewList(data.reviews || []);
+        setSummary(data.summary || {});
+        updateHotelCardSummary(hotelId, data.summary || {});
+    }
+
+    function openAddReviewModal(hotelId, hotelName) {
+        currentHotelId = hotelId;
+        addReviewHotelId.value = hotelId;
+        addReviewHotelTitle.textContent = hotelName;
+        addReviewAuthor.value = '';
+        addReviewComment.value = '';
+        setAutoStars(0);
+        addReviewPredictStatus.textContent = 'Type a comment to predict stars';
+        hideAlert(addReviewAlert);
+
+        addReviewModal.style.display = 'flex';
+        addReviewModal.setAttribute('aria-hidden', 'false');
+        blurPage();
+    }
+
+    function closeAddReviewModal() {
+        addReviewModal.style.display = 'none';
+        addReviewModal.setAttribute('aria-hidden', 'true');
+        unblurPage();
+    }
+
+    function openViewReviewsModal(hotelId, hotelName) {
+        currentHotelId = hotelId;
+        viewReviewsHotelTitle.textContent = hotelName;
+        hideAlert(viewReviewsAlert);
+        aiSummaryBox.textContent = 'Click “Generate” to build the AI summary from the existing reviews.';
+
+        viewReviewsModal.style.display = 'flex';
+        viewReviewsModal.setAttribute('aria-hidden', 'false');
+        blurPage();
+
+        loadHotelReviews(hotelId).catch(function (error) {
+            showAlert(viewReviewsAlert, error.message || 'Unable to load reviews.', 'error');
+            renderReviewList([]);
+            setSummary({ score10: 0, count: 0 });
+        });
+    }
+
+    function closeViewReviewsModal() {
+        viewReviewsModal.style.display = 'none';
+        viewReviewsModal.setAttribute('aria-hidden', 'true');
+        unblurPage();
+    }
+
+    function debouncePredict() {
+        if (predictTimer) {
+            clearTimeout(predictTimer);
+        }
+
+        predictTimer = setTimeout(async function () {
+            const comment = addReviewComment.value.trim();
+
+            if (comment === '') {
+                setAutoStars(0);
+                addReviewPredictStatus.textContent = 'Type a comment to predict stars';
+                return;
+            }
+
+            addReviewPredictStatus.textContent = 'Predicting...';
+
+            try {
+                const response = await fetch('/avis/predict?comment=' + encodeURIComponent(comment), {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Prediction failed.');
+                }
+
+                setAutoStars(data.stars || 0);
+                addReviewPredictStatus.textContent = 'Automatic rating ready';
+            } catch (error) {
+                setAutoStars(0);
+                addReviewPredictStatus.textContent = 'Prediction unavailable';
+            }
+        }, 600);
+    }
+
+    async function submitReview(event) {
+        event.preventDefault();
+        hideAlert(addReviewAlert);
+
+        const hotelId = addReviewHotelId.value;
+        const commentaire = addReviewComment.value.trim();
+        const nomAuteur = addReviewAuthor.value.trim();
+
+        if (commentaire === '') {
+            showAlert(addReviewAlert, 'Merci d’écrire un commentaire.', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('_token', reviewCsrfToken.value);
+        formData.append('hebergementId', hotelId);
+        formData.append('commentaire', commentaire);
+        formData.append('nomAuteur', nomAuteur);
+
+        const submitBtn = document.getElementById('addReviewSubmitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+
+        try {
+            const response = await fetch('/avis/create', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Unable to save the review.');
+            }
+
+            showAlert(addReviewAlert, data.message || 'Review added successfully.', 'success');
+            addReviewComment.value = '';
+            addReviewAuthor.value = '';
+            setAutoStars(0);
+            addReviewPredictStatus.textContent = 'Type a comment to predict stars';
+
+            if (data.summary) {
+                updateHotelCardSummary(hotelId, data.summary);
+            }
+        } catch (error) {
+            showAlert(addReviewAlert, error.message || 'Unable to save the review.', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Save review';
+        }
+    }
+
+    async function generateAiSummary() {
+        hideAlert(viewReviewsAlert);
+
+        if (!currentHotelId) {
+            return;
+        }
+
+        generateAiSummaryBtn.disabled = true;
+        generateAiSummaryBtn.textContent = 'Loading...';
+        aiSummaryBox.textContent = 'Generating AI summary...';
+
+        try {
+            const formData = new FormData();
+            formData.append('_token', reviewSummaryCsrfToken.value);
+
+            const response = await fetch('/avis/hebergement/' + currentHotelId + '/summary', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Unable to generate the AI summary.');
+            }
+
+            aiSummaryBox.textContent = data.summary || 'No AI summary available.';
+        } catch (error) {
+            aiSummaryBox.textContent = '❌ ' + (error.message || 'Unable to generate the AI summary.');
+        } finally {
+            generateAiSummaryBtn.disabled = false;
+            generateAiSummaryBtn.textContent = 'Generate';
+        }
+    }
+
+    openAddReviewButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            openAddReviewModal(this.dataset.hotelId, this.dataset.hotelName);
+        });
+    });
+
+    openViewReviewsButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            openViewReviewsModal(this.dataset.hotelId, this.dataset.hotelName);
+        });
+    });
+
+    addReviewComment.addEventListener('input', debouncePredict);
+    addReviewForm.addEventListener('submit', submitReview);
+    generateAiSummaryBtn.addEventListener('click', generateAiSummary);
+
+    addReviewCloseTopBtn.addEventListener('click', closeAddReviewModal);
+    addReviewCancelBtn.addEventListener('click', closeAddReviewModal);
+
+    viewReviewsCloseTopBtn.addEventListener('click', closeViewReviewsModal);
+    viewReviewsCloseBtn.addEventListener('click', closeViewReviewsModal);
+
+    addReviewModal.addEventListener('click', function (event) {
+        if (event.target === addReviewModal) {
+            closeAddReviewModal();
+        }
+    });
+
+    viewReviewsModal.addEventListener('click', function (event) {
+        if (event.target === viewReviewsModal) {
+            closeViewReviewsModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && addReviewModal.style.display === 'flex') {
+            closeAddReviewModal();
+        }
+
+        if (event.key === 'Escape' && viewReviewsModal.style.display === 'flex') {
+            closeViewReviewsModal();
+        }
+    });
+
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && typeof window.closePanoramaModal === 'function') {
+            window.closePanoramaModal();
+        }
+    });
+
+    if (typeof window.closePanoramaModal === 'function') {
+        window.closePanoramaModal();
+    }
+    closeAddReviewModal();
+    closeViewReviewsModal();
+});
+</script>
+{% endblock %}

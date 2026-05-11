@@ -1,0 +1,415 @@
+{% extends 'base_hotels.html.twig' %}
+
+{% block title %}Reservation History | Explora{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* ============================
+       RESET
+    ============================ */
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; background: #f3f4f6; font-family: 'Segoe UI', Roboto, sans-serif; }
+
+    /* ============================
+       NAVBAR
+    ============================ */
+    .front-navbar { background: #ffffff !important; border-bottom: 1px solid rgba(26,58,92,0.08) !important; }
+    .front-navbar-inner {
+        width: calc(100% - 80px) !important; max-width: 1680px !important; margin: 0 auto !important;
+        display: grid !important; grid-template-columns: 240px 1fr auto !important;
+        align-items: center !important; min-height: 90px !important; gap: 20px !important;
+        padding: 0 !important; justify-items: unset !important;
+    }
+    .front-brand-logo { width: 200px !important; height: auto !important; }
+    .front-center-nav {
+        display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
+        justify-content: center !important; align-items: center !important; gap: 10px !important;
+    }
+    .front-nav-pill {
+        white-space: nowrap !important; flex-shrink: 0 !important; min-width: 90px !important;
+        padding: 10px 16px !important; border: 1px solid #d4dbe3 !important; border-radius: 12px !important;
+        background: #fafafa !important; color: #1a3a5c !important; font-size: 13px !important;
+        font-weight: 800 !important; text-align: center !important; text-decoration: none !important;
+        transition: 0.2s ease !important;
+    }
+    .front-nav-pill:hover { border-color: rgba(26,58,92,0.22) !important; background: #ffffff !important; }
+    .front-nav-pill-active { background: #ffffff !important; border-color: #cfd6df !important; box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important; }
+    .front-right-nav {
+        display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
+        justify-content: flex-end !important; align-items: center !important; gap: 10px !important;
+    }
+    .front-outline-pill {
+        white-space: nowrap !important; min-width: 110px !important; height: 46px !important;
+        padding: 0 20px !important; border: 2px solid #1a3a5c !important; border-radius: 999px !important;
+        background: #ffffff !important; color: #1a3a5c !important; font-size: 13px !important;
+        font-weight: 800 !important; text-decoration: none !important;
+        display: inline-flex !important; align-items: center !important; justify-content: center !important;
+        transition: 0.2s ease !important;
+    }
+    .front-outline-pill:hover { background: #1a3a5c !important; color: #ffffff !important; }
+    .front-accent-pill {
+        white-space: nowrap !important; min-width: 90px !important; height: 46px !important;
+        padding: 0 20px !important; border-radius: 999px !important; background: #f7941d !important;
+        color: #ffffff !important; border: none !important; font-size: 13px !important;
+        font-weight: 800 !important; text-decoration: none !important;
+        display: inline-flex !important; align-items: center !important; justify-content: center !important;
+    }
+
+    /* ============================
+       HERO
+    ============================ */
+    .front-hero-hotels {
+        background: linear-gradient(90deg, #14988f 0%, #39df74 100%) !important;
+        padding: 58px 20px 130px !important; text-align: center !important;
+    }
+    .front-hero-content h1 { margin: 0 0 14px !important; color: #ffffff !important; font-size: 64px !important; font-weight: 800 !important; }
+    .front-hero-content p  { margin: 0 !important; color: rgba(255,255,255,0.96) !important; font-size: 20px !important; }
+
+    /* ============================
+       BOUTONS
+    ============================ */
+    .front-btn-primary {
+        min-width: 120px !important; height: 50px !important; border: none !important;
+        padding: 0 24px !important; background: #f7941d !important; color: #ffffff !important;
+        font-size: 15px !important; font-weight: 800 !important; border-radius: 999px !important;
+        cursor: pointer !important; display: inline-flex !important; align-items: center !important;
+        justify-content: center !important; text-decoration: none !important; transition: 0.2s ease !important;
+    }
+    .front-btn-primary:hover { background: #e0820a !important; }
+    .front-btn-outline {
+        min-width: 100px !important; height: 50px !important; padding: 0 24px !important;
+        border: 2px solid #1a3a5c !important; background: transparent !important; color: #1a3a5c !important;
+        font-size: 15px !important; font-weight: 800 !important; border-radius: 999px !important;
+        cursor: pointer !important; display: inline-flex !important; align-items: center !important;
+        justify-content: center !important; text-decoration: none !important; transition: 0.2s ease !important;
+    }
+    .front-btn-outline:hover { background: #1a3a5c !important; color: #ffffff !important; }
+
+    /* ============================
+       CONTENU PRINCIPAL
+    ============================ */
+    .history-shell {
+        width: calc(100% - 60px);
+        max-width: 1400px;
+        margin: -65px auto 56px;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* ============================
+       CARTE RÉSERVATION
+    ============================ */
+    .resa-card {
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        padding: 28px;
+        margin-bottom: 24px;
+        transition: box-shadow 0.2s ease;
+    }
+    .resa-card:hover { box-shadow: 0 14px 32px rgba(0,0,0,0.12); }
+
+    .resa-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+    }
+    .resa-hotel-name {
+        margin: 0 0 8px;
+        color: #1a3a5c;
+        font-size: 28px;
+        font-weight: 800;
+    }
+    .resa-client-name {
+        color: #868e96;
+        font-size: 16px;
+    }
+
+    .resa-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+    }
+    .resa-tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        padding: 0 14px;
+        border-radius: 999px;
+        background: rgba(26,58,92,0.08);
+        color: #1a3a5c;
+        font-size: 13px;
+        font-weight: 700;
+    }
+    .resa-tag-status-confirmed { background: rgba(31,122,57,0.12); color: #1f7a39; }
+    .resa-tag-status-pending   { background: rgba(247,148,29,0.14); color: #b86800; }
+    .resa-tag-status-cancelled { background: rgba(231,76,60,0.12);  color: #b42318; }
+
+    .resa-details-grid {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 10px 18px;
+    }
+    .resa-details-label { color: #1a3a5c; font-weight: 800; font-size: 14px; }
+    .resa-details-value { color: #445b73; font-size: 14px; }
+
+    .resa-total {
+        color: #f7941d;
+        font-size: 32px;
+        font-weight: 800;
+    }
+
+    .resa-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 22px;
+        padding-top: 18px;
+        border-top: 1px solid #eef2f7;
+    }
+
+    .btn-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s ease;
+        text-decoration: none;
+    }
+    .btn-icon-edit  { background: rgba(247,148,29,0.12); color: #f7941d; }
+    .btn-icon-edit:hover  { background: #f7941d; color: #ffffff; }
+    .btn-icon-delete { background: rgba(231,76,60,0.12); color: #e74c3c; }
+    .btn-icon-delete:hover { background: #e74c3c; color: #ffffff; }
+
+    /* ============================
+       ÉTAT VIDE
+    ============================ */
+    .front-empty-state {
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        padding: 56px 42px;
+        text-align: center;
+        color: #868e96;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    /* ============================
+       MODAL SUPPRESSION
+    ============================ */
+    body.modal-open { overflow: hidden; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="front-hotels-shell" id="reservationHistoryPage">
+
+    <header class="front-navbar">
+        <div class="front-navbar-inner">
+            <a href="{{ path('app_hebergement_front') }}" class="front-brand">
+                <img src="{{ asset('images/Explora.png') }}" alt="Explora" class="front-brand-logo">
+            </a>
+            <nav class="front-center-nav">
+                <a href="#" class="front-nav-pill">Home</a>
+                <a href="#" class="front-nav-pill">Voyages</a>
+                <a href="#" class="front-nav-pill">Transport</a>
+                <a href="{{ path('app_hebergement_front') }}" class="front-nav-pill">Hotels</a>
+            </nav>
+            <div class="front-right-nav">
+                <a href="{{ path('app_hebergement_index') }}" class="front-outline-pill">Dashboard</a>
+                <a href="{{ path('app_reservation_history') }}" class="front-outline-pill front-nav-pill-active">History</a>
+                <a href="#" class="front-accent-pill">Profile</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="front-hero-hotels">
+        <div class="front-hero-content">
+            <h1>Reservation History</h1>
+            <p>All your latest bookings in one place</p>
+        </div>
+    </section>
+
+    <div class="history-shell">
+
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div style="margin-bottom:18px;padding:14px 16px;border-radius:14px;font-weight:700;background:{{ label == 'success' ? '#e9f8ee' : '#fdeceb' }};color:{{ label == 'success' ? '#1f7a39' : '#b42318' }};border:1px solid {{ label == 'success' ? '#b7e4c7' : '#f5c2c7' }};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {% if reservations is empty %}
+            <div class="front-empty-state">
+                <div style="font-size:48px;margin-bottom:16px;">🏨</div>
+                No reservations found yet.
+            </div>
+        {% else %}
+            {% for reservation in reservations %}
+                <article class="resa-card">
+
+                    <div class="resa-header">
+                        {# Colonne gauche : nom + client + tags #}
+                        <div style="flex:1;min-width:280px;">
+                            <h2 class="resa-hotel-name">
+                                {{ reservation.hebergement ? reservation.hebergement.nom : 'Unknown hotel' }}
+                            </h2>
+                            <div class="resa-client-name">Client: {{ reservation.nomClient }}</div>
+
+                            <div class="resa-tags">
+                                {% set statusClass = 'resa-tag' %}
+                                {% if reservation.statut == 'CONFIRMED' %}{% set statusClass = 'resa-tag resa-tag-status-confirmed' %}
+                                {% elseif reservation.statut == 'PENDING' %}{% set statusClass = 'resa-tag resa-tag-status-pending' %}
+                                {% elseif reservation.statut == 'CANCELLED' %}{% set statusClass = 'resa-tag resa-tag-status-cancelled' %}
+                                {% endif %}
+                                <span class="{{ statusClass }}">{{ reservation.statut }}</span>
+                                <span class="resa-tag">{{ reservation.guestsCount }} guest{{ reservation.guestsCount > 1 ? 's' : '' }}</span>
+                                <span class="resa-tag">{{ reservation.roomsCount }} room{{ reservation.roomsCount > 1 ? 's' : '' }}</span>
+                                <span class="resa-tag">{{ reservation.occupancy == 'SINGLE' ? 'Single' : 'Double' }}</span>
+                                <span class="resa-tag">{{ reservation.roomType ?: 'Standard' }}</span>
+                            </div>
+                        </div>
+
+                        {# Colonne droite : grille de détails + total #}
+                        <div style="min-width:300px;flex:1;">
+                            <div class="resa-details-grid">
+                                <div class="resa-details-label">Check-in</div>
+                                <div class="resa-details-value">{{ reservation.dateCheckin ? reservation.dateCheckin|date('d/m/Y') : '-' }}</div>
+
+                                <div class="resa-details-label">Check-out</div>
+                                <div class="resa-details-value">{{ reservation.dateCheckout ? reservation.dateCheckout|date('d/m/Y') : '-' }}</div>
+
+                                <div class="resa-details-label">Booked on</div>
+                                <div class="resa-details-value">{{ reservation.dateReservation ? reservation.dateReservation|date('d/m/Y H:i') : '-' }}</div>
+
+                                <div class="resa-details-label">Email</div>
+                                <div class="resa-details-value">{{ reservation.emailClient ?: '-' }}</div>
+
+                                <div class="resa-details-label">Total</div>
+                                <div class="resa-total">
+                                    ${{ reservation.prixTotal is not null ? reservation.prixTotal|number_format(1, '.', '') : '0.0' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Actions #}
+                    <div class="resa-actions">
+                        <a href="{{ path('app_reservation_edit', {'id': reservation.id}) }}"
+                           class="btn-icon btn-icon-edit" title="Edit reservation">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-9.5 9.5L3 14l.646-3.354 9.5-9.5zM11.207 2 4 9.207V10h.793L12 2.793 11.207 2z"/>
+                            </svg>
+                        </a>
+
+                        <form method="post" action="{{ path('app_reservation_delete', {'id': reservation.id}) }}"
+                              class="js-delete-form" style="margin:0;"
+                              data-reservation-name="{{ reservation.hebergement ? reservation.hebergement.nom|e('html_attr') : 'this reservation' }}"
+                              data-client-name="{{ reservation.nomClient|e('html_attr') }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_reservation_' ~ reservation.id) }}">
+                            <button type="button" class="btn-icon btn-icon-delete js-open-delete-modal" title="Delete reservation">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0A.5.5 0 0 1 8.5 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1 0-2H5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1h2.5a1 1 0 0 1 1 1zM6 1v1h4V1H6zm-2 3v9a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4H4z"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </article>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+{# ==================== DELETE MODAL ==================== #}
+<div id="deleteReservationModal" aria-hidden="true"
+     style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:rgba(25,33,45,0.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:999999;align-items:center;justify-content:center;padding:24px;">
+    <div onclick="event.stopPropagation();"
+         style="width:100%;max-width:520px;background:#ffffff;border-radius:28px;box-shadow:0 26px 60px rgba(0,0,0,0.22);padding:32px 28px 26px;position:relative;">
+
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+            <div style="width:54px;height:54px;border-radius:16px;background:rgba(231,76,60,0.12);color:#e74c3c;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:26px;">🗑</div>
+            <div>
+                <h3 style="margin:0;color:#1a3a5c;font-size:24px;font-weight:800;">Delete reservation</h3>
+                <p style="margin:6px 0 0;color:#868e96;font-size:15px;">This action cannot be undone.</p>
+            </div>
+        </div>
+
+        <div id="deleteReservationMessage"
+             style="background:#f8f9fb;border:1px solid #e4e9f0;color:#33465e;border-radius:18px;padding:18px;font-size:15px;line-height:1.55;margin-bottom:24px;">
+            Are you sure you want to delete this reservation?
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:14px;flex-wrap:wrap;">
+            <button type="button" id="deleteReservationCancelBtn" class="front-btn-outline">Cancel</button>
+            <button type="button" id="deleteReservationConfirmBtn"
+                    style="min-width:140px;height:50px;border:none;border-radius:999px;background:#e74c3c;color:#ffffff;font-size:15px;font-weight:800;cursor:pointer;padding:0 24px;box-shadow:0 8px 18px rgba(231,76,60,0.22);display:inline-flex;align-items:center;justify-content:center;">
+                Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal      = document.getElementById('deleteReservationModal');
+    const page       = document.getElementById('reservationHistoryPage');
+    const messageBox = document.getElementById('deleteReservationMessage');
+    const cancelBtn  = document.getElementById('deleteReservationCancelBtn');
+    const confirmBtn = document.getElementById('deleteReservationConfirmBtn');
+    const openBtns   = document.querySelectorAll('.js-open-delete-modal');
+
+    let activeForm = null;
+
+    if (!modal || !page || !messageBox || !cancelBtn || !confirmBtn || !openBtns.length) return;
+
+    function openModal(form) {
+        activeForm = form;
+        const name   = form.dataset.reservationName || 'this reservation';
+        const client = form.dataset.clientName || 'this client';
+        messageBox.innerHTML = 'Are you sure you want to delete the reservation for <strong style="color:#1a3a5c;">'
+            + client + '</strong> at <strong style="color:#1a3a5c;">' + name + '</strong>?';
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+        page.style.filter       = 'blur(6px)';
+        page.style.pointerEvents= 'none';
+        page.style.userSelect   = 'none';
+        document.body.classList.add('modal-open');
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        page.style.filter       = '';
+        page.style.pointerEvents= '';
+        page.style.userSelect   = '';
+        document.body.classList.remove('modal-open');
+        activeForm = null;
+    }
+
+    openBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const form = this.closest('form');
+            if (form) openModal(form);
+        });
+    });
+
+    cancelBtn.addEventListener('click', closeModal);
+    confirmBtn.addEventListener('click', function () { if (activeForm) activeForm.submit(); });
+    modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.style.display === 'flex') closeModal(); });
+});
+</script>
+{% endblock %}
