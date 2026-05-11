@@ -31,7 +31,7 @@ RUN echo "APP_ENV=prod" > .env && \
     echo "APP_SECRET=changeme" >> .env && \
     echo "DATABASE_URL=mysql://root:aytjNfJIJBbxxPtkUCGQaQcYDmHOpQlX@mysql.railway.internal:3306/railway" >> .env
 
-RUN rm -rf var/cache/* && php bin/console cache:warmup --env=prod || true
+RUN rm -rf var/cache/* && php bin/console cache:clear --no-warmup --env=prod || true
 
 EXPOSE 8000
 
