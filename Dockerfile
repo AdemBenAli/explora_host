@@ -8,7 +8,8 @@ RUN composer install \
     --optimize-autoloader \
     --no-interaction \
     --no-progress \
-    --no-scripts
+    --no-scripts \
+    --ignore-platform-reqs
 
 FROM php:8.2-cli
 
