@@ -26,6 +26,11 @@ COPY --from=vendor /app/vendor ./vendor
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
 
+RUN echo "APP_ENV=prod" > .env && \
+    echo "APP_DEBUG=0" >> .env && \
+    echo "APP_SECRET=changeme" >> .env && \
+    echo "DATABASE_URL=mysql://root:aytjNfJIJBbxxPtkUCGQaQcYDmHOpQlX@mysql.railway.internal:3306/railway" >> .env
+
 RUN php bin/console cache:clear --env=prod || true
 
 EXPOSE 8000
