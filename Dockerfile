@@ -14,8 +14,8 @@ RUN composer install \
 FROM php:8.2-cli
 
 RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip curl git libonig-dev \
-    && docker-php-ext-install pdo pdo_mysql bcmath zip mbstring \
+    libzip-dev zip unzip curl git libonig-dev libicu-dev \
+    && docker-php-ext-install pdo pdo_mysql bcmath zip mbstring intl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html

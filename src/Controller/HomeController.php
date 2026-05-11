@@ -21,10 +21,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class HomeController extends AbstractController
 {
-    #[Route('/', name: 'app_home', priority: 100)]
+    #[Route('/', name: 'app_home')]
     public function index(): Response
     {
-        return $this->redirectToRoute('app_login');
+        return $this->render('home/index.html.twig');
     }
 
     #[Route('/traveler-dashboard', name: 'app_traveler_dashboard')]
