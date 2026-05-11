@@ -10,8 +10,7 @@ WORKDIR /var/www/html
 
 COPY . .
 
-RUN composer install --optimize-autoloader --no-scripts --no-interaction
-
+RUN composer install --optimize-autoloader --no-scripts --no-interaction --no-dev
 ENV APP_ENV=prod
 
 RUN php bin/console cache:clear --env=prod || true
