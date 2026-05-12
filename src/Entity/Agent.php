@@ -110,7 +110,7 @@ class Agent
     #[ORM\GeneratedValue(strategy: 'NONE')]
     private ?int $id = null;
 
-    public function getAdresseAgence(): string
+    public function getAdresseAgence(): ?string
     {
         return $this->adresseAgence;
     }
@@ -198,7 +198,7 @@ class Agent
         return $this;
     }
 
-    public function getDocJustificatifAdresseUrl(): string
+    public function getDocJustificatifAdresseUrl(): ?string
     {
         return $this->docJustificatifAdresseUrl;
     }
@@ -209,7 +209,7 @@ class Agent
         return $this;
     }
 
-    public function getDocLicenceAgenceUrl(): string
+    public function getDocLicenceAgenceUrl(): ?string
     {
         return $this->docLicenceAgenceUrl;
     }
@@ -220,7 +220,7 @@ class Agent
         return $this;
     }
 
-    public function getDocMatriculeFiscalUrl(): string
+    public function getDocMatriculeFiscalUrl(): ?string
     {
         return $this->docMatriculeFiscalUrl;
     }
@@ -231,7 +231,7 @@ class Agent
         return $this;
     }
 
-    public function getDocPieceIdentiteRectoUrl(): string
+    public function getDocPieceIdentiteRectoUrl(): ?string
     {
         return $this->docPieceIdentiteRectoUrl;
     }
@@ -242,7 +242,7 @@ class Agent
         return $this;
     }
 
-    public function getDocPieceIdentiteVersoUrl(): string
+    public function getDocPieceIdentiteVersoUrl(): ?string
     {
         return $this->docPieceIdentiteVersoUrl;
     }
@@ -253,7 +253,7 @@ class Agent
         return $this;
     }
 
-    public function getDocRegistreCommerceUrl(): string
+    public function getDocRegistreCommerceUrl(): ?string
     {
         return $this->docRegistreCommerceUrl;
     }
@@ -264,7 +264,7 @@ class Agent
         return $this;
     }
 
-    public function getDocRibOuReleveBancaireUrl(): string
+    public function getDocRibOuReleveBancaireUrl(): ?string
     {
         return $this->docRibOuReleveBancaireUrl;
     }
@@ -275,7 +275,7 @@ class Agent
         return $this;
     }
 
-    public function getEmailAgence(): string
+    public function getEmailAgence(): ?string
     {
         return $this->emailAgence;
     }
@@ -286,7 +286,7 @@ class Agent
         return $this;
     }
 
-    public function getEstSuspendu(): string
+    public function getEstSuspendu(): ?string
     {
         return $this->estSuspendu;
     }
@@ -308,7 +308,7 @@ class Agent
         return $this;
     }
 
-    public function getNomAgence(): string
+    public function getNomAgence(): ?string
     {
         return $this->nomAgence;
     }
@@ -319,7 +319,7 @@ class Agent
         return $this;
     }
 
-    public function getNomLegalAgence(): string
+    public function getNomLegalAgence(): ?string
     {
         return $this->nomLegalAgence;
     }
@@ -341,7 +341,7 @@ class Agent
         return $this;
     }
 
-    public function getNumeroFiscal(): string
+    public function getNumeroFiscal(): ?string
     {
         return $this->numeroFiscal;
     }
@@ -352,7 +352,7 @@ class Agent
         return $this;
     }
 
-    public function getNumeroLicenceAgence(): string
+    public function getNumeroLicenceAgence(): ?string
     {
         return $this->numeroLicenceAgence;
     }
@@ -363,7 +363,7 @@ class Agent
         return $this;
     }
 
-    public function getNumeroRegistreCommerce(): string
+    public function getNumeroRegistreCommerce(): ?string
     {
         return $this->numeroRegistreCommerce;
     }
@@ -374,7 +374,7 @@ class Agent
         return $this;
     }
 
-    public function getPaysAgence(): string
+    public function getPaysAgence(): ?string
     {
         return $this->paysAgence;
     }
@@ -418,7 +418,7 @@ class Agent
         return $this;
     }
 
-    public function getStatutVerification(): string
+    public function getStatutVerification(): ?string
     {
         return $this->statutVerification;
     }
@@ -429,7 +429,7 @@ class Agent
         return $this;
     }
 
-    public function getTelephoneAgence(): string
+    public function getTelephoneAgence(): ?string
     {
         return $this->telephoneAgence;
     }
@@ -451,7 +451,7 @@ class Agent
         return $this;
     }
 
-    public function getVilleAgence(): string
+    public function getVilleAgence(): ?string
     {
         return $this->villeAgence;
     }

@@ -3,13 +3,13 @@
     <div class="modal-section">
         <div class="modal-section-title">Agency Information</div>
         <div class="modal-grid">
-            <div class="modal-field"><label>Agency Name</label><span>{{ agent.nomAgence }}</span></div>
-            <div class="modal-field"><label>Legal Name</label><span>{{ agent.nomLegalAgence }}</span></div>
-            <div class="modal-field"><label>Email</label><span>{{ agent.emailAgence }}</span></div>
-            <div class="modal-field"><label>Phone</label><span>{{ agent.telephoneAgence }}</span></div>
-            <div class="modal-field"><label>Country</label><span>{{ agent.paysAgence }}</span></div>
-            <div class="modal-field"><label>City</label><span>{{ agent.villeAgence }}</span></div>
-            <div class="modal-field"><label>Address</label><span>{{ agent.adresseAgence }}</span></div>
+            <div class="modal-field"><label>Agency Name</label><span>{{ agent.nomAgence|default('-') }}</span></div>
+            <div class="modal-field"><label>Legal Name</label><span>{{ agent.nomLegalAgence|default('-') }}</span></div>
+            <div class="modal-field"><label>Email</label><span>{{ agent.emailAgence|default('-') }}</span></div>
+            <div class="modal-field"><label>Phone</label><span>{{ agent.telephoneAgence|default('-') }}</span></div>
+            <div class="modal-field"><label>Country</label><span>{{ agent.paysAgence|default('-') }}</span></div>
+            <div class="modal-field"><label>City</label><span>{{ agent.villeAgence|default('-') }}</span></div>
+            <div class="modal-field"><label>Address</label><span>{{ agent.adresseAgence|default('-') }}</span></div>
             {% if agent.siteWebUrl %}<div class="modal-field"><label>Website</label><span>{{ agent.siteWebUrl }}</span></div>{% endif %}
             {% if agent.descriptionAgence %}<div class="modal-field" style="grid-column:span 2"><label>Description</label><span>{{ agent.descriptionAgence }}</span></div>{% endif %}
         </div>
@@ -262,17 +262,17 @@
                 {% for agent in pending %}
                 <div class="agency-card">
                     <div class="card-top">
-                        <div class="agency-avatar">{{ agent.nomAgence|first|upper }}</div>
+                        <div class="agency-avatar">{{ (agent.nomAgence|default('A'))|first|upper }}</div>
                         <div class="card-info">
-                            <div class="agency-name">{{ agent.nomAgence }}</div>
-                            <div class="agency-legal">{{ agent.nomLegalAgence }}</div>
+                            <div class="agency-name">{{ agent.nomAgence|default('-') }}</div>
+                            <div class="agency-legal">{{ agent.nomLegalAgence|default('-') }}</div>
                         </div>
                         <span class="status-badge badge-pending"><i class="fa-regular fa-clock"></i> Pending</span>
                     </div>
                     <div class="card-meta">
-                        <div class="meta-item"><i class="fa-solid fa-envelope"></i> {{ agent.emailAgence }}</div>
-                        <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ agent.telephoneAgence }}</div>
-                        <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ agent.villeAgence }}, {{ agent.paysAgence }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-envelope"></i> {{ agent.emailAgence|default('-') }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ agent.telephoneAgence|default('-') }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ agent.villeAgence|default('-') }}, {{ agent.paysAgence|default('-') }}</div>
                         <div class="meta-item"><i class="fa-regular fa-calendar"></i> {{ agent.dateSoumission ? agent.dateSoumission|date('d M Y') : '-' }}</div>
                     </div>
                     <div class="card-actions">
@@ -285,7 +285,7 @@
                 <div class="modal-overlay" id="modal-p-{{ agent.id }}" onclick="closeModalOutside(event, 'modal-p-{{ agent.id }}')">
                     <div class="modal">
                         <div class="modal-header">
-                            <h3><i class="fa-solid fa-building" style="color:#e53935;margin-right:8px;"></i>{{ agent.nomAgence }}</h3>
+                            <h3><i class="fa-solid fa-building" style="color:#e53935;margin-right:8px;"></i>{{ agent.nomAgence|default('-') }}</h3>
                             <button class="modal-close" onclick="closeModal('modal-p-{{ agent.id }}')">✕</button>
                         </div>
                         {{ _self.agentModalBody(agent) }}
@@ -304,17 +304,17 @@
                 {% for agent in inReview %}
                 <div class="agency-card">
                     <div class="card-top">
-                        <div class="agency-avatar">{{ agent.nomAgence|first|upper }}</div>
+                        <div class="agency-avatar">{{ (agent.nomAgence|default('A'))|first|upper }}</div>
                         <div class="card-info">
-                            <div class="agency-name">{{ agent.nomAgence }}</div>
-                            <div class="agency-legal">{{ agent.nomLegalAgence }}</div>
+                            <div class="agency-name">{{ agent.nomAgence|default('-') }}</div>
+                            <div class="agency-legal">{{ agent.nomLegalAgence|default('-') }}</div>
                         </div>
                         <span class="status-badge badge-review"><i class="fa-solid fa-magnifying-glass"></i> Under Review</span>
                     </div>
                     <div class="card-meta">
-                        <div class="meta-item"><i class="fa-solid fa-envelope"></i> {{ agent.emailAgence }}</div>
-                        <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ agent.telephoneAgence }}</div>
-                        <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ agent.villeAgence }}, {{ agent.paysAgence }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-envelope"></i> {{ agent.emailAgence|default('-') }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ agent.telephoneAgence|default('-') }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ agent.villeAgence|default('-') }}, {{ agent.paysAgence|default('-') }}</div>
                         <div class="meta-item"><i class="fa-regular fa-calendar"></i> {{ agent.dateSoumission ? agent.dateSoumission|date('d M Y') : '-' }}</div>
                     </div>
                     <div class="card-actions">
@@ -331,7 +331,7 @@
                 <div class="modal-overlay" id="modal-r-{{ agent.id }}" onclick="closeModalOutside(event, 'modal-r-{{ agent.id }}')">
                     <div class="modal">
                         <div class="modal-header">
-                            <h3><i class="fa-solid fa-building" style="color:#e53935;margin-right:8px;"></i>{{ agent.nomAgence }}</h3>
+                            <h3><i class="fa-solid fa-building" style="color:#e53935;margin-right:8px;"></i>{{ agent.nomAgence|default('-') }}</h3>
                             <button class="modal-close" onclick="closeModal('modal-r-{{ agent.id }}')">✕</button>
                         </div>
                         {{ _self.agentModalBody(agent) }}
@@ -350,17 +350,17 @@
                 {% for agent in approved %}
                 <div class="agency-card">
                     <div class="card-top">
-                        <div class="agency-avatar">{{ agent.nomAgence|first|upper }}</div>
+                        <div class="agency-avatar">{{ (agent.nomAgence|default('A'))|first|upper }}</div>
                         <div class="card-info">
-                            <div class="agency-name">{{ agent.nomAgence }}</div>
-                            <div class="agency-legal">{{ agent.nomLegalAgence }}</div>
+                            <div class="agency-name">{{ agent.nomAgence|default('-') }}</div>
+                            <div class="agency-legal">{{ agent.nomLegalAgence|default('-') }}</div>
                         </div>
                         <span class="status-badge badge-approuve"><i class="fa-solid fa-circle-check"></i> Partner</span>
                     </div>
                     <div class="card-meta">
-                        <div class="meta-item"><i class="fa-solid fa-envelope"></i> {{ agent.emailAgence }}</div>
-                        <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ agent.telephoneAgence }}</div>
-                        <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ agent.villeAgence }}, {{ agent.paysAgence }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-envelope"></i> {{ agent.emailAgence|default('-') }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ agent.telephoneAgence|default('-') }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ agent.villeAgence|default('-') }}, {{ agent.paysAgence|default('-') }}</div>
                         <div class="meta-item"><i class="fa-regular fa-calendar-check"></i> {{ agent.dateValidation ? agent.dateValidation|date('d M Y') : '-' }}</div>
                     </div>
                     <div class="card-actions">
@@ -382,17 +382,17 @@
                 {% for agent in refused %}
                 <div class="agency-card">
                     <div class="card-top">
-                        <div class="agency-avatar">{{ agent.nomAgence|first|upper }}</div>
+                        <div class="agency-avatar">{{ (agent.nomAgence|default('A'))|first|upper }}</div>
                         <div class="card-info">
-                            <div class="agency-name">{{ agent.nomAgence }}</div>
-                            <div class="agency-legal">{{ agent.nomLegalAgence }}</div>
+                            <div class="agency-name">{{ agent.nomAgence|default('-') }}</div>
+                            <div class="agency-legal">{{ agent.nomLegalAgence|default('-') }}</div>
                         </div>
                         <span class="status-badge badge-refused"><i class="fa-solid fa-circle-xmark"></i> Refused</span>
                     </div>
                     <div class="card-meta">
-                        <div class="meta-item"><i class="fa-solid fa-envelope"></i> {{ agent.emailAgence }}</div>
-                        <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ agent.telephoneAgence }}</div>
-                        <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ agent.villeAgence }}, {{ agent.paysAgence }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-envelope"></i> {{ agent.emailAgence|default('-') }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-phone"></i> {{ agent.telephoneAgence|default('-') }}</div>
+                        <div class="meta-item"><i class="fa-solid fa-location-dot"></i> {{ agent.villeAgence|default('-') }}, {{ agent.paysAgence|default('-') }}</div>
                         <div class="meta-item"><i class="fa-regular fa-calendar"></i> {{ agent.dateSoumission ? agent.dateSoumission|date('d M Y') : '-' }}</div>
                     </div>
                     <div class="card-actions">
