@@ -243,21 +243,44 @@ class HomeController extends AbstractController
     #[Route('/profile/avatar/dicebear', name: 'app_profile_dicebear', methods: ['POST'])]
     public function saveDicebearAvatar(Request $request, UtilisateurRepository $repo, EntityManagerInterface $em): JsonResponse
     {
-        $userId = $request->getSession()->get('user_id');
-        if (!$userId) return $this->json(['error' => 'Not logged in'], 401);
+        try {
+            $userId = $request->getSession()->get('user_id');
+            if (!$userId) {
+                return $this->json(['error' => 'Not logged in'], 401);
+            }
 
-        $url = $request->request->get('url', '');
-        if (!str_starts_with($url, 'https://api.dicebear.com/')) {
-            return $this->json(['error' => 'Invalid avatar URL'], 400);
+            $url = $request->request->get('url', '');
+            if (!is_string($url) || !str_starts_with($url, 'https://api.dicebear.com/')) {
+                return $this->json(['error' => 'Invalid avatar URL'], 400);
+            }
+
+            $user = $repo->find($userId);
+            if ($user) {
+                // Use a direct SQL update to avoid flushing other entity changes
+                // which may fail due to DB/ORM mapping inconsistencies (e.g. estVerifie type).
+                $conn = $em->getConnection();
+                $conn->executeStatement('UPDATE `utilisateur` SET photoDeProfil = ? WHERE id = ?', [$url, $userId]);
+                // reflect change in the in-memory entity for consistency
+                $user->setPhotoDeProfil($url);
+            } else {
+                return $this->json(['error' => 'User not found'], 404);
+            }
+
+            return $this->json(['status' => 'done', 'url' => $url]);
+        } catch (\Throwable $e) {
+            // Log the exception to a local file for debugging
+            try {
+                $logDir = $this->getParameter('kernel.project_dir') . '/var/log';
+                if (!is_dir($logDir)) @mkdir($logDir, 0777, true);
+                $msg = sprintf("[%s] Avatar save error: %s in %s:%d\n", (new \DateTime())->format('c'), $e->getMessage(), $e->getFile(), $e->getLine());
+                @file_put_contents($logDir . '/avatar_errors.log', $msg, FILE_APPEND);
+            } catch (\Throwable $ignore) {
+                // ignore logging failures
+            }
+
+            // Return error details to the client (development aid)
+            return $this->json(['error' => 'Server error while saving avatar', 'detail' => $e->getMessage()], 500);
         }
-
-        $user = $repo->find($userId);
-        if ($user) {
-            $user->setPhotoDeProfil($url);
-            $em->flush();
-        }
-
-        return $this->json(['status' => 'done', 'url' => $url]);
     }
 
     #[Route('/admin/partnerships/{id}/analyse', name: 'app_admin_partnership_analyse', methods: ['POST'])]

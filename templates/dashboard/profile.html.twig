@@ -557,19 +557,25 @@
         var fd = new FormData();
         fd.append('url', selectedDiceUrl);
         fetch('{{ path("app_profile_dicebear") }}', { method: 'POST', body: fd })
-        .then(r => r.json())
+        .then(r => {
+            const ct = (r.headers.get('content-type') || '');
+            if (!ct.includes('application/json')) {
+                return r.text().then(t => { throw new Error('Invalid JSON response: ' + t.slice(0, 200)); });
+            }
+            return r.json();
+        })
         .then(data => {
-            if (data.status === 'done') {
+            if (data && data.status === 'done') {
                 document.getElementById('avatar-preview').src = selectedDiceUrl;
                 document.getElementById('dicebear-modal').classList.remove('open');
             } else {
-                alert('Error: ' + (data.error || 'Unknown'));
+                alert('Error: ' + (data && data.error ? data.error : 'Unknown'));
             }
             btn.disabled = false;
             btn.innerHTML = '<i class="fa-solid fa-check"></i> Apply Avatar';
         })
         .catch(err => {
-            alert('Request failed: ' + err);
+            alert('Request failed: ' + (err && err.message ? err.message : err));
             btn.disabled = false;
             btn.innerHTML = '<i class="fa-solid fa-check"></i> Apply Avatar';
         });
