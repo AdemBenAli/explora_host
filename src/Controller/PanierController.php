@@ -527,27 +527,53 @@ class PanierController extends AbstractController
             $name = 'Item';
             $location = '';
             $icon = '📦';
+            $image = null;
 
             if ($type === 'HEBERGEMENT') {
                 $h = $hebergements[$produitId] ?? null;
                 $name = $h ? $h->getNom() : 'Hebergement #' . $produitId;
                 $location = $h ? ($h->getLocalisation() ?? '') : '';
                 $icon = '🏨';
+                if ($h) {
+                    $image = $h->getImagePath() ?: $h->getImage();
+                    if ($image) {
+                        // ensure relative path starts with '/'
+                        if (strpos($image, '/') !== 0 && strpos($image, 'http') !== 0) {
+                            $image = '/'.$image;
+                        }
+                    }
+                }
             } elseif ($type === 'TRANSPORT') {
                 $t = $transports[$produitId] ?? null;
                 $name = $t ? ($t->getOrigine() . ' → ' . $t->getDestination()) : 'Transport #' . $produitId;
                 $location = $t ? ($t->getCompagnie() ?? '') : '';
                 $icon = '✈';
+                if ($t) {
+                    // transports may have an imageUrl or imageTraficUrl
+                    $image = $t->getImageUrl() ?: $t->getImageTraficUrl();
+                }
             } elseif ($type === 'VOYAGE') {
                 $v = $voyages[$produitId] ?? null;
                 $name = $v ? ($v->getNom() ?? 'Voyage') : 'Voyage #' . $produitId;
                 $location = $v ? ($v->getDestination() ?? '') : '';
                 $icon = '🌍';
+                if ($v) {
+                    $image = $v->getImageUrl();
+                    if ($image && strpos($image, '/') !== 0 && strpos($image, 'http') !== 0) {
+                        $image = '/'.$image;
+                    }
+                }
             } elseif ($type === 'ACTIVITE') {
                 $a = $activites[$produitId] ?? null;
                 $name = $a ? $a->getNom() : 'Activité #' . $produitId;
                 $location = $a ? ($a->getVille() . ' · ' . $a->getLieu()) : '';
                 $icon = '🎯';
+                if ($a) {
+                    $image = $a->getImage();
+                    if ($image && strpos($image, '/') !== 0 && strpos($image, 'http') !== 0) {
+                        $image = '/'.$image;
+                    }
+                }
             }
 
             $cartItems[] = [
@@ -556,6 +582,7 @@ class PanierController extends AbstractController
                 'location' => $location,
                 'typeProduit' => $type,
                 'icon' => $icon,
+                'image' => $image,
                 'quantity' => (int) ($item->getQuantite() ?? 1),
                 'pricePerPerson' => (float) ($item->getPrixUnitaire() ?? 0),
             ];

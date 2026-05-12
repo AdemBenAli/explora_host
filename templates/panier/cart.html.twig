@@ -48,6 +48,7 @@
         justify-content: center;
         flex-shrink: 0;
     }
+    .item-banner img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
     .item-banner .type-icon { font-size: 32px; }
     .item-banner .type-label { font-size: 11px; font-weight: bold; color: white; letter-spacing: 1px; margin-top: 4px; }
 
@@ -251,8 +252,12 @@
             {% for item in cartItems %}
             <div class="cart-item-card" id="cart-item-{{ item.id }}">
                 <div class="item-banner banner-{{ item.typeProduit|lower }}">
-                    <span class="type-icon">{{ item.icon }}</span>
-                    <span class="type-label">{{ item.typeProduit }}</span>
+                    {% if item.image %}
+                        <img src="{{ item.image }}" alt="{{ item.name }}">
+                    {% else %}
+                        <span class="type-icon">{{ item.icon }}</span>
+                        <span class="type-label">{{ item.typeProduit }}</span>
+                    {% endif %}
                 </div>
                 <div class="item-info">
                     <h3>{{ item.name }}</h3>
