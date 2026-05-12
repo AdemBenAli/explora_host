@@ -7,6 +7,7 @@ parameters:
     app.default_locale: 'fr'
     app.supported_locales: ['fr', 'en', 'ar']
     app.supported_currencies: ['TND', 'EUR', 'USD', 'GBP', 'JPY']
+    images_directory: '%kernel.project_dir%/public/uploads/activites'
 
 services:
     # default configuration for services in *this* file
